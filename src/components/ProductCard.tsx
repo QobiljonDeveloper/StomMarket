@@ -87,18 +87,18 @@ export function ProductCard({ product }: ProductCardProps) {
                             >
                                 <button
                                     onClick={() => updateQuantity(product.id, Math.max(0, quantity - 1))}
-                                    className="w-7 h-7 flex items-center justify-center bg-rose-50 hover:bg-rose-100 text-black rounded-md text-base cursor-pointer transition-colors active:scale-95 shrink-0"
+                                    className="w-7 h-7 flex items-center justify-center bg-rose-50 hover:bg-rose-100 text-black rounded-md transition-colors active:scale-95 shrink-0"
                                 >
                                     <Minus className="h-4 w-4" />
                                 </button>
 
-                                <span className="text-[10px] font-bold text-gray-900 px-1 truncate uppercase tracking-tighter">
+                                <span className="text-xs font-bold text-gray-900 px-1 truncate uppercase tracking-tighter">
                                     {quantity} dona
                                 </span>
 
                                 <button
                                     onClick={() => updateQuantity(product.id, quantity + 1)}
-                                    className="w-7 h-7 flex items-center justify-center bg-rose-50 hover:bg-rose-100 text-black rounded-md text-base cursor-pointer transition-colors active:scale-95 shrink-0"
+                                    className="w-7 h-7 flex items-center justify-center bg-rose-50 hover:bg-rose-100 text-black rounded-md transition-colors active:scale-95 shrink-0"
                                 >
                                     <Plus className="h-4 w-4" />
                                 </button>

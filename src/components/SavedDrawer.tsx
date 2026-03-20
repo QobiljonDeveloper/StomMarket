@@ -114,18 +114,18 @@ export function SavedDrawer({ open, onOpenChange }: SavedDrawerProps) {
                                                     >
                                                         <button
                                                             onClick={() => updateQuantity(item.id, Math.max(0, quantity - 1))}
-                                                            className="w-8 h-8 flex items-center justify-center bg-rose-50 hover:bg-rose-100 text-black rounded-lg text-lg cursor-pointer transition-colors active:scale-95"
+                                                            className="w-7 h-7 flex items-center justify-center bg-rose-50 hover:bg-rose-100 text-black rounded-md transition-colors active:scale-95 shrink-0"
                                                         >
                                                             <Minus className="h-4 w-4" />
                                                         </button>
 
-                                                        <span className="text-xs font-black text-slate-800 uppercase tracking-tighter">
+                                                        <span className="text-xs font-bold text-slate-900 uppercase tracking-tighter">
                                                             {quantity} dona
                                                         </span>
 
                                                         <button
                                                             onClick={() => updateQuantity(item.id, quantity + 1)}
-                                                            className="w-8 h-8 flex items-center justify-center bg-rose-50 hover:bg-rose-100 text-black rounded-lg text-lg cursor-pointer transition-colors active:scale-95"
+                                                            className="w-7 h-7 flex items-center justify-center bg-rose-50 hover:bg-rose-100 text-black rounded-md transition-colors active:scale-95 shrink-0"
                                                         >
                                                             <Plus className="h-4 w-4" />
                                                         </button>

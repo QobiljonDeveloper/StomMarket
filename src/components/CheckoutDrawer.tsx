@@ -196,7 +196,7 @@ export function CheckoutDrawer({ open, onOpenChange }: CheckoutDrawerProps) {
                                 <div className="space-y-2">
                                     <Textarea
                                         id="comment"
-                                        defaultValue="домофон ne работает"
+                                        defaultValue="домофон не работает"
                                         className="min-h-[120px] rounded-2xl border-slate-200 focus:ring-sky-500 bg-white text-slate-900 font-medium resize-none p-4"
                                     />
                                     <p className="text-[11px] text-slate-400 font-bold uppercase tracking-wider pl-1">Укажите информацию, которую считаете важной</p>
@@ -209,7 +209,7 @@ export function CheckoutDrawer({ open, onOpenChange }: CheckoutDrawerProps) {
                 <div className="p-8 border-t border-slate-50 mt-auto shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.03)] bg-white rounded-t-[3rem]">
                     <SheetFooter>
                         <Button
-                            className="w-full rounded-[2rem] h-16 text-lg font-black bg-sky-600 hover:bg-sky-700 shadow-xl shadow-sky-600/20 transition-all active:scale-95"
+                            className="w-full rounded-4xl h-16 text-lg font-black bg-sky-600 hover:bg-sky-700 shadow-xl shadow-sky-600/20 transition-all active:scale-95"
                             onClick={handleConfirm}
                         >
                             Buyurtmani tasdiqlash

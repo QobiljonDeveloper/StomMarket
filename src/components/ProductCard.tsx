@@ -1,67 +1,110 @@
-import type { Product } from "../types";
-import { Badge } from "./ui/badge";
+import { Heart, ShoppingCart, Minus, Plus } from "lucide-react";
 import { Button } from "./ui/button";
-import { ShoppingCart } from "lucide-react";
 import { useCart } from "../context/CartContext";
+import type { Product } from "../types";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ProductCardProps {
     product: Product;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-    const { addToCart } = useCart();
+    const {
+        addToCart,
+        toggleSaveProduct,
+        isProductSaved,
+        getItemQuantity,
+        updateQuantity
+    } = useCart();
+    const saved = isProductSaved(product.id);
+    const quantity = getItemQuantity(product.id);
 
     return (
-        <div className="group relative bg-white rounded-2xl border border-slate-100 p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/50 flex flex-col h-full overflow-hidden">
-
-            {/* Image Container */}
-            <div className="relative aspect-square mb-4 rounded-xl overflow-hidden bg-slate-50 flex items-center justify-center">
+        <div className="group flex flex-col bg-white p-3 rounded-xl border border-gray-100 relative hover:shadow-md transition-all duration-200 h-full">
+            {/* Image Area */}
+            <div className="relative w-full aspect-square bg-gray-50 rounded-lg overflow-hidden mb-2 shrink-0">
                 <img
                     src={product.image}
                     alt={product.name}
-                    className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
-                    loading="lazy"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
 
-                {/* Badges */}
-                <div className="absolute top-2 left-2 flex flex-col gap-1.5 items-start">
-                    {product.isNew && (
-                        <Badge className="bg-sky-500 hover:bg-sky-600 text-white text-[10px] px-2 py-0.5 rounded-sm border-none shadow-sm animate-in fade-in">Yangi</Badge>
-                    )}
-                    {product.status === "Bestseller" && (
-                        <Badge className="bg-amber-500 hover:bg-amber-600 text-white text-[10px] px-2 py-0.5 rounded-sm border-none shadow-sm">Top sotuv</Badge>
-                    )}
-                    {product.status === "Few left" && (
-                        <Badge variant="destructive" className="text-[10px] px-2 py-0.5 rounded-sm border-none shadow-sm">Oz qoldi</Badge>
-                    )}
-                </div>
+                {/* Heart Icon (Small, Gray, Transparent BG) */}
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        toggleSaveProduct(product);
+                    }}
+                    className="absolute top-2 right-2 z-10 p-1 transition-all duration-200 active:scale-90 outline-none"
+                >
+                    <Heart className={`w-5 h-5 transition-colors ${saved ? 'text-red-500 fill-red-500' : 'text-gray-400 hover:text-red-500'}`} />
+                </button>
             </div>
 
-            {/* Content */}
-            <div className="flex flex-col flex-grow">
-                <p className="text-xs font-medium text-slate-400 mb-1">{product.category}</p>
-                <h3 className="text-sm sm:text-base font-semibold text-slate-900 leading-tight mb-2 line-clamp-2 group-hover:text-sky-600 transition-colors">
+            {/* Typography Area */}
+            <div className="flex flex-col flex-1">
+                <h3 className="text-sm font-semibold text-gray-800 line-clamp-2 leading-snug min-h-[2.5rem]">
                     {product.name}
                 </h3>
 
-                <div className="mt-auto pt-4 flex items-center justify-between">
-                    <div className="flex flex-col">
-                        <span className="text-xs text-slate-500 line-through mb-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                            {product.priceValue * 1.15} UZS
-                        </span>
-                        <span className="text-base sm:text-lg font-bold text-green-600 tracking-tight">
-                            {product.price}
-                        </span>
-                    </div>
+                {product.variants && (
+                    <p className="text-[11px] text-gray-400 line-clamp-1 mt-1 font-medium">
+                        {product.variants}
+                    </p>
+                )}
 
-                    <Button
-                        size="icon"
-                        className="rounded-full bg-slate-900 hover:bg-sky-600 text-white shadow-md transition-colors shrink-0 group/btn"
-                        onClick={() => addToCart(product)}
-                        title="Savatga qo'shish"
-                    >
-                        <ShoppingCart className="h-4 w-4 group-hover/btn:scale-110 transition-transform" />
-                    </Button>
+                <span className="text-base font-bold text-gray-900 mt-auto pt-2 whitespace-nowrap">
+                    {product.price}
+                </span>
+
+                {/* Action Area (Compact Inline State, Fixed h-8) */}
+                <div className="mt-2 h-8">
+                    <AnimatePresence mode="wait" initial={false}>
+                        {quantity === 0 ? (
+                            <motion.div
+                                key="add-btn"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.15 }}
+                            >
+                                <Button
+                                    onClick={() => addToCart(product)}
+                                    className="h-8 w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-colors p-0"
+                                >
+                                    <ShoppingCart className="w-4 h-4" />
+                                </Button>
+                            </motion.div>
+                        ) : (
+                            <motion.div
+                                key="stepper"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.15 }}
+                                className="h-8 w-full border border-gray-200 rounded-lg flex items-center justify-between p-0.5 bg-white shadow-sm"
+                            >
+                                <button
+                                    onClick={() => updateQuantity(product.id, Math.max(0, quantity - 1))}
+                                    className="w-7 h-7 flex items-center justify-center bg-rose-50 hover:bg-rose-100 text-black rounded-md text-base cursor-pointer transition-colors active:scale-95 shrink-0"
+                                >
+                                    <Minus className="h-4 w-4" />
+                                </button>
+
+                                <span className="text-[10px] font-bold text-gray-900 px-1 truncate uppercase tracking-tighter">
+                                    {quantity} dona
+                                </span>
+
+                                <button
+                                    onClick={() => updateQuantity(product.id, quantity + 1)}
+                                    className="w-7 h-7 flex items-center justify-center bg-rose-50 hover:bg-rose-100 text-black rounded-md text-base cursor-pointer transition-colors active:scale-95 shrink-0"
+                                >
+                                    <Plus className="h-4 w-4" />
+                                </button>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
             </div>
         </div>

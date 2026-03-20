@@ -1,54 +1,109 @@
 import { useState } from "react";
-import { Search, ShoppingCart, Stethoscope } from "lucide-react";
+import { ShoppingCart, Heart, LayoutGrid, Syringe, Drill, Scissors, Wrench, Activity, ShieldCheck, MonitorSpeaker, Package, Search } from "lucide-react";
 import { Button } from "./ui/button";
-import { useCart } from "../context/CartContext";
+import { Input } from "./ui/input";
 import { CartDrawer } from "./CartDrawer";
+import { SavedDrawer } from "./SavedDrawer";
+import { ProfileDrawer } from "./ProfileDrawer";
 
-export function Navbar() {
-    const { cartCount } = useCart();
+interface NavbarProps {
+    selectedCategory: string;
+    onSelectCategory: (category: string) => void;
+}
+
+const CATEGORIES_DATA = [
+    { name: "Barchasi", icon: LayoutGrid },
+    { name: "Plombalar", icon: Syringe },
+    { name: "Nasadkalar", icon: Drill },
+    { name: "Jarrohlik", icon: Scissors },
+    { name: "Ortodontiya", icon: Wrench },
+    { name: "Endodontiya", icon: Activity },
+    { name: "Izolyatsiya", icon: ShieldCheck },
+    { name: "Uskunalar", icon: MonitorSpeaker },
+    { name: "Sarflov materiallari", icon: Package }
+];
+
+export function Navbar({ selectedCategory, onSelectCategory }: NavbarProps) {
     const [isCartOpen, setIsCartOpen] = useState(false);
+    const [isSavedOpen, setIsSavedOpen] = useState(false);
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
 
     return (
-        <>
-            <header className="sticky top-0 z-50 w-full border-b border-border bg-white/95 backdrop-blur-md shadow-sm">
-                <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-3 sm:gap-4">
-
-                    <div className="flex items-center gap-2 shrink-0">
-                        <a href="#" className="flex items-center gap-2 text-sky-600 font-bold text-xl cursor-pointer hover:opacity-90 transition-opacity">
-                            <Stethoscope className="h-6 w-6" />
-                            <span className="hidden sm:inline-block tracking-tight">StomMarket</span>
-                        </a>
+        <header className="sticky top-0 z-50 w-full bg-white flex flex-col shadow-sm">
+            {/* Top Tier: Search & Actions */}
+            <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-6">
+                <div className="flex-1 max-w-2xl relative">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                        <Search className="w-5 h-5" />
                     </div>
-
-                    <div className="flex-1 max-w-2xl mx-1 sm:mx-4 relative group">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Search className="h-4 w-4 text-slate-400 group-focus-within:text-sky-500 transition-colors" />
-                        </div>
-                        <input
-                            type="text"
-                            className="block w-full pl-9 sm:pl-10 pr-3 py-2 border border-slate-200 rounded-full leading-5 bg-slate-50 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 focus:bg-white transition-all text-sm sm:text-base outline-none"
-                            placeholder="Qidirish..."
-                        />
-                    </div>
-
-                    <div className="flex items-center shrink-0">
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            className="relative rounded-full border-slate-200 hover:border-sky-200 hover:bg-sky-50 transition-all group shrink-0"
-                            onClick={() => setIsCartOpen(true)}
-                        >
-                            <ShoppingCart className="h-5 w-5 text-slate-600 group-hover:text-sky-600 transition-colors" />
-                            {cartCount > 0 && (
-                                <span className="absolute -top-1.5 -right-1.5 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full animate-in zoom-in shadow-sm">
-                                    {cartCount}
-                                </span>
-                            )}
-                        </Button>
-                    </div>
+                    <Input
+                        placeholder="Mahsulot qidirish..."
+                        className="w-full h-11 pl-12 pr-4 rounded-xl bg-slate-50 border-none focus-visible:ring-2 focus-visible:ring-sky-500 transition-all font-medium text-slate-600"
+                    />
                 </div>
-            </header>
+
+                <div className="flex items-center gap-3 shrink-0">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-11 w-11 rounded-xl text-slate-500 hover:text-red-500 hover:bg-red-50 transition-all"
+                        onClick={() => setIsSavedOpen(true)}
+                    >
+                        <Heart className="h-6 w-6" />
+                        {/* NO BADGE */}
+                    </Button>
+
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-11 w-11 rounded-xl text-slate-500 hover:text-sky-600 hover:bg-sky-50 transition-all"
+                        onClick={() => setIsCartOpen(true)}
+                    >
+                        <ShoppingCart className="h-6 w-6" />
+                        {/* NO BADGE */}
+                    </Button>
+
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-11 w-11 rounded-xl border border-slate-100 p-0 overflow-hidden hover:border-sky-300 transition-all ml-1"
+                        onClick={() => setIsProfileOpen(true)}
+                    >
+                        <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-600 text-sm font-bold">
+                            MR
+                        </div>
+                    </Button>
+                </div>
+            </div>
+
+            {/* Bottom Tier: Categories */}
+            <div className="w-full border-t border-slate-50 overflow-x-auto scrollbar-hide py-2 shadow-[0_4px_10px_-4px_rgba(0,0,0,0.03)] bg-white">
+                <div className="container mx-auto px-4 flex items-center gap-2 min-w-max">
+                    {CATEGORIES_DATA.map((cat, idx) => {
+                        const isSelected = selectedCategory === cat.name;
+                        const Icon = cat.icon;
+
+                        return (
+                            <button
+                                key={idx}
+                                onClick={() => onSelectCategory(cat.name)}
+                                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl transition-all duration-200 whitespace-nowrap text-sm font-bold border-none outline-none ${isSelected
+                                    ? "bg-slate-100 text-slate-900"
+                                    : "bg-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50/50"
+                                    }`}
+                            >
+                                <Icon className={`w-4 h-4 ${isSelected ? "text-sky-600" : "text-slate-400"}`} />
+                                {cat.name}
+                                {/* NO BADGE */}
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
+
             <CartDrawer open={isCartOpen} onOpenChange={setIsCartOpen} />
-        </>
+            <SavedDrawer open={isSavedOpen} onOpenChange={setIsSavedOpen} />
+            <ProfileDrawer open={isProfileOpen} onOpenChange={setIsProfileOpen} />
+        </header>
     );
 }

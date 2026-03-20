@@ -7,6 +7,7 @@ export const products: Product[] = [
         price: "350 000 UZS",
         priceValue: 350000,
         category: "Plombalar",
+        variants: "Цвета: A1; A2-2; A3; B1; B2; OA2",
         status: "In Stock",
         isNew: true,
         image: "https://images.unsplash.com/photo-1606283627043-4ce4bf0a3597?w=500&q=80"
@@ -17,6 +18,7 @@ export const products: Product[] = [
         price: "680 000 UZS",
         priceValue: 680000,
         category: "Nasadkalar",
+        variants: "В упаковке: 10шт; 50шт; 100шт",
         status: "Bestseller",
         isNew: false,
         image: "https://images.unsplash.com/photo-1599861642953-27e1d51c0993?w=500&q=80"
@@ -56,7 +58,8 @@ export const products: Product[] = [
         name: "Nitril qo'lqoplar (100 dona, Qora/Binafsha)",
         price: "85 000 UZS",
         priceValue: 85000,
-        category: "Sarflov",
+        category: "Jarrohlik",
+        variants: "Размеры: XS; S; M; L; XL",
         status: "In Stock",
         isNew: false,
         image: "https://images.unsplash.com/photo-1584982751601-97dcc096659c?w=500&q=80"

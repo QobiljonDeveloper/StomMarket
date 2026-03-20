@@ -1,6 +1,6 @@
-import { createContext, useContext, useState, useEffect } from "react";
-import type { ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import type { Product, CartItem } from "../types";
+import { products } from "../data/mockData";
 
 interface CartContextType {
     cart: CartItem[];
@@ -8,6 +8,10 @@ interface CartContextType {
     removeFromCart: (productId: string) => void;
     updateQuantity: (productId: string, quantity: number) => void;
     clearCart: () => void;
+    toggleSaveProduct: (product: Product) => void;
+    isProductSaved: (productId: string) => boolean;
+    getItemQuantity: (productId: string) => number;
+    savedItems: Product[];
     cartTotal: number;
     cartCount: number;
 }
@@ -20,9 +24,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return savedCart ? JSON.parse(savedCart) : [];
     });
 
+    const [savedItems, setSavedItems] = useState<Product[]>(() => {
+        const saved = localStorage.getItem("savedItems");
+        if (saved) return JSON.parse(saved);
+        // Seed default saved item for "Sariq va qizil apekso-lokator" (id: "p1")
+        const allProducts = products; // products is available from mockData
+        const defaultSaved = allProducts.find((p: Product) => p.id === "p1");
+        return defaultSaved ? [defaultSaved] : [];
+    });
+
     useEffect(() => {
         localStorage.setItem("stom_cart", JSON.stringify(cart));
     }, [cart]);
+
+    useEffect(() => {
+        localStorage.setItem("stom_saved", JSON.stringify(savedItems));
+    }, [savedItems]);
 
     const addToCart = (product: Product) => {
         setCart((prevCart) => {
@@ -36,6 +53,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
             }
             return [...prevCart, { ...product, quantity: 1 }];
         });
+    };
+
+    const getItemQuantity = (productId: string) => {
+        const item = cart.find((item) => item.id === productId);
+        return item ? item.quantity : 0;
     };
 
     const removeFromCart = (productId: string) => {
@@ -63,6 +85,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
     const cartCount = cart.reduce((count, item) => count + item.quantity, 0);
 
+    const toggleSaveProduct = (product: Product) => {
+        setSavedItems((prev) => {
+            const isSaved = prev.some((item) => item.id === product.id);
+            if (isSaved) {
+                return prev.filter((item) => item.id !== product.id);
+            }
+            return [...prev, product];
+        });
+    };
+
+    const isProductSaved = (productId: string) => {
+        return savedItems.some((item) => item.id === productId);
+    };
+
     return (
         <CartContext.Provider
             value={{
@@ -71,8 +107,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
                 removeFromCart,
                 updateQuantity,
                 clearCart,
+                toggleSaveProduct,
+                isProductSaved,
+                savedItems,
                 cartTotal,
                 cartCount,
+                getItemQuantity,
             }}
         >
             {children}

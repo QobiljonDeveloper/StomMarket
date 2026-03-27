@@ -15,7 +15,7 @@ function App() {
 
   return (
     <CartProvider>
-      <div className="min-h-screen bg-[#0b1120] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(14,165,233,0.15),rgba(255,255,255,0))] font-sans text-slate-200 flex flex-col selection:bg-cyan-500/30 selection:text-cyan-50">
+      <div className="min-h-screen bg-[#0a1219] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(34,211,238,0.1),rgba(10,18,25,1))] font-sans text-slate-200 flex flex-col selection:bg-cyan-500/30 selection:text-cyan-50">
         <Navbar
           selectedCategory={selectedCategory}
           onSelectCategory={setSelectedCategory}

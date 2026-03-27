@@ -1,5 +1,17 @@
 @import "tailwindcss";
 
+@theme {
+    --font-sans: "Geist", sans-serif;
+}
+
+body {
+    background-color: #0a1219;
+    color: #f8fafc;
+    margin: 0;
+    font-family: 'Geist', -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
 @layer utilities {
     .scrollbar-hide::-webkit-scrollbar {
         display: none;

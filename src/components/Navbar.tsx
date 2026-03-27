@@ -32,16 +32,16 @@ export function Navbar({ selectedCategory, onSelectCategory }: NavbarProps) {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
 
     return (
-        <header className="sticky top-0 z-50 w-full bg-slate-950/70 backdrop-blur-2xl flex flex-col border-b border-white/5 shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
+        <header className="sticky top-0 z-50 w-full bg-[#0a1219]/80 backdrop-blur-2xl flex flex-col border-b border-white/5 shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
             {/* Top Tier: Search & Actions */}
             <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
                 <div className="flex-1 min-w-0 max-w-2xl relative">
-                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
-                        <Search className="w-5 h-5 drop-shadow-md" />
+                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500">
+                        <Search className="w-4 h-4" strokeWidth={1.5} />
                     </div>
                     <Input
                         placeholder="Mahsulot qidirish..."
-                        className="w-full h-10 pl-11 pr-4 rounded-xl bg-white/5 border border-white/10 focus-visible:ring-1 focus-visible:ring-cyan-500 focus-visible:border-cyan-500/50 transition-all font-medium text-slate-200 placeholder:text-slate-500 shadow-[inset_0_0_15px_rgba(0,0,0,0.2)]"
+                        className="w-full h-10 pl-11 pr-4 rounded-xl bg-white/5 border border-white/5 text-[13px] focus-visible:ring-1 focus-visible:ring-cyan-500/50 focus-visible:border-cyan-500/30 transition-all font-medium text-slate-200 placeholder:text-slate-500 shadow-sm"
                     />
                 </div>
 
@@ -49,10 +49,10 @@ export function Navbar({ selectedCategory, onSelectCategory }: NavbarProps) {
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="h-10 w-10 rounded-xl text-slate-300 hover:text-cyan-400 hover:bg-cyan-500/10 transition-all border border-transparent hover:border-cyan-500/20 relative"
+                        className="h-9 w-9 rounded-xl text-slate-400 hover:text-cyan-400 hover:bg-cyan-500/10 transition-all border border-transparent hover:border-cyan-500/20 relative"
                         onClick={() => setIsSavedOpen(true)}
                     >
-                        <Heart className="h-5 w-5 drop-shadow-md" />
+                        <Heart className="h-4 w-4" strokeWidth={1.5} />
                         <AnimatePresence>
                             {savedItems.length > 0 && (
                                 <motion.div
@@ -71,19 +71,19 @@ export function Navbar({ selectedCategory, onSelectCategory }: NavbarProps) {
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="h-10 w-10 rounded-xl text-slate-300 hover:text-cyan-400 hover:bg-cyan-500/10 transition-all border border-transparent hover:border-cyan-500/20"
+                        className="h-9 w-9 rounded-xl text-slate-400 hover:text-cyan-400 hover:bg-cyan-500/10 transition-all border border-transparent hover:border-cyan-500/20"
                         onClick={() => setIsCartOpen(true)}
                     >
-                        <ShoppingCart className="h-5 w-5 drop-shadow-md" />
+                        <ShoppingCart className="h-4 w-4" strokeWidth={1.5} />
                     </Button>
 
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="h-10 w-10 sm:ml-2 rounded-xl border border-white/10 p-0 overflow-hidden hover:border-cyan-500/50 transition-all shadow-[0_0_15px_rgba(0,0,0,0.2)]"
+                        className="h-9 w-9 sm:ml-2 rounded-xl border border-white/5 p-0 overflow-hidden hover:border-cyan-500/30 transition-all shadow-sm"
                         onClick={() => setIsProfileOpen(true)}
                     >
-                        <div className="w-full h-full bg-slate-800 flex items-center justify-center text-slate-200 text-xs font-bold bg-linear-to-tr from-slate-900 to-slate-700">
+                        <div className="w-full h-full flex items-center justify-center text-slate-300 text-[10px] font-bold bg-linear-to-tr from-[#0a1219] to-slate-800">
                             MR
                         </div>
                     </Button>
@@ -98,17 +98,18 @@ export function Navbar({ selectedCategory, onSelectCategory }: NavbarProps) {
                         const Icon = cat.icon;
 
                         return (
-                            <button
+                            <motion.button
                                 key={idx}
+                                whileTap={{ scale: 0.95 }}
                                 onClick={() => onSelectCategory(cat.name)}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 whitespace-nowrap text-sm font-medium focus-visible:outline-none ${isSelected
-                                    ? "bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.15)] ring-1 ring-cyan-500/20"
-                                    : "bg-white/5 text-slate-400 border border-white/5 hover:text-slate-200 hover:bg-white/10 hover:border-white/10"
+                                className={`flex items-center gap-2 px-4 py-1.5 rounded-xl transition-all duration-200 whitespace-nowrap text-[13px] font-medium focus-visible:outline-none ${isSelected
+                                    ? "bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 shadow-[inset_0_0_10px_rgba(34,211,238,0.1)] ring-1 ring-cyan-500/20"
+                                    : "bg-white/5 text-slate-400 border border-white/5 hover:text-slate-300 hover:bg-white/10"
                                     }`}
                             >
-                                <Icon className={`w-4 h-4 ${isSelected ? "text-cyan-400 drop-shadow-[0_0_5px_rgba(6,182,212,0.8)]" : "text-slate-500"}`} />
+                                <Icon className={`w-3.5 h-3.5 ${isSelected ? "text-cyan-400" : "text-slate-500"}`} strokeWidth={isSelected ? 2 : 1.5} />
                                 {cat.name}
-                            </button>
+                            </motion.button>
                         );
                     })}
                 </div>

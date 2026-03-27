@@ -4,11 +4,11 @@ import {
     SheetHeader,
     SheetTitle,
 } from "./ui/sheet";
-import { useCart } from "../context/CartContext";
-import { Button } from "./ui/button";
 import { ScrollArea } from "./ui/scroll-area";
-import { Heart } from "lucide-react";
 import { ProductCard } from "./ProductCard";
+import { useCart } from "../context/CartContext";
+import { Heart, Trash2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface SavedDrawerProps {
     open: boolean;
@@ -16,50 +16,100 @@ interface SavedDrawerProps {
 }
 
 export function SavedDrawer({ open, onOpenChange }: SavedDrawerProps) {
-    const { savedItems } = useCart();
+    const { savedItems, setSavedItems } = useCart();
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:max-w-md flex flex-col h-full bg-[#0a0f1a]/80 backdrop-blur-3xl border-l border-white/10 p-0 text-slate-200">
-                <SheetHeader className="p-6 border-b border-white/5 relative overflow-hidden">
-                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-48 h-48 bg-rose-500/20 rounded-full blur-3xl pointer-events-none" />
+            <SheetContent side="bottom" className="w-full h-[90vh] sm:max-w-md sm:h-[95vh] sm:mx-auto sm:rounded-t-[2rem] rounded-t-[2rem] flex flex-col bg-[#F8FAFC] border-t border-slate-200 p-0 text-slate-900 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+                <SheetHeader className="px-6 py-5 border-b border-slate-200 bg-white/80 backdrop-blur-xl shrink-0 sticky top-0 z-10 rounded-t-[2rem]">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center border border-red-100 shadow-sm">
+                                <Heart className="w-5 h-5 text-red-500 fill-red-500/20" strokeWidth={1.5} />
+                            </div>
+                            <div className="flex flex-col">
+                                <SheetTitle className="text-xl font-bold tracking-tight text-slate-900">
+                                    Saqlanganlar
+                                </SheetTitle>
+                                {savedItems.length > 0 && (
+                                    <span className="text-xs font-medium text-slate-500">
+                                        {savedItems.length} ta mahsulot
+                                    </span>
+                                )}
+                            </div>
+                        </div>
 
-                    <SheetTitle className="flex items-center gap-3 text-2xl font-bold text-white relative z-10">
-                        <span className="p-2 bg-rose-500/10 rounded-xl border border-rose-500/20 shadow-[inset_0_0_15px_rgba(244,63,94,0.2)]">
-                            <Heart className="w-5 h-5 text-rose-500 fill-rose-500 drop-shadow-[0_0_8px_rgba(244,63,94,0.8)]" />
-                        </span>
-                        Saqlanganlar
-                    </SheetTitle>
+                        {savedItems.length > 0 && (
+                            <button
+                                onClick={() => setSavedItems([])}
+                                className="w-10 h-10 flex items-center justify-center rounded-full text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors shadow-sm bg-white border border-slate-200"
+                            >
+                                <Trash2 className="w-4 h-4" strokeWidth={2} />
+                            </button>
+                        )}
+                    </div>
                 </SheetHeader>
 
-                {savedItems.length === 0 ? (
-                    <div className="flex-1 flex flex-col items-center justify-center gap-6 px-10 text-center relative">
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-rose-500/10 rounded-full blur-3xl pointer-events-none" />
-
-                        <div className="w-28 h-28 rounded-[2.5rem] bg-white/5 flex items-center justify-center animate-pulse border border-white/10 shadow-[inner_0_0_20px_rgba(255,255,255,0.05),0_0_40px_rgba(244,63,94,0.15)]">
-                            <Heart className="w-12 h-12 text-rose-500/50 fill-rose-500/10 drop-shadow-[0_0_15px_rgba(244,63,94,0.5)]" />
-                        </div>
-                        <div className="relative z-10">
-                            <p className="text-white font-bold text-xl mb-3 tracking-wide drop-shadow-sm">Tanlovlar bo'sh</p>
-                            <p className="text-slate-400 text-[15px] font-light leading-relaxed">Siz eng yaxshi ko'rgan mahsulotlaringizni shu yerga saqlashingiz mumkin.</p>
-                        </div>
-                        <Button
-                            variant="outline"
-                            onClick={() => onOpenChange(false)}
-                            className="rounded-2xl px-8 h-12 bg-white/5 border-white/10 text-slate-300 hover:text-white hover:bg-white/10 hover:border-white/20 font-medium transition-all z-10 shadow-[0_4px_20px_rgba(0,0,0,0.2)]"
-                        >
-                            Katalogga o'tish
-                        </Button>
-                    </div>
-                ) : (
-                    <ScrollArea className="flex-1 p-4 relative">
-                        <div className="grid grid-cols-2 gap-3 pb-4">
-                            {savedItems.map((item) => (
-                                <ProductCard key={item.id} product={item} />
-                            ))}
-                        </div>
-                    </ScrollArea>
-                )}
+                <div className="flex-1 overflow-hidden relative">
+                    <AnimatePresence mode="wait">
+                        {savedItems.length === 0 ? (
+                            <motion.div
+                                key="empty"
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.95 }}
+                                transition={{ duration: 0.3 }}
+                                className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center"
+                            >
+                                <div className="relative mb-8 group">
+                                    <div className="absolute inset-0 bg-red-500/5 rounded-full blur-3xl group-hover:bg-red-500/10 transition-colors duration-1000" />
+                                    <div className="w-32 h-32 rounded-full bg-white border border-slate-100 flex items-center justify-center shadow-[0_10px_30px_rgba(0,0,0,0.03)] relative z-10 transition-transform duration-700 hover:scale-105">
+                                        <Heart className="w-12 h-12 text-slate-200" strokeWidth={1} />
+                                    </div>
+                                </div>
+                                <h3 className="text-2xl font-bold tracking-tight text-slate-900 mb-3">
+                                    Sizda saqlanganlar yo'q
+                                </h3>
+                                <p className="text-slate-500 max-w-[280px] leading-relaxed font-medium">
+                                    O'zingizga yoqqan mahsulotlarni yurakcha tugmasini bosib saqlab qo'yishingiz mumkin.
+                                </p>
+                                <button
+                                    onClick={() => onOpenChange(false)}
+                                    className="mt-10 bg-white hover:bg-slate-50 text-slate-900 font-bold px-8 py-3.5 rounded-full border border-slate-200 shadow-sm transition-all active:scale-95"
+                                >
+                                    Katalogga qaytish
+                                </button>
+                            </motion.div>
+                        ) : (
+                            <motion.div
+                                key="content"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="h-full"
+                            >
+                                <ScrollArea className="h-full px-4 py-6">
+                                    <div className="grid grid-cols-2 gap-3 pb-8">
+                                        <AnimatePresence>
+                                            {savedItems.map((item) => (
+                                                <motion.div
+                                                    key={item.id}
+                                                    layout
+                                                    initial={{ opacity: 0, scale: 0.9 }}
+                                                    animate={{ opacity: 1, scale: 1 }}
+                                                    exit={{ opacity: 0, scale: 0.8 }}
+                                                    transition={{ duration: 0.2 }}
+                                                >
+                                                    <ProductCard product={item} />
+                                                </motion.div>
+                                            ))}
+                                        </AnimatePresence>
+                                    </div>
+                                </ScrollArea>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
             </SheetContent>
         </Sheet>
     );

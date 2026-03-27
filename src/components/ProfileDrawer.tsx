@@ -4,73 +4,142 @@ import {
     SheetHeader,
     SheetTitle,
 } from "./ui/sheet";
-import { PackageOpen, Clock } from "lucide-react";
-import { Badge } from "./ui/badge";
 import { ScrollArea } from "./ui/scroll-area";
+import { Package, MapPin, Phone, History, User } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface ProfileDrawerProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }
 
-const ORDER_HISTORY = [
-    { id: "4092", date: "20.03.2026", price: "240 000 UZS", status: "Yetkazib berildi", statusType: "success" },
-    { id: "3841", date: "18.03.2026", price: "1 250 000 UZS", status: "Yo'lda", statusType: "info" },
-    { id: "3720", date: "15.03.2026", price: "450 000 UZS", status: "Yetkazib berildi", statusType: "success" },
-    { id: "3655", date: "10.03.2026", price: "890 000 UZS", status: "Yetkazib berildi", statusType: "success" },
+const MOCK_ORDERS = [
+    {
+        id: "4092",
+        date: "24 Okt 2024",
+        status: "Yetkazib berildi",
+        total: "1 250 000 so'm",
+        items: "3ta mahsulot"
+    },
+    {
+        id: "4085",
+        date: "12 Okt 2024",
+        status: "Yo'lda",
+        total: "450 000 so'm",
+        items: "1ta mahsulot"
+    },
+    {
+        id: "3920",
+        date: "01 Sen 2024",
+        status: "Yetkazib berildi",
+        total: "3 800 000 so'm",
+        items: "12ta mahsulot"
+    }
 ];
 
 export function ProfileDrawer({ open, onOpenChange }: ProfileDrawerProps) {
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:max-w-md flex flex-col h-full bg-[#0a0f1a]/80 backdrop-blur-3xl border-l border-white/10 p-0 text-slate-200">
-                <SheetHeader className="p-6 border-b border-white/5 relative overflow-hidden">
-                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-48 h-48 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none" />
-
-                    <SheetTitle className="flex items-center gap-3 text-2xl font-bold text-white relative z-10">
-                        <span className="p-2 bg-cyan-500/10 rounded-xl border border-cyan-500/20 shadow-[inset_0_0_15px_rgba(6,182,212,0.2)]">
-                            <PackageOpen className="w-5 h-5 text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
-                        </span>
-                        Buyurtmalar tarixi
-                    </SheetTitle>
+            <SheetContent side="bottom" className="w-full h-[90vh] sm:max-w-md sm:h-[95vh] sm:mx-auto sm:rounded-t-[2rem] rounded-t-[2rem] flex flex-col bg-[#F8FAFC] border-t border-slate-200 p-0 text-slate-900 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+                <SheetHeader className="px-6 py-6 border-b border-slate-200 bg-white/80 backdrop-blur-xl shrink-0 sticky top-0 z-10 rounded-t-[2rem]">
+                    <div className="flex items-center gap-4">
+                        <div className="w-14 h-14 rounded-full bg-[#E0F2F1] flex items-center justify-center border border-[#007AFF]/20 shadow-sm relative overflow-hidden">
+                            <User className="absolute -bottom-2 w-10 h-10 text-[#007AFF]/60" strokeWidth={1.5} />
+                        </div>
+                        <div className="flex flex-col">
+                            <SheetTitle className="text-xl font-bold text-slate-900 tracking-tight">
+                                Muzaffar Ruzmetov
+                            </SheetTitle>
+                            <span className="text-[13px] font-medium text-[#007AFF] bg-[#007AFF]/10 px-2 py-0.5 rounded-full w-fit mt-1 border border-[#007AFF]/20">
+                                Premium Mijoz
+                            </span>
+                        </div>
+                    </div>
                 </SheetHeader>
 
-                <ScrollArea className="flex-1 px-6 py-4">
-                    <div className="space-y-4 py-2">
-                        {ORDER_HISTORY.map((order) => (
-                            <div
-                                key={order.id}
-                                className="flex flex-col gap-4 bg-white/5 p-5 rounded-3xl border border-white/10 shadow-[0_4px_15px_-3px_rgba(0,0,0,0.3)] hover:shadow-[0_0_20px_rgba(6,182,212,0.1)] hover:bg-white/10 hover:border-white/20 transition-all duration-300 group cursor-default"
-                            >
-                                <div className="flex items-center justify-between">
-                                    <div className="flex flex-col gap-1">
-                                        <p className="text-xs font-bold text-cyan-100/60 uppercase tracking-widest drop-shadow-sm">Buyurtma raqami</p>
-                                        <p className="text-xl font-black text-white group-hover:text-cyan-400 transition-colors drop-shadow-md">#{order.id}</p>
-                                    </div>
-                                    <Badge
-                                        className={`rounded-xl px-3 py-1.5 text-[11px] font-black tracking-wider shadow-sm transition-all ${order.statusType === 'success'
-                                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]'
-                                            : 'bg-sky-500/10 text-sky-400 border border-sky-500/20 drop-shadow-[0_0_8px_rgba(14,165,233,0.5)]'
-                                            }`}
-                                    >
-                                        {order.status}
-                                    </Badge>
+                <ScrollArea className="flex-1 px-4 py-6">
+                    <div className="space-y-6">
+                        {/* Info Cards */}
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="bg-white p-4 rounded-2xl border border-slate-200 flex flex-col gap-2 shadow-sm relative overflow-hidden group">
+                                <div className="w-8 h-8 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-[#007AFF]/10 group-hover:text-[#007AFF] transition-colors">
+                                    <Phone className="w-4 h-4" strokeWidth={2} />
                                 </div>
-                                <div className="flex items-center justify-between pt-4 border-t border-white/5">
-                                    <div className="flex items-center gap-2 text-slate-300 bg-slate-950/50 px-3 py-1.5 rounded-xl border border-white/5 shadow-inner">
-                                        <Clock className="w-3.5 h-3.5 text-cyan-500/70" />
-                                        <span className="text-xs font-bold tracking-wide">{order.date}</span>
-                                    </div>
-                                    <span className="text-[15px] font-black text-white drop-shadow-sm">{order.price}</span>
+                                <div>
+                                    <span className="text-[10px] uppercase font-bold text-slate-400 tracking-widest block mb-0.5">Telefon</span>
+                                    <span className="text-[13px] font-semibold text-slate-900">+998 90 123 45 67</span>
                                 </div>
                             </div>
-                        ))}
-                    </div>
-                </ScrollArea>
 
-                <div className="p-6 bg-slate-950/80 border-t border-white/10 mt-auto backdrop-blur-xl text-center text-[11px] text-slate-400/80 font-medium tracking-wide uppercase shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
-                    <span className="drop-shadow-sm">Faqat so'nggi buyurtmalar ko'rsatilmoqda</span>
-                </div>
+                            <div className="bg-white p-4 rounded-2xl border border-slate-200 flex flex-col gap-2 shadow-sm relative overflow-hidden group">
+                                <div className="w-8 h-8 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-[#007AFF]/10 group-hover:text-[#007AFF] transition-colors">
+                                    <MapPin className="w-4 h-4" strokeWidth={2} />
+                                </div>
+                                <div>
+                                    <span className="text-[10px] uppercase font-bold text-slate-400 tracking-widest block mb-0.5">Manzil</span>
+                                    <span className="text-[13px] font-semibold text-slate-900 line-clamp-1">Toshkent, Chilonzor</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Order History Timeline */}
+                        <div>
+                            <div className="flex items-center gap-2 mb-6 ml-2">
+                                <History className="w-5 h-5 text-slate-400" strokeWidth={2} />
+                                <h3 className="text-lg font-bold text-slate-900 tracking-tight">Buyurtmalar tarixi</h3>
+                            </div>
+
+                            <div className="pl-5 border-l-2 border-slate-200 ml-4 space-y-8 py-2">
+                                {MOCK_ORDERS.map((order, i) => {
+                                    const isDelivered = order.status === "Yetkazib berildi";
+                                    return (
+                                        <motion.div
+                                            key={order.id}
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: i * 0.1 }}
+                                            className="relative pb-2"
+                                        >
+                                            {/* Timeline Node */}
+                                            <div className={`absolute -left-[27px] top-1.5 w-3.5 h-3.5 rounded-full border-[3px] border-[#F8FAFC] shadow-sm ${isDelivered ? 'bg-emerald-500' : 'bg-[#007AFF]'}`} />
+
+                                            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-[0_5px_15px_rgba(0,0,0,0.02)] relative group hover:border-[#007AFF]/30 transition-colors cursor-pointer">
+                                                <div className="flex justify-between items-start mb-3">
+                                                    <div>
+                                                        <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-1">
+                                                            Buyurtma #{order.id}
+                                                        </span>
+                                                        <span className="text-[14px] font-bold text-slate-900">
+                                                            {order.date}
+                                                        </span>
+                                                    </div>
+                                                    <div className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border shadow-sm ${isDelivered
+                                                        ? "bg-emerald-50 text-emerald-600 border-emerald-100"
+                                                        : "bg-[#007AFF]/5 text-[#007AFF] border-[#007AFF]/20"
+                                                        }`}>
+                                                        {order.status}
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex justify-between items-end pt-3 border-t border-slate-100 mt-2">
+                                                    <div className="flex items-center gap-1.5 text-slate-500">
+                                                        <Package className="w-4 h-4" strokeWidth={2} />
+                                                        <span className="text-[12px] font-semibold">{order.items}</span>
+                                                    </div>
+                                                    <span className="text-[16px] font-black text-slate-900">
+                                                        {order.total}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                    {/* Padding for bottom */}
+                    <div className="h-6"></div>
+                </ScrollArea>
             </SheetContent>
         </Sheet>
     );

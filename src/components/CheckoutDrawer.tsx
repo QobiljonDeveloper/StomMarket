@@ -11,7 +11,8 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Textarea } from "./ui/textarea";
-import { CreditCard, Truck, User, Phone, MapPin, MessageSquare, ArrowLeft, Banknote, Store } from "lucide-react";
+import { CreditCard, Truck, User, Phone, MapPin, MessageSquare, ArrowLeft, Banknote, Store, ShieldCheck } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface CheckoutDrawerProps {
     open: boolean;
@@ -26,7 +27,6 @@ export function CheckoutDrawer({ open, onOpenChange }: CheckoutDrawerProps) {
     };
 
     const handleConfirm = () => {
-        // In a real app, this would process the order
         clearCart();
         onOpenChange(false);
     };
@@ -35,20 +35,18 @@ export function CheckoutDrawer({ open, onOpenChange }: CheckoutDrawerProps) {
         <Sheet open={open} onOpenChange={onOpenChange}>
             <SheetContent
                 side="right"
-                className="w-full sm:max-w-md flex flex-col h-full bg-[#0a0f1a]/90 backdrop-blur-3xl border-l border-white/10 p-0 text-slate-200"
+                className="w-full sm:max-w-md flex flex-col h-full bg-white border-l border-slate-200 p-0 text-slate-900 shadow-[-10px_0_40px_rgba(0,0,0,0.05)]"
             >
-                <SheetHeader className="p-5 border-b border-white/5 flex flex-row items-center gap-3 space-y-0 relative overflow-hidden">
-                    <div className="absolute -top-10 left-0 w-32 h-32 bg-cyan-500/20 rounded-full blur-2xl pointer-events-none" />
-
+                <SheetHeader className="px-5 py-5 border-b border-slate-100 flex flex-row items-center gap-3 space-y-0 bg-white/80 backdrop-blur-xl shrink-0 sticky top-0 z-10 transition-all">
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="h-10 w-10 rounded-xl text-slate-400 hover:text-cyan-400 hover:bg-cyan-500/10 transition-all border border-transparent hover:border-cyan-500/20 z-10"
+                        className="h-10 w-10 rounded-full text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-colors border border-slate-200 shadow-sm"
                         onClick={() => onOpenChange(false)}
                     >
-                        <ArrowLeft className="w-5 h-5 drop-shadow-md" />
+                        <ArrowLeft className="w-5 h-5" strokeWidth={2} />
                     </Button>
-                    <SheetTitle className="text-xl font-bold text-white tracking-wide drop-shadow-md z-10">
+                    <SheetTitle className="text-xl font-bold text-slate-900 tracking-tight">
                         Rasmiylashtirish
                     </SheetTitle>
                 </SheetHeader>
@@ -56,37 +54,37 @@ export function CheckoutDrawer({ open, onOpenChange }: CheckoutDrawerProps) {
                 <ScrollArea className="flex-1 px-5 py-6">
                     <div className="space-y-8">
                         {/* Summary Section */}
-                        <div className="bg-linear-to-br from-cyan-500/10 to-transparent p-5 rounded-3xl border border-cyan-500/20 flex flex-col justify-between items-center group shadow-[inset_0_0_20px_rgba(6,182,212,0.05)] relative overflow-hidden">
-                            <div className="absolute bottom-0 right-0 w-24 h-24 bg-cyan-500/15 rounded-full blur-[30px] pointer-events-none" />
-                            <span className="text-cyan-300/80 font-bold uppercase tracking-widest text-xs mb-1 drop-shadow-sm">Jami to'lov</span>
-                            <span className="text-white font-black text-3xl tracking-tight drop-shadow-[0_0_15px_rgba(6,182,212,0.6)]">
+                        <div className="bg-[#F8FAFC] p-6 rounded-[1.5rem] border border-slate-200 flex flex-col items-center group shadow-sm relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-24 h-24 bg-[#007AFF]/5 rounded-full blur-[30px] pointer-events-none" />
+                            <span className="text-slate-500 font-bold uppercase tracking-widest text-[10px] mb-1">To'lov miqdori</span>
+                            <span className="text-slate-900 font-black text-3xl tracking-tight">
                                 {formatPrice(cartTotal)}
                             </span>
                         </div>
 
                         {/* Payment Method */}
                         <div className="space-y-4">
-                            <div className="flex items-center gap-3 mb-2">
-                                <div className="p-2 bg-white/5 rounded-xl border border-white/10 shadow-[inset_0_0_10px_rgba(255,255,255,0.05)]">
-                                    <CreditCard className="w-4 h-4 text-cyan-400" />
+                            <div className="flex items-center gap-3 mb-2 ml-1">
+                                <div className="w-8 h-8 rounded-lg bg-[#E0F2F1] flex items-center justify-center text-[#007AFF] border border-[#007AFF]/10">
+                                    <CreditCard className="w-4 h-4" strokeWidth={2} />
                                 </div>
-                                <h3 className="text-base font-bold text-slate-100 tracking-wide">To'lov usuli</h3>
+                                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide">To'lov usuli</h3>
                             </div>
                             <RadioGroup defaultValue="online" className="grid gap-3">
                                 <div>
                                     <RadioGroupItem value="online" id="online" className="peer sr-only" />
                                     <Label
                                         htmlFor="online"
-                                        className="flex items-center justify-between p-4 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 peer-data-[state=checked]:border-cyan-500/50 peer-data-[state=checked]:bg-cyan-500/10 transition-all cursor-pointer shadow-sm group"
+                                        className="flex items-center justify-between p-4 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 peer-data-[state=checked]:border-[#007AFF] peer-data-[state=checked]:bg-[#007AFF]/5 transition-all cursor-pointer shadow-sm group"
                                     >
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-1.5 rounded-lg bg-slate-800 text-slate-400 group-data-[state=checked]:text-cyan-400 group-data-[state=checked]:bg-cyan-500/20 transition-colors">
-                                                <CreditCard className="w-5 h-5 drop-shadow-md" />
+                                        <div className="flex items-center gap-4">
+                                            <div className="p-2.5 rounded-xl bg-slate-50 text-slate-400 group-data-[state=checked]:text-[#007AFF] group-data-[state=checked]:bg-[#007AFF]/10 transition-colors border border-slate-100 group-data-[state=checked]:border-[#007AFF]/20">
+                                                <CreditCard className="w-5 h-5" strokeWidth={2} />
                                             </div>
-                                            <span className="font-semibold text-slate-200 group-data-[state=checked]:text-white">Onlayn-o'tkazma bilan</span>
+                                            <span className="font-bold text-slate-600 group-data-[state=checked]:text-slate-900">Onlayn-o'tkazma</span>
                                         </div>
-                                        <div className="w-5 h-5 rounded-full border-2 border-slate-600 peer-data-[state=checked]:border-cyan-400 peer-data-[state=checked]:shadow-[0_0_10px_rgba(6,182,212,0.5)] transition-all flex items-center justify-center">
-                                            <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 scale-0 peer-data-[state=checked]:scale-100 transition-transform" />
+                                        <div className="w-6 h-6 rounded-full border-2 border-slate-200 peer-data-[state=checked]:border-[#007AFF] transition-all flex items-center justify-center bg-white">
+                                            <div className="w-3 h-3 rounded-full bg-[#007AFF] scale-0 peer-data-[state=checked]:scale-100 transition-transform" />
                                         </div>
                                     </Label>
                                 </div>
@@ -94,16 +92,16 @@ export function CheckoutDrawer({ open, onOpenChange }: CheckoutDrawerProps) {
                                     <RadioGroupItem value="cash" id="cash" className="peer sr-only" />
                                     <Label
                                         htmlFor="cash"
-                                        className="flex items-center justify-between p-4 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 peer-data-[state=checked]:border-cyan-500/50 peer-data-[state=checked]:bg-cyan-500/10 transition-all cursor-pointer shadow-sm group"
+                                        className="flex items-center justify-between p-4 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 peer-data-[state=checked]:border-[#007AFF] peer-data-[state=checked]:bg-[#007AFF]/5 transition-all cursor-pointer shadow-sm group"
                                     >
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-1.5 rounded-lg bg-slate-800 text-slate-400 group-data-[state=checked]:text-cyan-400 group-data-[state=checked]:bg-cyan-500/20 transition-colors">
-                                                <Banknote className="w-5 h-5 drop-shadow-md" />
+                                        <div className="flex items-center gap-4">
+                                            <div className="p-2.5 rounded-xl bg-slate-50 text-slate-400 group-data-[state=checked]:text-[#007AFF] group-data-[state=checked]:bg-[#007AFF]/10 transition-colors border border-slate-100 group-data-[state=checked]:border-[#007AFF]/20">
+                                                <Banknote className="w-5 h-5" strokeWidth={2} />
                                             </div>
-                                            <span className="font-semibold text-slate-200 group-data-[state=checked]:text-white">Kuryerga naqd pul bilan</span>
+                                            <span className="font-bold text-slate-600 group-data-[state=checked]:text-slate-900">Kuryerga naqd pul</span>
                                         </div>
-                                        <div className="w-5 h-5 rounded-full border-2 border-slate-600 peer-data-[state=checked]:border-cyan-400 peer-data-[state=checked]:shadow-[0_0_10px_rgba(6,182,212,0.5)] transition-all flex items-center justify-center">
-                                            <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 scale-0 peer-data-[state=checked]:scale-100 transition-transform" />
+                                        <div className="w-6 h-6 rounded-full border-2 border-slate-200 peer-data-[state=checked]:border-[#007AFF] transition-all flex items-center justify-center bg-white">
+                                            <div className="w-3 h-3 rounded-full bg-[#007AFF] scale-0 peer-data-[state=checked]:scale-100 transition-transform" />
                                         </div>
                                     </Label>
                                 </div>
@@ -112,27 +110,27 @@ export function CheckoutDrawer({ open, onOpenChange }: CheckoutDrawerProps) {
 
                         {/* Delivery Method */}
                         <div className="space-y-4">
-                            <div className="flex items-center gap-3 mb-2">
-                                <div className="p-2 bg-white/5 rounded-xl border border-white/10 shadow-[inset_0_0_10px_rgba(255,255,255,0.05)]">
-                                    <Truck className="w-4 h-4 text-cyan-400" />
+                            <div className="flex items-center gap-3 mb-2 ml-1">
+                                <div className="w-8 h-8 rounded-lg bg-[#E0F2F1] flex items-center justify-center text-[#007AFF] border border-[#007AFF]/10">
+                                    <Truck className="w-4 h-4" strokeWidth={2} />
                                 </div>
-                                <h3 className="text-base font-bold text-slate-100 tracking-wide">Yetkazib berish usuli</h3>
+                                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide">Yetkazish usuli</h3>
                             </div>
                             <RadioGroup defaultValue="delivery" className="grid gap-3">
                                 <div>
                                     <RadioGroupItem value="delivery" id="delivery" className="peer sr-only" />
                                     <Label
                                         htmlFor="delivery"
-                                        className="flex items-center justify-between p-4 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 peer-data-[state=checked]:border-cyan-500/50 peer-data-[state=checked]:bg-cyan-500/10 transition-all cursor-pointer shadow-sm group"
+                                        className="flex items-center justify-between p-4 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 peer-data-[state=checked]:border-[#007AFF] peer-data-[state=checked]:bg-[#007AFF]/5 transition-all cursor-pointer shadow-sm group"
                                     >
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-1.5 rounded-lg bg-slate-800 text-slate-400 group-data-[state=checked]:text-cyan-400 group-data-[state=checked]:bg-cyan-500/20 transition-colors">
-                                                <Truck className="w-5 h-5 drop-shadow-md" />
+                                        <div className="flex items-center gap-4">
+                                            <div className="p-2.5 rounded-xl bg-slate-50 text-slate-400 group-data-[state=checked]:text-[#007AFF] group-data-[state=checked]:bg-[#007AFF]/10 transition-colors border border-slate-100 group-data-[state=checked]:border-[#007AFF]/20">
+                                                <Truck className="w-5 h-5" strokeWidth={2} />
                                             </div>
-                                            <span className="font-semibold text-slate-200 group-data-[state=checked]:text-white">Yetkazib berish</span>
+                                            <span className="font-bold text-slate-600 group-data-[state=checked]:text-slate-900">Yetkazib berish</span>
                                         </div>
-                                        <div className="w-5 h-5 rounded-full border-2 border-slate-600 peer-data-[state=checked]:border-cyan-400 peer-data-[state=checked]:shadow-[0_0_10px_rgba(6,182,212,0.5)] transition-all flex items-center justify-center">
-                                            <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 scale-0 peer-data-[state=checked]:scale-100 transition-transform" />
+                                        <div className="w-6 h-6 rounded-full border-2 border-slate-200 peer-data-[state=checked]:border-[#007AFF] transition-all flex items-center justify-center bg-white">
+                                            <div className="w-3 h-3 rounded-full bg-[#007AFF] scale-0 peer-data-[state=checked]:scale-100 transition-transform" />
                                         </div>
                                     </Label>
                                 </div>
@@ -140,16 +138,16 @@ export function CheckoutDrawer({ open, onOpenChange }: CheckoutDrawerProps) {
                                     <RadioGroupItem value="pickup" id="pickup" className="peer sr-only" />
                                     <Label
                                         htmlFor="pickup"
-                                        className="flex items-center justify-between p-4 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 peer-data-[state=checked]:border-cyan-500/50 peer-data-[state=checked]:bg-cyan-500/10 transition-all cursor-pointer shadow-sm group"
+                                        className="flex items-center justify-between p-4 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 peer-data-[state=checked]:border-[#007AFF] peer-data-[state=checked]:bg-[#007AFF]/5 transition-all cursor-pointer shadow-sm group"
                                     >
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-1.5 rounded-lg bg-slate-800 text-slate-400 group-data-[state=checked]:text-cyan-400 group-data-[state=checked]:bg-cyan-500/20 transition-colors">
-                                                <Store className="w-5 h-5 drop-shadow-md" />
+                                        <div className="flex items-center gap-4">
+                                            <div className="p-2.5 rounded-xl bg-slate-50 text-slate-400 group-data-[state=checked]:text-[#007AFF] group-data-[state=checked]:bg-[#007AFF]/10 transition-colors border border-slate-100 group-data-[state=checked]:border-[#007AFF]/20">
+                                                <Store className="w-5 h-5" strokeWidth={2} />
                                             </div>
-                                            <span className="font-semibold text-slate-200 group-data-[state=checked]:text-white">O'zi olib ketish</span>
+                                            <span className="font-bold text-slate-600 group-data-[state=checked]:text-slate-900">O'zi olib ketish</span>
                                         </div>
-                                        <div className="w-5 h-5 rounded-full border-2 border-slate-600 peer-data-[state=checked]:border-cyan-400 peer-data-[state=checked]:shadow-[0_0_10px_rgba(6,182,212,0.5)] transition-all flex items-center justify-center">
-                                            <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 scale-0 peer-data-[state=checked]:scale-100 transition-transform" />
+                                        <div className="w-6 h-6 rounded-full border-2 border-slate-200 peer-data-[state=checked]:border-[#007AFF] transition-all flex items-center justify-center bg-white">
+                                            <div className="w-3 h-3 rounded-full bg-[#007AFF] scale-0 peer-data-[state=checked]:scale-100 transition-transform" />
                                         </div>
                                     </Label>
                                 </div>
@@ -158,63 +156,80 @@ export function CheckoutDrawer({ open, onOpenChange }: CheckoutDrawerProps) {
 
                         {/* Personal Info */}
                         <div className="space-y-6 pt-2">
-                            <div className="space-y-3 relative">
-                                <Label htmlFor="name" className="flex items-center gap-2 text-sm font-bold text-cyan-100/70 uppercase tracking-widest pl-1">
-                                    <User className="w-4 h-4 text-cyan-500" />
-                                    Ism
-                                </Label>
-                                <Input
-                                    id="name"
-                                    placeholder="Ismingizni kiriting"
-                                    className="h-14 rounded-2xl border-white/10 bg-white/5 focus-visible:ring-1 focus-visible:ring-cyan-500 focus-visible:bg-white/10 text-white font-medium placeholder:text-slate-500 shadow-[inset_0_0_15px_rgba(0,0,0,0.2)] px-4"
-                                />
+                            <div className="space-y-2">
+                                <Label htmlFor="name" className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Ism-sharif</Label>
+                                <div className="relative">
+                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                                        <User className="w-4 h-4" strokeWidth={2} />
+                                    </div>
+                                    <Input
+                                        id="name"
+                                        placeholder="To'liq ismingizni kiriting"
+                                        className="h-14 rounded-2xl border-slate-200 bg-[#F8FAFC] focus-visible:ring-2 focus-visible:ring-[#007AFF]/20 focus-visible:border-[#007AFF] text-slate-900 font-bold placeholder:text-slate-400 shadow-sm pl-11"
+                                    />
+                                </div>
                             </div>
 
-                            <div className="space-y-3 relative">
-                                <Label htmlFor="phone" className="flex items-center gap-2 text-sm font-bold text-cyan-100/70 uppercase tracking-widest pl-1">
-                                    <Phone className="w-4 h-4 text-cyan-500" />
-                                    Telefon
-                                </Label>
-                                <Input
-                                    id="phone"
-                                    type="tel"
-                                    placeholder="+998"
-                                    className="h-14 rounded-2xl border-white/10 bg-white/5 focus-visible:ring-1 focus-visible:ring-cyan-500 focus-visible:bg-white/10 text-white font-medium placeholder:text-slate-500 shadow-[inset_0_0_15px_rgba(0,0,0,0.2)] px-4"
-                                />
+                            <div className="space-y-2">
+                                <Label htmlFor="phone" className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Telefon raqam</Label>
+                                <div className="relative">
+                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                                        <Phone className="w-4 h-4" strokeWidth={2} />
+                                    </div>
+                                    <Input
+                                        id="phone"
+                                        type="tel"
+                                        placeholder="+998"
+                                        className="h-14 rounded-2xl border-slate-200 bg-[#F8FAFC] focus-visible:ring-2 focus-visible:ring-[#007AFF]/20 focus-visible:border-[#007AFF] text-slate-900 font-bold placeholder:text-slate-400 shadow-sm pl-11"
+                                    />
+                                </div>
                             </div>
 
-                            <div className="space-y-3 relative">
-                                <Label htmlFor="address" className="flex items-center gap-2 text-sm font-bold text-cyan-100/70 uppercase tracking-widest pl-1">
-                                    <MapPin className="w-4 h-4 text-cyan-500" />
-                                    Manzil
-                                </Label>
-                                <Input
-                                    id="address"
-                                    placeholder="Yetkazish manzili"
-                                    className="h-14 rounded-2xl border-white/10 bg-white/5 focus-visible:ring-1 focus-visible:ring-cyan-500 focus-visible:bg-white/10 text-white font-medium placeholder:text-slate-500 shadow-[inset_0_0_15px_rgba(0,0,0,0.2)] px-4"
-                                />
+                            <div className="space-y-2">
+                                <Label htmlFor="address" className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Yetkazib berish manzili</Label>
+                                <div className="relative">
+                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                                        <MapPin className="w-4 h-4" strokeWidth={2} />
+                                    </div>
+                                    <Input
+                                        id="address"
+                                        placeholder="Shahar, tuman, ko'cha, xonadon"
+                                        className="h-14 rounded-2xl border-slate-200 bg-[#F8FAFC] focus-visible:ring-2 focus-visible:ring-[#007AFF]/20 focus-visible:border-[#007AFF] text-slate-900 font-bold placeholder:text-slate-400 shadow-sm pl-11"
+                                    />
+                                </div>
                             </div>
 
-                            <div className="space-y-3 relative hover:z-20">
-                                <Label htmlFor="comment" className="flex items-center gap-2 text-sm font-bold text-cyan-100/70 uppercase tracking-widest pl-1">
-                                    <MessageSquare className="w-4 h-4 text-cyan-500" />
-                                    Izoh
-                                </Label>
-                                <Textarea
-                                    id="comment"
-                                    placeholder="Qo'shimcha ma'lumotlar (ixtiyoriy)"
-                                    className="min-h-[100px] rounded-2xl border-white/10 bg-white/5 focus-visible:ring-1 focus-visible:ring-cyan-500 focus-visible:bg-white/10 text-white font-medium resize-none p-4 placeholder:text-slate-500 shadow-[inset_0_0_15px_rgba(0,0,0,0.2)]"
-                                />
+                            <div className="space-y-2">
+                                <Label htmlFor="comment" className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Izoh (ixtiyoriy)</Label>
+                                <div className="relative">
+                                    <div className="absolute left-4 top-4 text-slate-400">
+                                        <MessageSquare className="w-4 h-4" strokeWidth={2} />
+                                    </div>
+                                    <Textarea
+                                        id="comment"
+                                        placeholder="Qo'shimcha istaklaringiz..."
+                                        className="min-h-[100px] rounded-2xl border-slate-200 bg-[#F8FAFC] focus-visible:ring-2 focus-visible:ring-[#007AFF]/20 focus-visible:border-[#007AFF] text-slate-900 font-medium resize-none pl-11 py-4 placeholder:text-slate-400 shadow-sm"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Trust Banner */}
+                        <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-2xl flex items-center gap-4 shadow-sm">
+                            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-emerald-500 shadow-sm">
+                                <ShieldCheck className="w-5 h-5" strokeWidth={2} />
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-xs font-bold text-emerald-800 tracking-tight">Xavfsiz buyurtma</span>
+                                <span className="text-[10px] text-emerald-600 font-medium">Barcha ma'lumotlar himoyalangan</span>
                             </div>
                         </div>
                     </div>
                 </ScrollArea>
 
-                <div className="p-6 bg-[#050812]/90 border-t border-white/5 mt-auto shadow-[0_-15px_30px_rgba(0,0,0,0.6)] rounded-t-[2.5rem] backdrop-blur-3xl relative">
-                    <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-48 h-48 bg-cyan-500/15 rounded-full blur-[50px] pointer-events-none" />
-
+                <div className="p-6 bg-white border-t border-slate-100 mt-auto shadow-[0_-10px_30px_rgba(0,0,0,0.03)] rounded-t-[2.5rem] relative">
                     <Button
-                        className="w-full rounded-2xl h-14 text-base font-bold bg-cyan-500 hover:bg-cyan-400 text-slate-950 shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] transition-all active:scale-[0.98] border border-cyan-400/50 relative z-10"
+                        className="w-full rounded-full h-14 text-base font-black bg-[#007AFF] hover:bg-[#005bb5] text-white shadow-[0_8px_20px_rgba(0,122,255,0.25)] hover:shadow-[0_10px_25px_rgba(0,122,255,0.35)] transition-all flex items-center justify-center gap-2"
                         onClick={handleConfirm}
                     >
                         Buyurtmani tasdiqlash

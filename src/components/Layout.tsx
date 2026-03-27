@@ -18,7 +18,7 @@ export function Layout({ children }: { children: ReactNode }) {
 
     // Retrieve telegram id and run avatar query for the Header nav button
     const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-    const { avatarUrl, isError } = useUserAvatar(tgUser?.id);
+    const { avatarUrl, isLoading, isError } = useUserAvatar(tgUser?.id);
 
     const initials = tgUser
         ? [tgUser.first_name, tgUser.last_name].filter(Boolean).join(" ").split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()
@@ -73,7 +73,11 @@ export function Layout({ children }: { children: ReactNode }) {
                             className="h-9 w-9 sm:ml-2 rounded-full border border-slate-200 p-0 overflow-hidden hover:border-slate-300 transition-all shadow-sm ring-1 ring-slate-200/50 bg-[#E0F2F1]/50 relative"
                             onClick={() => setIsProfileOpen(true)}
                         >
-                            {(avatarUrl && !isError) ? (
+                            {isLoading ? (
+                                <div className="w-full h-full flex items-center justify-center">
+                                    <div className="w-3 h-3 border-2 border-[#007AFF]/30 border-t-[#007AFF] rounded-full animate-spin"></div>
+                                </div>
+                            ) : (avatarUrl && !isError) ? (
                                 <img
                                     src={avatarUrl}
                                     alt="User Avatar"
@@ -81,7 +85,7 @@ export function Layout({ children }: { children: ReactNode }) {
                                     onLoad={(e) => e.currentTarget.classList.remove('opacity-0')}
                                 />
                             ) : (
-                                <div className="w-full h-full flex items-center justify-center text-[#007AFF] text-[11px] font-bold bg-[#E0F2F1]/50">
+                                <div className="w-full h-full flex items-center justify-center text-[#007AFF] text-[11px] font-bold">
                                     {initials}
                                 </div>
                             )}

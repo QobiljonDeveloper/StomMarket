@@ -33,7 +33,7 @@ export function ProfilePage({ open, onClose }: ProfilePageProps) {
     }, []);
 
     // Fetch Custom Avatar from backend
-    const { avatarUrl, isError } = useUserAvatar(user?.id);
+    const { avatarUrl, isLoading, isError } = useUserAvatar(user?.id);
 
     const tgFullName = user
         ? [user.first_name, user.last_name].filter(Boolean).join(" ")
@@ -78,7 +78,11 @@ export function ProfilePage({ open, onClose }: ProfilePageProps) {
                             {/* Avatar Section */}
                             <div className="flex flex-col items-center mb-10">
                                 <div className="w-24 h-24 rounded-full bg-[#007AFF] text-white flex items-center justify-center text-3xl font-bold shadow-lg shadow-[#007AFF]/20 mb-4 border-4 border-white relative overflow-hidden ring-1 ring-slate-200/50">
-                                    {(avatarUrl && !isError) ? (
+                                    {isLoading ? (
+                                        <div className="w-full h-full bg-slate-100 flex items-center justify-center">
+                                            <div className="w-6 h-6 border-2 border-[#007AFF]/30 border-t-[#007AFF] rounded-full animate-spin"></div>
+                                        </div>
+                                    ) : (avatarUrl && !isError) ? (
                                         <img
                                             src={avatarUrl}
                                             alt="User Avatar"

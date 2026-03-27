@@ -11,7 +11,7 @@ export const useUserAvatar = (telegramId?: number) => {
                 return URL.createObjectURL(response.data);
             } catch (error: any) {
                 if (error.response?.status === 404) {
-                    console.info("User has no telegram avatar, using fallback.");
+                    console.info("Info: User has no Telegram avatar, using fallback initials.");
                     return null;
                 }
                 throw error;

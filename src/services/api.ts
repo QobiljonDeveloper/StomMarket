@@ -27,6 +27,11 @@ api.interceptors.response.use(
         return response;
     },
     (error) => {
+        // Quietly pass 404 avatar requests without polluting the console
+        if (error.response?.status === 404 && error.config?.url?.includes('/avatar')) {
+            return Promise.reject(error);
+        }
+
         console.error("DEBUG - URL:", error.config?.url);
         console.error("DEBUG - Method:", error.config?.method);
         console.error("DEBUG - Status:", error.response?.status);

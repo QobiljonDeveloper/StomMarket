@@ -1,4 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from 'sonner';
 import { CartProvider } from './context/CartContext';
 import { Layout } from './components/Layout';
 import { CategoryBar } from './components/CategoryBar';
@@ -6,12 +8,43 @@ import { ProductCard } from './components/ProductCard';
 import { products } from './data/mockData';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TelegramAuthDebug } from './components/TelegramAuthDebug';
+import { useAuth } from './hooks/useAuth';
 
-// Hardcoded to false for production per requirements. Change to true when testing locally.
-const IS_DEV_MODE = false;
+// Hardcoded to true for temporary debugging per requirements.
+const DEV_MODE = true;
 
-function App() {
+// Create a react-query client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
+function AppContent() {
   const [selectedCategory, setSelectedCategory] = useState("Barchasi");
+  const { mutate: syncUser, isPending } = useAuth();
+
+  // Local state to track if we have initialized
+  useEffect(() => {
+    // Safety check and Telegram initialization
+    const tg = window.Telegram?.WebApp;
+    if (tg?.initDataUnsafe?.user) {
+      tg.ready();
+
+      const user = tg.initDataUnsafe.user;
+      const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ") || "Foydalanuvchi";
+
+      syncUser({
+        telegramId: user.id,
+        fullName: fullName,
+        username: user.username || "",
+        language: 0
+      });
+      return;
+    }
+  }, [syncUser]);
 
   const filteredProducts = useMemo(() => {
     if (selectedCategory === "Barchasi") return products;
@@ -20,6 +53,21 @@ function App() {
 
   return (
     <CartProvider>
+      {/* Subtle Loading Banner in the Header Area */}
+      <AnimatePresence>
+        {isPending && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed top-0 left-0 w-full z-[100] bg-[#007AFF] text-white text-[11px] font-bold uppercase tracking-widest py-1.5 flex items-center justify-center gap-2 shadow-md"
+          >
+            <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            Bog'lanmoqda...
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <Layout>
         <CategoryBar
           selectedCategory={selectedCategory}
@@ -78,8 +126,24 @@ function App() {
           </div>
         </main>
       </Layout>
-      <TelegramAuthDebug devMode={IS_DEV_MODE} />
+      <TelegramAuthDebug devMode={DEV_MODE} />
     </CartProvider>
+  );
+}
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Toaster
+        richColors
+        position="top-center"
+        toastOptions={{
+          className: 'font-[Inter] rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-slate-100',
+          style: { background: '#ffffff', color: '#0f172a' }
+        }}
+      />
+      <AppContent />
+    </QueryClientProvider>
   );
 }
 

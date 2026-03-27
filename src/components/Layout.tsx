@@ -5,7 +5,7 @@ import { Button } from "./ui/button";
 import { useCart } from "../context/CartContext";
 import { CartDrawer } from "./CartDrawer";
 import { SavedDrawer } from "./SavedDrawer";
-import { ProfileDrawer } from "./ProfileDrawer";
+import { ProfilePage } from "./ProfilePage";
 
 import { BadgeWrapper } from "./ui/BadgeWrapper";
 
@@ -78,7 +78,7 @@ export function Layout({ children }: { children: ReactNode }) {
             {/* Global Drawers */}
             <CartDrawer open={isCartOpen} onOpenChange={setIsCartOpen} />
             <SavedDrawer open={isSavedOpen} onOpenChange={setIsSavedOpen} />
-            <ProfileDrawer open={isProfileOpen} onOpenChange={setIsProfileOpen} />
+            <ProfilePage open={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
         </div>
     );
 }

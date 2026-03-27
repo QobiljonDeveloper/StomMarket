@@ -7,6 +7,9 @@ import { products } from './data/mockData';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TelegramAuthDebug } from './components/TelegramAuthDebug';
 
+// Hardcoded to false for production per requirements. Change to true when testing locally.
+const IS_DEV_MODE = false;
+
 function App() {
   const [selectedCategory, setSelectedCategory] = useState("Barchasi");
 
@@ -75,7 +78,7 @@ function App() {
           </div>
         </main>
       </Layout>
-      <TelegramAuthDebug />
+      <TelegramAuthDebug devMode={IS_DEV_MODE} />
     </CartProvider>
   );
 }

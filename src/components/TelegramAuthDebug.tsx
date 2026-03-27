@@ -17,43 +17,58 @@ interface TelegramUser {
     language_code?: string;
 }
 
-export function TelegramAuthDebug() {
+interface TelegramAuthDebugProps {
+    devMode?: boolean;
+}
+
+export function TelegramAuthDebug({ devMode = false }: TelegramAuthDebugProps) {
     const [user, setUser] = useState<TelegramUser | null>(null);
 
     useEffect(() => {
-        // Initialize Eruda for mobile debugging
-        eruda.init();
+        // Only initialize Eruda if dev_mode is true
+        if (devMode) {
+            eruda.init();
+        }
 
-        // Initialize Telegram WebApp
+        // Always initialize Telegram WebApp
         const tg = window.Telegram?.WebApp;
 
         if (tg) {
             tg.ready();
             tg.expand();
 
-            const rawInitData = tg.initData;
-            const initDataUnsafe = tg.initDataUnsafe;
+            if (devMode) {
+                const rawInitData = tg.initData;
+                const initDataUnsafe = tg.initDataUnsafe;
 
-            console.log('--- Telegram WebApp Debug ---');
-            console.log('initData:', rawInitData);
-            console.log('initDataUnsafe:', initDataUnsafe);
+                console.log('--- Telegram WebApp Debug ---');
+                console.log('initData:', rawInitData);
+                console.log('initDataUnsafe:', initDataUnsafe);
 
-            const userData = initDataUnsafe?.user;
-            if (userData) {
-                setUser(userData as TelegramUser);
-                console.log('User ID:', userData.id);
-                console.log('First Name:', userData.first_name);
-                console.log('Username:', userData.username);
-                console.log('Language Code:', userData.language_code);
+                const userData = initDataUnsafe?.user;
+                if (userData) {
+                    setUser(userData as TelegramUser);
+                    console.log('User ID:', userData.id);
+                    console.log('First Name:', userData.first_name);
+                    console.log('Username:', userData.username);
+                    console.log('Language Code:', userData.language_code);
+                }
             }
         } else {
-            console.log('Telegram WebApp is not natively available. Running in standard browser mode.');
+            if (devMode) {
+                console.log('Telegram WebApp is not natively available. Running in standard browser mode.');
+            }
         }
 
         return () => {
-            eruda.destroy();
+            if (devMode) {
+                eruda.destroy();
+            }
         };
-    }, []);
+    }, [devMode]);
+
+    // If not in dev mode, do not render the debug panel
+    if (!devMode) return null;
 
     return (
         <div className="fixed bottom-0 left-0 right-0 z-100 p-4 bg-slate-100/95 backdrop-blur-md border-t border-slate-200 shadow-[0_-4px_6px_-1px_rgb(0,0,0,0.05)] font-mono text-sm max-h-[40vh] overflow-y-auto">

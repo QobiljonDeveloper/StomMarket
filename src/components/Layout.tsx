@@ -6,6 +6,7 @@ import { useCart } from "../context/CartContext";
 import { CartDrawer } from "./CartDrawer";
 import { SavedDrawer } from "./SavedDrawer";
 import { ProfilePage } from "./ProfilePage";
+import { useUserAvatar } from "../hooks/useUserAvatar";
 
 import { BadgeWrapper } from "./ui/BadgeWrapper";
 
@@ -14,6 +15,14 @@ export function Layout({ children }: { children: ReactNode }) {
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isSavedOpen, setIsSavedOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+    // Retrieve telegram id and run avatar query for the Header nav button
+    const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+    const { avatarUrl, isLoading, isError } = useUserAvatar(tgUser?.id);
+
+    const initials = tgUser
+        ? [tgUser.first_name, tgUser.last_name].filter(Boolean).join(" ").split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()
+        : "MR";
 
     return (
         <div className="min-h-screen bg-[#F8FAFC] font-sans text-slate-900 flex flex-col selection:bg-[#007AFF]/20 selection:text-[#007AFF]">
@@ -61,12 +70,24 @@ export function Layout({ children }: { children: ReactNode }) {
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="h-9 w-9 sm:ml-2 rounded-full border border-slate-200 p-0 overflow-hidden hover:border-slate-300 transition-all shadow-sm"
+                            className="h-9 w-9 sm:ml-2 rounded-full border border-slate-200 p-0 overflow-hidden hover:border-slate-300 transition-all shadow-sm ring-1 ring-slate-200/50 bg-slate-50 relative"
                             onClick={() => setIsProfileOpen(true)}
                         >
-                            <div className="w-full h-full flex items-center justify-center text-[#007AFF] text-[11px] font-bold bg-[#E0F2F1]/50">
-                                MR
-                            </div>
+                            {isLoading ? (
+                                <div className="w-full h-full flex items-center justify-center">
+                                    <div className="w-3 h-3 border-2 border-[#007AFF]/30 border-t-[#007AFF] rounded-full animate-spin"></div>
+                                </div>
+                            ) : (avatarUrl && !isError) ? (
+                                <img
+                                    src={avatarUrl}
+                                    alt="User Avatar"
+                                    className="w-full h-full object-cover transition-opacity duration-300"
+                                />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center text-[#007AFF] text-[11px] font-bold bg-[#E0F2F1]/50">
+                                    {initials}
+                                </div>
+                            )}
                         </Button>
                     </div>
                 </div>

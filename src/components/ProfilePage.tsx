@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { ArrowLeft, Phone, User, Lock, Edit2, Globe, History } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { OrderHistory } from './OrderHistory';
+import { useUserAvatar } from '../hooks/useUserAvatar';
 
 interface TelegramUser {
     id: number;
@@ -30,6 +31,9 @@ export function ProfilePage({ open, onClose }: ProfilePageProps) {
             setUser(tg.initDataUnsafe.user as TelegramUser);
         }
     }, []);
+
+    // Fetch Custom Avatar from backend
+    const { avatarUrl, isLoading, isError } = useUserAvatar(user?.id);
 
     const tgFullName = user
         ? [user.first_name, user.last_name].filter(Boolean).join(" ")
@@ -73,8 +77,20 @@ export function ProfilePage({ open, onClose }: ProfilePageProps) {
                         <div className="px-5 pb-8 pt-8 flex-1 flex flex-col max-w-lg mx-auto w-full">
                             {/* Avatar Section */}
                             <div className="flex flex-col items-center mb-10">
-                                <div className="w-24 h-24 rounded-full bg-[#007AFF] text-white flex items-center justify-center text-3xl font-bold shadow-lg shadow-[#007AFF]/20 mb-4 border-4 border-white">
-                                    {initials}
+                                <div className="w-24 h-24 rounded-full bg-[#007AFF] text-white flex items-center justify-center text-3xl font-bold shadow-lg shadow-[#007AFF]/20 mb-4 border-4 border-white relative overflow-hidden ring-1 ring-slate-200/50">
+                                    {isLoading ? (
+                                        <div className="w-full h-full bg-slate-100 flex items-center justify-center">
+                                            <div className="w-6 h-6 border-2 border-[#007AFF]/30 border-t-[#007AFF] rounded-full animate-spin"></div>
+                                        </div>
+                                    ) : (avatarUrl && !isError) ? (
+                                        <img
+                                            src={avatarUrl}
+                                            alt="User Avatar"
+                                            className="w-full h-full object-cover transition-opacity duration-300"
+                                        />
+                                    ) : (
+                                        <span>{initials}</span>
+                                    )}
                                 </div>
                                 <div className="flex flex-col items-center">
                                     <h1 className="text-2xl font-bold text-slate-900 tracking-tight text-center relative flex items-center gap-2">

@@ -35,3 +35,10 @@ api.interceptors.response.use(
         return Promise.reject(error);
     }
 );
+
+// Fetch user profile image via Telegram ID as a Blob
+export const getUserAvatar = async (telegramId: number) => {
+    return await api.get(`/users/telegram/${telegramId}/avatar`, {
+        responseType: 'blob'
+    });
+};

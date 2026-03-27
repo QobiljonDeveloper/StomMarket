@@ -20,46 +20,52 @@ export function ProductCard({ product }: ProductCardProps) {
     const quantity = getItemQuantity(product.id);
 
     return (
-        <div className="group flex flex-col bg-white p-3 rounded-xl border border-gray-100 relative hover:shadow-md transition-all duration-200 h-full">
+        <div className="group flex flex-col bg-white/5 backdrop-blur-md p-2.5 rounded-[1.25rem] border border-white/10 relative hover:border-white/20 hover:shadow-[0_8px_30px_rgb(0,0,0,0.3)] hover:bg-white/10 transition-all duration-300 h-full">
             {/* Image Area */}
-            <div className="relative w-full aspect-square bg-gray-50 rounded-lg overflow-hidden mb-2 shrink-0">
+            <div className="relative w-full aspect-square bg-[#0b1121] rounded-xl overflow-hidden mb-3 shrink-0 shadow-[inset_0_0_20px_rgba(0,0,0,0.3)]">
                 <img
                     src={product.image}
                     alt={product.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="w-full h-full object-contain p-2 transition-transform duration-700 group-hover:scale-110 drop-shadow-xl"
                 />
 
-                {/* Heart Icon (Small, Gray, Transparent BG) */}
+                {/* Heart Icon (Small, Glass, Transparent BG) */}
                 <button
                     onClick={(e) => {
                         e.stopPropagation();
                         e.preventDefault();
                         toggleSaveProduct(product);
                     }}
-                    className="absolute top-2 right-2 z-10 p-1 transition-all duration-200 active:scale-90 outline-none"
+                    className="absolute top-2 right-2 z-10 p-1.5 transition-all duration-200 active:scale-90 outline-none rounded-full bg-slate-900/40 backdrop-blur-md border border-white/5 hover:bg-slate-900/60"
                 >
-                    <Heart className={`w-5 h-5 transition-colors ${saved ? 'text-red-500 fill-red-500' : 'text-gray-400 hover:text-red-500'}`} />
+                    <motion.div
+                        initial={false}
+                        animate={{ scale: saved ? [1, 1.3, 1] : 1 }}
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                    >
+                        <Heart className={`w-4 h-4 transition-colors ${saved ? 'text-rose-500 fill-rose-500 drop-shadow-[0_0_5px_rgba(244,63,94,0.6)]' : 'text-slate-400 hover:text-rose-400'}`} />
+                    </motion.div>
                 </button>
             </div>
 
             {/* Typography Area */}
-            <div className="flex flex-col flex-1">
-                <h3 className="text-sm font-semibold text-gray-800 line-clamp-2 leading-snug min-h-[2.5rem]">
+            <div className="flex flex-col flex-1 px-1">
+                <h3 className="text-[13px] font-medium text-slate-100 line-clamp-2 leading-tight min-h-[2.4rem] tracking-wide">
                     {product.name}
                 </h3>
 
                 {product.variants && (
-                    <p className="text-[11px] text-gray-400 line-clamp-1 mt-1 font-medium">
+                    <p className="text-[10px] text-cyan-400/80 line-clamp-1 mt-1 font-medium tracking-wide uppercase">
                         {product.variants}
                     </p>
                 )}
 
-                <span className="text-base font-bold text-gray-900 mt-auto pt-2 whitespace-nowrap">
+                <span className="text-[15px] font-bold text-white mt-auto pt-2 whitespace-nowrap drop-shadow-md">
                     {product.price}
                 </span>
 
-                {/* Action Area (Compact Inline State, Fixed h-8) */}
-                <div className="mt-2 h-8">
+                {/* Action Area */}
+                <div className="mt-2.5 h-9">
                     <AnimatePresence mode="wait" initial={false}>
                         {quantity === 0 ? (
                             <motion.div
@@ -71,9 +77,10 @@ export function ProductCard({ product }: ProductCardProps) {
                             >
                                 <Button
                                     onClick={() => addToCart(product)}
-                                    className="h-8 w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-colors p-0"
+                                    className="h-9 w-full bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-50 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition-all p-0 shadow-[inset_0_0_10px_rgba(6,182,212,0.1)] hover:shadow-[0_0_15px_rgba(6,182,212,0.25)] ring-1 ring-cyan-500/10"
                                 >
                                     <ShoppingCart className="w-4 h-4" />
+                                    Savatga
                                 </Button>
                             </motion.div>
                         ) : (
@@ -83,24 +90,24 @@ export function ProductCard({ product }: ProductCardProps) {
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
                                 transition={{ duration: 0.15 }}
-                                className="h-8 w-full border border-gray-200 rounded-lg flex items-center justify-between p-0.5 bg-white shadow-sm"
+                                className="h-9 w-full rounded-xl flex items-center justify-between p-1 shadow-[inset_0_0_15px_rgba(0,0,0,0.5)] bg-slate-950/50 border border-white/5"
                             >
                                 <button
                                     onClick={() => updateQuantity(product.id, Math.max(0, quantity - 1))}
-                                    className="w-7 h-7 flex items-center justify-center bg-rose-50 hover:bg-rose-100 text-black rounded-md transition-colors active:scale-95 shrink-0"
+                                    className="w-7 h-7 flex items-center justify-center bg-white/5 hover:bg-white/10 text-white rounded-lg transition-colors active:scale-95 shrink-0 border border-white/10"
                                 >
-                                    <Minus className="h-4 w-4" />
+                                    <Minus className="h-3.5 w-3.5" />
                                 </button>
 
-                                <span className="text-xs font-bold text-gray-900 px-1 truncate uppercase tracking-tighter">
-                                    {quantity} dona
+                                <span className="text-[11px] font-bold text-cyan-300 px-1 truncate uppercase tracking-widest text-shadow-sm">
+                                    {quantity} <span className="text-cyan-500/70 text-[9px]">dona</span>
                                 </span>
 
                                 <button
                                     onClick={() => updateQuantity(product.id, quantity + 1)}
-                                    className="w-7 h-7 flex items-center justify-center bg-rose-50 hover:bg-rose-100 text-black rounded-md transition-colors active:scale-95 shrink-0"
+                                    className="w-7 h-7 flex items-center justify-center bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-100 rounded-lg transition-colors active:scale-95 shrink-0 border border-cyan-500/30"
                                 >
-                                    <Plus className="h-4 w-4" />
+                                    <Plus className="h-3.5 w-3.5" />
                                 </button>
                             </motion.div>
                         )}

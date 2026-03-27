@@ -5,6 +5,8 @@ import { Input } from "./ui/input";
 import { CartDrawer } from "./CartDrawer";
 import { SavedDrawer } from "./SavedDrawer";
 import { ProfileDrawer } from "./ProfileDrawer";
+import { useCart } from "../context/CartContext";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface NavbarProps {
     selectedCategory: string;
@@ -24,52 +26,64 @@ const CATEGORIES_DATA = [
 ];
 
 export function Navbar({ selectedCategory, onSelectCategory }: NavbarProps) {
+    const { savedItems } = useCart();
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isSavedOpen, setIsSavedOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
 
     return (
-        <header className="sticky top-0 z-50 w-full bg-white flex flex-col shadow-sm">
+        <header className="sticky top-0 z-50 w-full bg-slate-950/70 backdrop-blur-2xl flex flex-col border-b border-white/5 shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
             {/* Top Tier: Search & Actions */}
-            <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-6">
-                <div className="flex-1 max-w-2xl relative">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                        <Search className="w-5 h-5" />
+            <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
+                <div className="flex-1 min-w-0 max-w-2xl relative">
+                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
+                        <Search className="w-5 h-5 drop-shadow-md" />
                     </div>
                     <Input
                         placeholder="Mahsulot qidirish..."
-                        className="w-full h-11 pl-12 pr-4 rounded-xl bg-slate-50 border-none focus-visible:ring-2 focus-visible:ring-sky-500 transition-all font-medium text-slate-600"
+                        className="w-full h-10 pl-11 pr-4 rounded-xl bg-white/5 border border-white/10 focus-visible:ring-1 focus-visible:ring-cyan-500 focus-visible:border-cyan-500/50 transition-all font-medium text-slate-200 placeholder:text-slate-500 shadow-[inset_0_0_15px_rgba(0,0,0,0.2)]"
                     />
                 </div>
 
-                <div className="flex items-center gap-3 shrink-0">
+                <div className="flex items-center gap-1.5 shrink-0">
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="h-11 w-11 rounded-xl text-slate-500 hover:text-red-500 hover:bg-red-50 transition-all"
+                        className="h-10 w-10 rounded-xl text-slate-300 hover:text-cyan-400 hover:bg-cyan-500/10 transition-all border border-transparent hover:border-cyan-500/20 relative"
                         onClick={() => setIsSavedOpen(true)}
                     >
-                        <Heart className="h-6 w-6" />
-                        {/* NO BADGE */}
+                        <Heart className="h-5 w-5 drop-shadow-md" />
+                        <AnimatePresence>
+                            {savedItems.length > 0 && (
+                                <motion.div
+                                    key={savedItems.length}
+                                    initial={{ scale: 0.5, y: 10, opacity: 0 }}
+                                    animate={{ scale: 1, y: 0, opacity: 1 }}
+                                    exit={{ scale: 0.5, opacity: 0 }}
+                                    className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] bg-rose-500 rounded-full flex items-center justify-center text-[10px] font-bold text-white px-1 shadow-[0_0_10px_rgba(244,63,94,0.6)] border border-rose-400/50"
+                                >
+                                    {savedItems.length}
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </Button>
 
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="h-11 w-11 rounded-xl text-slate-500 hover:text-sky-600 hover:bg-sky-50 transition-all"
+                        className="h-10 w-10 rounded-xl text-slate-300 hover:text-cyan-400 hover:bg-cyan-500/10 transition-all border border-transparent hover:border-cyan-500/20"
                         onClick={() => setIsCartOpen(true)}
                     >
-                        <ShoppingCart className="h-6 w-6" />
-                        {/* NO BADGE */}
+                        <ShoppingCart className="h-5 w-5 drop-shadow-md" />
                     </Button>
 
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="h-11 w-11 rounded-xl border border-slate-100 p-0 overflow-hidden hover:border-sky-300 transition-all ml-1"
+                        className="h-10 w-10 sm:ml-2 rounded-xl border border-white/10 p-0 overflow-hidden hover:border-cyan-500/50 transition-all shadow-[0_0_15px_rgba(0,0,0,0.2)]"
                         onClick={() => setIsProfileOpen(true)}
                     >
-                        <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-600 text-sm font-bold">
+                        <div className="w-full h-full bg-slate-800 flex items-center justify-center text-slate-200 text-xs font-bold bg-linear-to-tr from-slate-900 to-slate-700">
                             MR
                         </div>
                     </Button>
@@ -77,8 +91,8 @@ export function Navbar({ selectedCategory, onSelectCategory }: NavbarProps) {
             </div>
 
             {/* Bottom Tier: Categories */}
-            <div className="w-full border-t border-slate-50 overflow-x-auto scrollbar-hide py-2 shadow-[0_4px_10px_-4px_rgba(0,0,0,0.03)] bg-white">
-                <div className="container mx-auto px-4 flex items-center gap-2 min-w-max">
+            <div className="w-full border-t border-white/5 overflow-x-auto scrollbar-hide py-3">
+                <div className="container mx-auto px-4 flex items-center gap-2.5 min-w-max">
                     {CATEGORIES_DATA.map((cat, idx) => {
                         const isSelected = selectedCategory === cat.name;
                         const Icon = cat.icon;
@@ -87,14 +101,13 @@ export function Navbar({ selectedCategory, onSelectCategory }: NavbarProps) {
                             <button
                                 key={idx}
                                 onClick={() => onSelectCategory(cat.name)}
-                                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl transition-all duration-200 whitespace-nowrap text-sm font-bold border-none outline-none ${isSelected
-                                    ? "bg-slate-100 text-slate-900"
-                                    : "bg-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50/50"
+                                className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 whitespace-nowrap text-sm font-medium focus-visible:outline-none ${isSelected
+                                    ? "bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.15)] ring-1 ring-cyan-500/20"
+                                    : "bg-white/5 text-slate-400 border border-white/5 hover:text-slate-200 hover:bg-white/10 hover:border-white/10"
                                     }`}
                             >
-                                <Icon className={`w-4 h-4 ${isSelected ? "text-sky-600" : "text-slate-400"}`} />
+                                <Icon className={`w-4 h-4 ${isSelected ? "text-cyan-400 drop-shadow-[0_0_5px_rgba(6,182,212,0.8)]" : "text-slate-500"}`} />
                                 {cat.name}
-                                {/* NO BADGE */}
                             </button>
                         );
                     })}

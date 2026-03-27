@@ -15,7 +15,7 @@ function App() {
 
   return (
     <CartProvider>
-      <div className="min-h-screen bg-slate-50/30 font-sans text-slate-900 flex flex-col selection:bg-sky-100 selection:text-sky-900">
+      <div className="min-h-screen bg-[#0b1120] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(14,165,233,0.15),rgba(255,255,255,0))] font-sans text-slate-200 flex flex-col selection:bg-cyan-500/30 selection:text-cyan-50">
         <Navbar
           selectedCategory={selectedCategory}
           onSelectCategory={setSelectedCategory}
@@ -24,7 +24,7 @@ function App() {
         <main className="flex-1 w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
           <div id="catalog" className="scroll-mt-24">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4 px-1">
-              <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white drop-shadow-[0_2px_10px_rgba(255,255,255,0.1)]">
                 {selectedCategory === "Barchasi" ? "Barcha mahsulotlar" : selectedCategory}
               </h2>
             </div>
@@ -53,18 +53,18 @@ function App() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-center py-32 flex flex-col items-center justify-center bg-white rounded-[3rem] border border-slate-100 shadow-sm"
+                className="text-center py-32 flex flex-col items-center justify-center bg-white/5 backdrop-blur-xl rounded-[2.5rem] border border-white/10 shadow-[0_0_40px_rgba(0,0,0,0.2)]"
               >
-                <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-8 shadow-inner">
-                  <span className="text-slate-300 text-4xl">📦</span>
+                <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-8 border border-white/10 shadow-[inset_0_0_20px_rgba(255,255,255,0.05)]">
+                  <span className="text-slate-400 text-4xl">📦</span>
                 </div>
-                <h3 className="text-2xl font-bold text-slate-900 mb-3">Mahsulot topilmadi</h3>
-                <p className="text-slate-500 max-w-sm text-lg">
+                <h3 className="text-2xl font-bold text-white mb-3 tracking-wide drop-shadow-md">Mahsulot topilmadi</h3>
+                <p className="text-slate-400 max-w-sm text-lg font-light">
                   Ushbu turkumda hozircha mahsulotlar yo'q. Boshqa turkumni tanlab ko'ring.
                 </p>
                 <button
                   onClick={() => setSelectedCategory("Barchasi")}
-                  className="mt-10 font-bold text-sky-600 hover:text-sky-700 hover:bg-sky-50 px-10 py-4 rounded-full transition-all border border-sky-100 shadow-sm"
+                  className="mt-10 font-medium text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10 px-8 py-3 rounded-full transition-all border border-cyan-500/20 shadow-[0_0_15px_rgba(6,182,212,0.15)]"
                 >
                   Barcha mahsulotlarni ko'rish
                 </button>

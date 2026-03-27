@@ -20,3 +20,18 @@ api.interceptors.request.use((config) => {
     }
     return config;
 });
+
+// Response Interceptor for advanced Network/CORS Debugging
+api.interceptors.response.use(
+    (response) => {
+        return response;
+    },
+    (error) => {
+        console.error("DEBUG - URL:", error.config?.url);
+        console.error("DEBUG - Method:", error.config?.method);
+        console.error("DEBUG - Status:", error.response?.status);
+        console.error("DEBUG - Is CORS?", error.message?.includes('Network Error') && !error.response);
+
+        return Promise.reject(error);
+    }
+);

@@ -5,6 +5,7 @@ import { CategoryBar } from './components/CategoryBar';
 import { ProductCard } from './components/ProductCard';
 import { products } from './data/mockData';
 import { motion, AnimatePresence } from 'framer-motion';
+import { TelegramAuthDebug } from './components/TelegramAuthDebug';
 
 function App() {
   const [selectedCategory, setSelectedCategory] = useState("Barchasi");
@@ -74,6 +75,7 @@ function App() {
           </div>
         </main>
       </Layout>
+      <TelegramAuthDebug />
     </CartProvider>
   );
 }

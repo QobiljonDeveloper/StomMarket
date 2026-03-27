@@ -9,6 +9,7 @@ interface CartContextType {
     updateQuantity: (productId: string, quantity: number) => void;
     clearCart: () => void;
     toggleSaveProduct: (product: Product) => void;
+    clearSavedItems: () => void;
     isProductSaved: (productId: string) => boolean;
     getItemQuantity: (productId: string) => number;
     savedItems: Product[];
@@ -95,6 +96,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         });
     };
 
+    const clearSavedItems = () => setSavedItems([]);
+
     const isProductSaved = (productId: string) => {
         return savedItems.some((item) => item.id === productId);
     };
@@ -108,6 +111,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
                 updateQuantity,
                 clearCart,
                 toggleSaveProduct,
+                clearSavedItems,
                 isProductSaved,
                 savedItems,
                 cartTotal,

@@ -5,6 +5,7 @@ import type { Product } from "../types";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { ProductDetailsDrawer } from "./ProductDetailsDrawer";
+import { cn } from "@/lib/utils";
 
 interface ProductCardProps {
     product: Product;
@@ -36,39 +37,17 @@ export function ProductCard({ product }: ProductCardProps) {
                         className="w-[85%] h-[85%] object-contain transition-transform duration-700 group-hover:scale-105 drop-shadow-sm"
                     />
 
-                    {/* Like button: Light gray turning into an elegant red dot on active */}
+                    {/* Like button: Minimalist heart */}
                     <button
                         onClick={(e) => {
                             e.stopPropagation();
                             e.preventDefault();
                             toggleSaveProduct(product);
                         }}
-                        className="absolute top-2 right-2 z-10 p-1.5 transition-all duration-200 active:scale-90 outline-none rounded-full bg-white/80 backdrop-blur-md border border-slate-200 hover:bg-white shadow-sm"
+                        className="absolute top-2 right-2 z-10 p-2 transition-all duration-200 active:scale-90 outline-none rounded-full bg-white/80 backdrop-blur-md border border-slate-200 hover:bg-white shadow-sm flex items-center justify-center"
                     >
-                        <motion.div
-                            initial={false}
-                            animate={{ scale: saved ? [1, 1.3, 1] : 1 }}
-                            transition={{ duration: 0.3, ease: "easeInOut" }}
-                        >
-                            <Heart className={`w-4 h-4 transition-colors ${saved ? 'text-white fill-red-500 bg-red-500 rounded-full' : 'text-slate-400 hover:text-red-400'}`} strokeWidth={saved ? 0 : 2} />
-                        </motion.div>
+                        <Heart className={cn("w-4 h-4 transition-colors", saved ? 'text-red-500 fill-red-500' : 'text-slate-400')} strokeWidth={saved ? 0 : 2} />
                     </button>
-
-                    {/* Status Badge inside image top left */}
-                    <div className="absolute top-2 left-2 flex flex-col gap-1">
-                        {product.status === 'Omborda bor' && (
-                            <span className="bg-emerald-50 text-emerald-600 border border-emerald-100 text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1 uppercase tracking-wider shadow-sm">
-                                <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
-                                Omborda
-                            </span>
-                        )}
-                        {product.status === 'Sanoqli qoldi' && (
-                            <span className="bg-amber-50 text-amber-600 border border-amber-100 text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1 uppercase tracking-wider shadow-sm">
-                                <div className="w-1 h-1 rounded-full bg-amber-500" />
-                                Qoldi
-                            </span>
-                        )}
-                    </div>
                 </div>
 
                 {/* Typography Area */}
@@ -86,7 +65,7 @@ export function ProductCard({ product }: ProductCardProps) {
                         )}
                     </div>
 
-                    <h3 className="text-[14px] font-semibold text-slate-900 line-clamp-2 leading-snug min-h-[2.5rem] tracking-tight mt-1">
+                    <h3 className="text-[14px] font-semibold text-slate-900 line-clamp-2 leading-snug min-h-10 tracking-tight mt-1">
                         {product.name}
                     </h3>
 

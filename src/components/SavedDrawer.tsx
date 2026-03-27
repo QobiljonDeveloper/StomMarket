@@ -16,12 +16,12 @@ interface SavedDrawerProps {
 }
 
 export function SavedDrawer({ open, onOpenChange }: SavedDrawerProps) {
-    const { savedItems, setSavedItems } = useCart();
+    const { savedItems, clearSavedItems } = useCart();
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent side="bottom" className="w-full h-[90vh] sm:max-w-md sm:h-[95vh] sm:mx-auto sm:rounded-t-[2rem] rounded-t-[2rem] flex flex-col bg-[#F8FAFC] border-t border-slate-200 p-0 text-slate-900 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
-                <SheetHeader className="px-6 py-5 border-b border-slate-200 bg-white/80 backdrop-blur-xl shrink-0 sticky top-0 z-10 rounded-t-[2rem]">
+            <SheetContent side="bottom" className="w-full h-[90vh] sm:max-w-md sm:h-[95vh] sm:mx-auto sm:rounded-t-4xl rounded-t-4xl flex flex-col bg-[#F8FAFC] border-t border-slate-200 p-0 text-slate-900 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+                <SheetHeader className="px-6 py-5 border-b border-slate-200 bg-white/80 backdrop-blur-xl shrink-0 sticky top-0 z-10 rounded-t-4xl">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center border border-red-100 shadow-sm">
@@ -41,7 +41,7 @@ export function SavedDrawer({ open, onOpenChange }: SavedDrawerProps) {
 
                         {savedItems.length > 0 && (
                             <button
-                                onClick={() => setSavedItems([])}
+                                onClick={clearSavedItems}
                                 className="w-10 h-10 flex items-center justify-center rounded-full text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors shadow-sm bg-white border border-slate-200"
                             >
                                 <Trash2 className="w-4 h-4" strokeWidth={2} />

@@ -6,10 +6,11 @@ import { useCart } from "../context/CartContext";
 import { CartDrawer } from "./CartDrawer";
 import { SavedDrawer } from "./SavedDrawer";
 import { ProfileDrawer } from "./ProfileDrawer";
-import { motion, AnimatePresence } from "framer-motion";
+
+import { BadgeWrapper } from "./ui/BadgeWrapper";
 
 export function Layout({ children }: { children: ReactNode }) {
-    const { savedItems } = useCart();
+    const { savedItems, cartCount } = useCart();
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isSavedOpen, setIsSavedOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -36,21 +37,12 @@ export function Layout({ children }: { children: ReactNode }) {
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="h-10 w-10 rounded-full text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors relative"
+                            className="h-10 w-10 rounded-full text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
                             onClick={() => setIsSavedOpen(true)}
                         >
-                            <Heart className="h-5 w-5" strokeWidth={1.5} />
-                            <AnimatePresence>
-                                {savedItems.length > 0 && (
-                                    <motion.div
-                                        key={savedItems.length}
-                                        initial={{ scale: 0.5, y: 10, opacity: 0 }}
-                                        animate={{ scale: 1, y: 0, opacity: 1 }}
-                                        exit={{ scale: 0.5, opacity: 0 }}
-                                        className="absolute top-2 right-2 min-w-[8px] h-[8px] bg-red-500 rounded-full border-2 border-white shadow-sm"
-                                    />
-                                )}
-                            </AnimatePresence>
+                            <BadgeWrapper count={savedItems.length}>
+                                <Heart className="h-5 w-5" strokeWidth={1.5} />
+                            </BadgeWrapper>
                         </Button>
 
                         {/* Cart */}
@@ -60,7 +52,9 @@ export function Layout({ children }: { children: ReactNode }) {
                             className="h-10 w-10 rounded-full text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
                             onClick={() => setIsCartOpen(true)}
                         >
-                            <ShoppingCart className="h-5 w-5" strokeWidth={1.5} />
+                            <BadgeWrapper count={cartCount}>
+                                <ShoppingCart className="h-5 w-5" strokeWidth={1.5} />
+                            </BadgeWrapper>
                         </Button>
 
                         {/* Profile */}

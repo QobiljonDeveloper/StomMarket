@@ -12,7 +12,6 @@ import { Label } from "./ui/label";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Textarea } from "./ui/textarea";
 import { CreditCard, Truck, User, Phone, MapPin, MessageSquare, ArrowLeft, Banknote, Store, ShieldCheck } from "lucide-react";
-import { motion } from "framer-motion";
 
 interface CheckoutDrawerProps {
     open: boolean;
@@ -54,7 +53,7 @@ export function CheckoutDrawer({ open, onOpenChange }: CheckoutDrawerProps) {
                 <ScrollArea className="flex-1 px-5 py-6">
                     <div className="space-y-8">
                         {/* Summary Section */}
-                        <div className="bg-[#F8FAFC] p-6 rounded-[1.5rem] border border-slate-200 flex flex-col items-center group shadow-sm relative overflow-hidden">
+                        <div className="bg-[#F8FAFC] p-6 rounded-3xl border border-slate-200 flex flex-col items-center group shadow-sm relative overflow-hidden">
                             <div className="absolute top-0 right-0 w-24 h-24 bg-[#007AFF]/5 rounded-full blur-[30px] pointer-events-none" />
                             <span className="text-slate-500 font-bold uppercase tracking-widest text-[10px] mb-1">To'lov miqdori</span>
                             <span className="text-slate-900 font-black text-3xl tracking-tight">

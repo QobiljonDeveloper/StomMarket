@@ -40,8 +40,8 @@ const MOCK_ORDERS = [
 export function ProfileDrawer({ open, onOpenChange }: ProfileDrawerProps) {
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent side="bottom" className="w-full h-[90vh] sm:max-w-md sm:h-[95vh] sm:mx-auto sm:rounded-t-[2rem] rounded-t-[2rem] flex flex-col bg-[#F8FAFC] border-t border-slate-200 p-0 text-slate-900 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
-                <SheetHeader className="px-6 py-6 border-b border-slate-200 bg-white/80 backdrop-blur-xl shrink-0 sticky top-0 z-10 rounded-t-[2rem]">
+            <SheetContent side="bottom" className="w-full h-[90vh] sm:max-w-md sm:h-[95vh] sm:mx-auto sm:rounded-t-4xl rounded-t-4xl flex flex-col bg-[#F8FAFC] border-t border-slate-200 p-0 text-slate-900 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+                <SheetHeader className="px-6 py-6 border-b border-slate-200 bg-white/80 backdrop-blur-xl shrink-0 sticky top-0 z-10 rounded-t-4xl">
                     <div className="flex items-center gap-4">
                         <div className="w-14 h-14 rounded-full bg-[#E0F2F1] flex items-center justify-center border border-[#007AFF]/20 shadow-sm relative overflow-hidden">
                             <User className="absolute -bottom-2 w-10 h-10 text-[#007AFF]/60" strokeWidth={1.5} />

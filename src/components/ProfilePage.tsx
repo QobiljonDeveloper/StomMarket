@@ -15,6 +15,7 @@ export function ProfilePage({ open, onClose }: ProfilePageProps) {
     const [isEditingPhone, setIsEditingPhone] = useState(false);
     const [editPhoneValue, setEditPhoneValue] = useState("");
     const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+    const [imageError, setImageError] = useState(false);
 
     const tgFullName = user?.fullName || "Foydalanuvchi";
 
@@ -56,17 +57,22 @@ export function ProfilePage({ open, onClose }: ProfilePageProps) {
                         <div className="px-5 pb-8 pt-8 flex-1 flex flex-col max-w-lg mx-auto w-full">
                             {/* Avatar Section */}
                             <div className="flex flex-col items-center mb-10">
-                                <div className="w-24 h-24 rounded-full bg-[#007AFF] text-white flex items-center justify-center text-3xl font-bold shadow-lg shadow-[#007AFF]/20 mb-4 border-4 border-white relative overflow-hidden ring-1 ring-slate-200/50">
-                                    {user?.photoUrl ? (
-                                        <img
-                                            src={user.photoUrl}
-                                            alt="User Avatar"
-                                            className="w-full h-full object-cover transition-opacity duration-500 opacity-0"
-                                            onLoad={(e) => e.currentTarget.classList.remove('opacity-0')}
-                                        />
-                                    ) : (
-                                        <span>{initials}</span>
-                                    )}
+                                <div className="w-28 h-28 rounded-full mb-4 relative drop-shadow-[0_12px_24px_rgba(0,0,0,0.06)] flex items-center justify-center p-2 bg-white/60 backdrop-blur-xl border-2 border-white shadow-[inset_0_2px_8px_rgba(255,255,255,0.8)]">
+                                    <div className="w-full h-full rounded-full overflow-hidden bg-linear-to-br from-slate-50 to-slate-100 flex items-center justify-center shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)] relative z-10">
+                                        {user?.photoUrl && !imageError ? (
+                                            <img
+                                                src={user.photoUrl}
+                                                alt="User Avatar"
+                                                className="w-full h-full object-cover transition-opacity duration-500 opacity-0"
+                                                onLoad={(e) => e.currentTarget.classList.remove('opacity-0')}
+                                                onError={() => setImageError(true)}
+                                            />
+                                        ) : (
+                                            <span className="text-[#007AFF] text-[40px] font-black tracking-tight drop-shadow-sm">
+                                                {initials}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
                                 <div className="flex flex-col items-center">
                                     <h1 className="text-2xl font-bold text-slate-900 tracking-tight text-center relative flex items-center gap-2">

@@ -16,7 +16,7 @@ export const useWishlist = (userId: string | undefined | null) => {
         queryKey: ['wishlist', userId],
         queryFn: async (): Promise<Product[]> => {
             if (!userId) return [];
-            const { data } = await api.get(`/wishlist/${userId}/`);
+            const { data } = await api.get(`/wishlist/${userId}`);
             return data;
         },
         enabled: !!userId,
@@ -30,9 +30,9 @@ export const useWishlist = (userId: string | undefined | null) => {
             if (!userId) throw new Error("User not logged in");
             try {
                 if (isCurrentlySaved) {
-                    await api.delete(`/wishlist/${userId}/${productId}/`);
+                    await api.delete(`/wishlist/${userId}/${productId}`);
                 } else {
-                    await api.post(`/wishlist/${userId}/${productId}/`);
+                    await api.post(`/wishlist/${userId}/${productId}`);
                 }
             } catch (error) {
                 console.error("Wishlist mutation failed:", error);

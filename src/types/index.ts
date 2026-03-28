@@ -10,6 +10,15 @@ export interface ProductImage {
     isPrimary: boolean;
 }
 
+export interface Category {
+    id: string;
+    parentId: string | null;
+    nameUz: string;
+    slug: string;
+    isActive: boolean;
+    children: Category[];
+}
+
 export interface Product {
     id: string;
 

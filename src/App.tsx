@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
 import { CartProvider } from './context/CartContext';
@@ -24,7 +24,8 @@ const queryClient = new QueryClient({
 });
 
 function AppContent() {
-  const [selectedCategory, setSelectedCategory] = useState("Barchasi");
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const [selectedCategoryName, setSelectedCategoryName] = useState<string>("Barchasi");
   const { token } = useAuthContext();
   const { mutate: syncUser, isPending } = useAuth();
 
@@ -42,12 +43,10 @@ function AppContent() {
     }
   }, [syncUser, token]);
 
-  const { data: products = [], isLoading: isLoadingProducts } = useProducts();
+  const { data: products = [], isLoading: isLoadingProducts } = useProducts(selectedCategoryId || undefined);
 
-  const filteredProducts = useMemo(() => {
-    if (selectedCategory === "Barchasi") return products;
-    return products.filter((product) => product.category === selectedCategory);
-  }, [selectedCategory, products]);
+  // Backend handles filtering via categoryId parameter
+  const filteredProducts = products;
 
   return (
     <CartProvider>
@@ -68,15 +67,18 @@ function AppContent() {
 
       <Layout>
         <CategoryBar
-          selectedCategory={selectedCategory}
-          onSelectCategory={setSelectedCategory}
+          selectedCategoryId={selectedCategoryId}
+          onSelectCategory={(id, name) => {
+            setSelectedCategoryId(id);
+            setSelectedCategoryName(name);
+          }}
         />
 
         <main className="flex-1 w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
           <div id="catalog" className="scroll-mt-24">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4 px-1">
               <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 drop-shadow-sm">
-                {selectedCategory === "Barchasi" ? "Barcha mahsulotlar" : selectedCategory}
+                {!selectedCategoryId ? "Barcha mahsulotlar" : selectedCategoryName}
               </h2>
             </div>
 
@@ -126,7 +128,10 @@ function AppContent() {
                   Ushbu turkumda hozircha mahsulotlar yo'q. Boshqa turkumni tanlab ko'ring.
                 </p>
                 <button
-                  onClick={() => setSelectedCategory("Barchasi")}
+                  onClick={() => {
+                    setSelectedCategoryId(null);
+                    setSelectedCategoryName("Barchasi");
+                  }}
                   className="mt-10 font-medium text-[#007AFF] hover:text-[#005bb5] bg-[#007AFF]/5 hover:bg-[#007AFF]/10 px-8 py-3 rounded-full transition-all border border-[#007AFF]/20"
                 >
                   Barcha mahsulotlarni ko'rish

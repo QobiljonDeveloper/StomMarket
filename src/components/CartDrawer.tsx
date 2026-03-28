@@ -9,7 +9,7 @@ import {
     SheetFooter,
 } from "./ui/sheet";
 import { ScrollArea } from "./ui/scroll-area";
-import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, ArrowLeft } from "lucide-react";
 import { CheckoutDrawer } from "./CheckoutDrawer";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -30,8 +30,16 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
         <>
             <Sheet open={open} onOpenChange={onOpenChange}>
                 <SheetContent className="w-full sm:max-w-md flex flex-col h-full bg-white border-l border-slate-200 p-0 text-slate-900 shadow-[-10px_0_40px_rgba(0,0,0,0.05)]">
-                    <SheetHeader className="px-6 py-5 border-b border-slate-100 bg-white/80 backdrop-blur-xl shrink-0 sticky top-0 z-10">
-                        <SheetTitle className="flex items-center gap-3 text-xl font-bold tracking-tight text-slate-900">
+                    <SheetHeader className="px-5 py-5 border-b border-slate-100 flex flex-row items-center gap-3 space-y-0 bg-white/80 backdrop-blur-xl shrink-0 sticky top-0 z-10 transition-all">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-10 w-10 shrink-0 rounded-full text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-colors border border-slate-200 shadow-sm"
+                            onClick={() => onOpenChange(false)}
+                        >
+                            <ArrowLeft className="w-5 h-5" strokeWidth={2} />
+                        </Button>
+                        <SheetTitle className="flex items-center gap-3 text-xl font-bold tracking-tight text-slate-900 m-0">
                             <div className="w-10 h-10 rounded-xl bg-[#007AFF]/10 flex items-center justify-center border border-[#007AFF]/20">
                                 <ShoppingBag className="w-5 h-5 text-[#007AFF]" strokeWidth={2} />
                             </div>

@@ -10,16 +10,19 @@ interface TogglePayload {
 
 export const useWishlist = (userId: string | undefined | null) => {
     const queryClient = useQueryClient();
+    // Ensure userId is always a clean string (guards against stale localStorage with numeric ids)
+    const safeUserId = userId ? String(userId) : null;
 
     // Fetch wishlist
     const { data: wishlist = [], isLoading } = useQuery({
-        queryKey: ['wishlist', userId],
+        queryKey: ['wishlist', safeUserId],
         queryFn: async (): Promise<Product[]> => {
-            if (!userId) return [];
-            const { data } = await api.get(`/wishlist/${userId}`);
+            if (!safeUserId) return [];
+            console.log("Fetching wishlist for user:", safeUserId);
+            const { data } = await api.get(`/wishlist/${safeUserId}`);
             return data;
         },
-        enabled: !!userId,
+        enabled: !!safeUserId,
     });
 
     const isSaved = (productId: string) => wishlist.some((p: Product) => p.id === productId);
@@ -27,12 +30,12 @@ export const useWishlist = (userId: string | undefined | null) => {
     // Toggle Mutation with Optimistic Updates
     const toggleMutation = useMutation({
         mutationFn: async ({ productId, isCurrentlySaved }: TogglePayload) => {
-            if (!userId) throw new Error("User not logged in");
-            const url = `/wishlist/${userId}/${productId}`;
+            if (!safeUserId) throw new Error("User not logged in");
+            const url = `/wishlist/${safeUserId}/${productId}`;
             const fullUrl = `${api.defaults.baseURL}${url}`;
             console.log("=== WISHLIST DEBUG ===");
             console.log("Method:", isCurrentlySaved ? "DELETE" : "POST");
-            console.log("User ID:", userId);
+            console.log("User ID:", safeUserId);
             console.log("Product ID:", productId);
             console.log("Full URL:", fullUrl);
             console.log("Token:", localStorage.getItem('token')?.slice(0, 20) + "...");
@@ -53,21 +56,21 @@ export const useWishlist = (userId: string | undefined | null) => {
         },
         onMutate: async ({ product, isCurrentlySaved }: TogglePayload) => {
             // Cancel any outgoing refetches so they don't overwrite our optimistic update
-            await queryClient.cancelQueries({ queryKey: ['wishlist', userId] });
+            await queryClient.cancelQueries({ queryKey: ['wishlist', safeUserId] });
 
             // Snapshot the previous value
-            const previousWishlist = queryClient.getQueryData<Product[]>(['wishlist', userId]);
+            const previousWishlist = queryClient.getQueryData<Product[]>(['wishlist', safeUserId]);
 
             // Optimistically update to the new value
             if (previousWishlist) {
                 if (isCurrentlySaved) {
                     queryClient.setQueryData<Product[]>(
-                        ['wishlist', userId],
+                        ['wishlist', safeUserId],
                         previousWishlist.filter(p => p.id !== product.id)
                     );
                 } else {
                     queryClient.setQueryData<Product[]>(
-                        ['wishlist', userId],
+                        ['wishlist', safeUserId],
                         [...previousWishlist, product]
                     );
                 }
@@ -78,11 +81,11 @@ export const useWishlist = (userId: string | undefined | null) => {
         onError: (_err, _variables, context) => {
             console.error("Reverting optimistic UI update due to backend error");
             if (context?.previousWishlist) {
-                queryClient.setQueryData(['wishlist', userId], context.previousWishlist);
+                queryClient.setQueryData(['wishlist', safeUserId], context.previousWishlist);
             }
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['wishlist', userId] });
+            queryClient.invalidateQueries({ queryKey: ['wishlist', safeUserId] });
         },
     });
 
@@ -91,7 +94,7 @@ export const useWishlist = (userId: string | undefined | null) => {
         isLoading,
         isSaved,
         toggleWishlist: (product: Product) => {
-            if (!userId) return; // Prevent action if no user
+            if (!safeUserId) return; // Prevent action if no user
             toggleMutation.mutate({
                 productId: product.id,
                 product,

@@ -5,10 +5,10 @@ import {
     SheetTitle,
 } from "./ui/sheet";
 import { ScrollArea } from "./ui/scroll-area";
-import { ProductCard } from "./ProductCard";
+import { WishlistCard } from "./WishlistCard";
 import { useAuthContext } from "../context/AuthContext";
 import { useWishlist } from "../hooks/useWishlist";
-import { Heart } from "lucide-react";
+import { Heart, ShoppingBag } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface SavedDrawerProps {
@@ -18,9 +18,7 @@ interface SavedDrawerProps {
 
 export function SavedDrawer({ open, onOpenChange }: SavedDrawerProps) {
     const { user } = useAuthContext();
-    const { wishlist = [] } = useWishlist(user?.id);
-
-    const savedItems = wishlist;
+    const { wishlist = [], removeFromWishlist } = useWishlist(user?.id);
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
@@ -33,11 +31,11 @@ export function SavedDrawer({ open, onOpenChange }: SavedDrawerProps) {
                             </div>
                             <div className="flex flex-col">
                                 <SheetTitle className="text-xl font-bold tracking-tight text-slate-900">
-                                    Saqlanganlar
+                                    Sevimlilar
                                 </SheetTitle>
-                                {savedItems.length > 0 && (
+                                {wishlist.length > 0 && (
                                     <span className="text-xs font-medium text-slate-500">
-                                        {savedItems.length} ta mahsulot
+                                        {wishlist.length} ta mahsulot
                                     </span>
                                 )}
                             </div>
@@ -47,7 +45,7 @@ export function SavedDrawer({ open, onOpenChange }: SavedDrawerProps) {
 
                 <div className="flex-1 overflow-hidden relative">
                     <AnimatePresence mode="wait">
-                        {savedItems.length === 0 ? (
+                        {wishlist.length === 0 ? (
                             <motion.div
                                 key="empty"
                                 initial={{ opacity: 0, scale: 0.95 }}
@@ -63,16 +61,17 @@ export function SavedDrawer({ open, onOpenChange }: SavedDrawerProps) {
                                     </div>
                                 </div>
                                 <h3 className="text-2xl font-bold tracking-tight text-slate-900 mb-3">
-                                    Sizda saqlanganlar yo'q
+                                    Sevimlilar ro'yxati bo'sh
                                 </h3>
                                 <p className="text-slate-500 max-w-[280px] leading-relaxed font-medium">
-                                    O'zingizga yoqqan mahsulotlarni yurakcha tugmasini bosib saqlab qo'yishingiz mumkin.
+                                    O'zingizga yoqqan mahsulotlarni yurakcha tugmasini bosib saqlab qo'ying.
                                 </p>
                                 <button
                                     onClick={() => onOpenChange(false)}
-                                    className="mt-10 bg-white hover:bg-slate-50 text-slate-900 font-bold px-8 py-3.5 rounded-full border border-slate-200 shadow-sm transition-all active:scale-95"
+                                    className="mt-10 bg-[#007AFF] hover:bg-[#005bb5] text-white font-bold px-8 py-3.5 rounded-full shadow-sm transition-all active:scale-95 flex items-center gap-2.5"
                                 >
-                                    Katalogga qaytish
+                                    <ShoppingBag className="w-4.5 h-4.5" strokeWidth={2} />
+                                    Xaridni boshlash
                                 </button>
                             </motion.div>
                         ) : (
@@ -86,16 +85,19 @@ export function SavedDrawer({ open, onOpenChange }: SavedDrawerProps) {
                                 <ScrollArea className="h-full px-4 py-6">
                                     <div className="grid grid-cols-2 gap-3 pb-8">
                                         <AnimatePresence>
-                                            {savedItems.map((item) => (
+                                            {wishlist.map((item) => (
                                                 <motion.div
-                                                    key={item.id}
+                                                    key={item.productId}
                                                     layout
                                                     initial={{ opacity: 0, scale: 0.9 }}
                                                     animate={{ opacity: 1, scale: 1 }}
                                                     exit={{ opacity: 0, scale: 0.8 }}
                                                     transition={{ duration: 0.2 }}
                                                 >
-                                                    <ProductCard product={item} />
+                                                    <WishlistCard
+                                                        item={item}
+                                                        onRemove={removeFromWishlist}
+                                                    />
                                                 </motion.div>
                                             ))}
                                         </AnimatePresence>

@@ -48,3 +48,13 @@ export interface Product {
 export interface CartItem extends Product {
     quantity: number;
 }
+
+export interface WishlistItem {
+    id: string;                // wishlist record ID — do NOT use for product logic
+    productId: string;         // actual product UUID — use for delete/view actions
+    productNameUz: string;
+    productNameRu: string;
+    slug: string;
+    basePrice: number;
+    primaryImageUrl: string | null;
+}

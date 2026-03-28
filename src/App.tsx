@@ -9,6 +9,7 @@ import { products } from './data/mockData';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TelegramAuthDebug } from './components/TelegramAuthDebug';
 import { useAuth } from './hooks/useAuth';
+import { AuthProvider, useAuthContext } from './context/AuthContext';
 
 // Hardcoded to true for temporary debugging per requirements.
 const DEV_MODE = true;
@@ -24,27 +25,22 @@ const queryClient = new QueryClient({
 
 function AppContent() {
   const [selectedCategory, setSelectedCategory] = useState("Barchasi");
+  const { token } = useAuthContext();
   const { mutate: syncUser, isPending } = useAuth();
 
   // Local state to track if we have initialized
   useEffect(() => {
     // Safety check and Telegram initialization
     const tg = window.Telegram?.WebApp;
-    if (tg?.initDataUnsafe?.user) {
+    if (tg?.initData) {
       tg.ready();
 
-      const user = tg.initDataUnsafe.user;
-      const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ") || "Foydalanuvchi";
-
-      syncUser({
-        telegramId: user.id,
-        fullName: fullName,
-        username: user.username || "",
-        language: 0
-      });
-      return;
+      // Send initData to authenticate if we don't have a token
+      if (!token) {
+        syncUser(tg.initData);
+      }
     }
-  }, [syncUser]);
+  }, [syncUser, token]);
 
   const filteredProducts = useMemo(() => {
     if (selectedCategory === "Barchasi") return products;
@@ -134,15 +130,17 @@ function AppContent() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Toaster
-        richColors
-        position="top-center"
-        toastOptions={{
-          className: 'font-[Inter] rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-slate-100',
-          style: { background: '#ffffff', color: '#0f172a' }
-        }}
-      />
-      <AppContent />
+      <AuthProvider>
+        <Toaster
+          richColors
+          position="top-center"
+          toastOptions={{
+            className: 'font-[Inter] rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-slate-100',
+            style: { background: '#ffffff', color: '#0f172a' }
+          }}
+        />
+        <AppContent />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

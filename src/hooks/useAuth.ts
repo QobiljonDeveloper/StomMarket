@@ -1,46 +1,31 @@
 import { useMutation } from '@tanstack/react-query';
 import { api } from '../services/api';
 import { toast } from 'sonner';
+import { useAuthContext, User } from '../context/AuthContext';
 
-interface AuthPayload {
-    telegramId: number;
-    fullName: string;
-    username: string;
-    language: number;
+interface AuthResponse {
+    token: string;
+    user: User;
 }
 
 export const useAuth = () => {
-    return useMutation({
-        mutationFn: async (payload: AuthPayload) => {
-            // 1. Native fetch debugging for CORS diagnostics
-            try {
-                const fetchRes = await fetch('https://ortadant-markert-api.kubesec.uz/api/users/create-or-update', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `tma ${window.Telegram?.WebApp?.initData || ''}`
-                    },
-                    body: JSON.stringify(payload)
-                });
-                if (!fetchRes.ok) {
-                    console.warn("Native Fetch Warning: Response not OK", fetchRes.status);
-                }
-            } catch (err: any) {
-                console.error("Native Fetch Failed (Likely CORS):", err.message);
-                toast.error("CORS Error detected. The backend must allow origin: https://stom-market.vercel.app");
-            }
+    const { setToken, setUser } = useAuthContext();
 
-            // 2. Primary Axios Request
-            const response = await api.post('/users/create-or-update', payload);
+    return useMutation({
+        mutationFn: async (initData: string): Promise<AuthResponse> => {
+            const response = await api.post('/auth/telegram', { initData });
             return response.data;
         },
         onSuccess: (data) => {
             console.log("Auth Success:", data);
+            setToken(data.token);
+            setUser(data.user);
             toast.success("Tizimga muvaffaqiyatli kirildi! ✅");
         },
         onError: (error: any) => {
             console.error("API Error:", error);
-            toast.error("Tarmoq xatosi (ERR_NETWORK). Iltimos, internetni yoki Backend CORS sozlamalarini tekshiring.");
+            // Ignore 404s if it's expected during dev, else show error
+            toast.error("Avtorizatsiyada xatolik yuz berdi. Iltimos, qaytadan urinib ko'ring.");
         }
     });
 };

@@ -1,16 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { ArrowLeft, Phone, User, Lock, Edit2, Globe, History } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { OrderHistory } from './OrderHistory';
-import { useUserAvatar } from '../hooks/useUserAvatar';
-
-interface TelegramUser {
-    id: number;
-    first_name: string;
-    last_name?: string;
-    username?: string;
-    language_code?: string;
-}
+import { useAuthContext } from '../context/AuthContext';
 
 interface ProfilePageProps {
     open: boolean;
@@ -18,26 +10,13 @@ interface ProfilePageProps {
 }
 
 export function ProfilePage({ open, onClose }: ProfilePageProps) {
-    const [user, setUser] = useState<TelegramUser | null>(null);
+    const { user } = useAuthContext();
     const [phoneNumber, setPhoneNumber] = useState("");
     const [isEditingPhone, setIsEditingPhone] = useState(false);
     const [editPhoneValue, setEditPhoneValue] = useState("");
     const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
-    useEffect(() => {
-        // Gracefully handle initDataUnsafe from Telegram WebApp
-        const tg = window.Telegram?.WebApp;
-        if (tg?.initDataUnsafe?.user) {
-            setUser(tg.initDataUnsafe.user as TelegramUser);
-        }
-    }, []);
-
-    // Fetch Custom Avatar from backend
-    const { avatarUrl, isLoading, isError } = useUserAvatar(user?.id);
-
-    const tgFullName = user
-        ? [user.first_name, user.last_name].filter(Boolean).join(" ")
-        : "Foydalanuvchi";
+    const tgFullName = user?.fullName || "Foydalanuvchi";
 
     const initials = tgFullName
         .split(" ")
@@ -78,13 +57,9 @@ export function ProfilePage({ open, onClose }: ProfilePageProps) {
                             {/* Avatar Section */}
                             <div className="flex flex-col items-center mb-10">
                                 <div className="w-24 h-24 rounded-full bg-[#007AFF] text-white flex items-center justify-center text-3xl font-bold shadow-lg shadow-[#007AFF]/20 mb-4 border-4 border-white relative overflow-hidden ring-1 ring-slate-200/50">
-                                    {isLoading ? (
-                                        <div className="w-full h-full bg-slate-100 flex items-center justify-center">
-                                            <div className="w-6 h-6 border-2 border-[#007AFF]/30 border-t-[#007AFF] rounded-full animate-spin"></div>
-                                        </div>
-                                    ) : (avatarUrl && !isError) ? (
+                                    {user?.photoUrl ? (
                                         <img
-                                            src={avatarUrl}
+                                            src={user.photoUrl}
                                             alt="User Avatar"
                                             className="w-full h-full object-cover transition-opacity duration-500 opacity-0"
                                             onLoad={(e) => e.currentTarget.classList.remove('opacity-0')}
@@ -177,9 +152,8 @@ export function ProfilePage({ open, onClose }: ProfilePageProps) {
                                     <div className="flex-1 flex flex-col justify-center">
                                         <span className="text-[11px] font-bold uppercase text-slate-400 tracking-wider mb-0.5">Til (Language)</span>
                                         <span className="text-[15px] font-semibold text-slate-900">
-                                            {user?.language_code === 'uz' ? "O'zbekcha" :
-                                                user?.language_code === 'ru' ? "Русский" :
-                                                    user?.language_code === 'en' ? "English" : "O'zbekcha"}
+                                            {user?.language === 1 ? "Русский" :
+                                                user?.language === 2 ? "English" : "O'zbekcha"}
                                         </span>
                                     </div>
                                 </div>

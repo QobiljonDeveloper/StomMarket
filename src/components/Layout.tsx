@@ -7,12 +7,14 @@ import { CartDrawer } from "./CartDrawer";
 import { SavedDrawer } from "./SavedDrawer";
 import { ProfilePage } from "./ProfilePage";
 import { useAuthContext } from "../context/AuthContext";
+import { useWishlist } from "../hooks/useWishlist";
 
 import { BadgeWrapper } from "./ui/BadgeWrapper";
 
 export function Layout({ children }: { children: ReactNode }) {
-    const { savedItems, cartCount } = useCart();
+    const { cartCount } = useCart();
     const { user } = useAuthContext();
+    const { wishlist = [] } = useWishlist(user?.id?.toString());
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isSavedOpen, setIsSavedOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -51,7 +53,7 @@ export function Layout({ children }: { children: ReactNode }) {
                             className="h-10 w-10 rounded-full text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
                             onClick={() => setIsSavedOpen(true)}
                         >
-                            <BadgeWrapper count={savedItems.length}>
+                            <BadgeWrapper count={wishlist.length}>
                                 <Heart className="h-5 w-5" strokeWidth={1.5} />
                             </BadgeWrapper>
                         </Button>

@@ -28,11 +28,13 @@ export const useWishlist = (userId: string | undefined | null) => {
     const toggleMutation = useMutation({
         mutationFn: async ({ productId, isCurrentlySaved }: TogglePayload) => {
             if (!userId) throw new Error("User not logged in");
+            const url = `/wishlist/${userId}/${productId}`;
+            console.log("Wishlist request:", isCurrentlySaved ? "DELETE" : "POST", api.defaults.baseURL + url);
             try {
                 if (isCurrentlySaved) {
-                    await api.delete(`/wishlist/${userId}/${productId}`);
+                    await api.delete(url);
                 } else {
-                    await api.post(`/wishlist/${userId}/${productId}`);
+                    await api.post(url, {});
                 }
             } catch (error) {
                 console.error("Wishlist mutation failed:", error);

@@ -22,7 +22,7 @@ interface ProductDetailsDrawerProps {
 export function ProductDetailsDrawer({ open, onOpenChange, product }: ProductDetailsDrawerProps) {
     const { addToCart, getItemQuantity, updateQuantity } = useCart();
     const { user } = useAuthContext();
-    const { isSaved, toggleWishlist } = useWishlist(user?.id?.toString());
+    const { isSaved, toggleWishlist } = useWishlist(user?.id);
 
     const quantity = getItemQuantity(product.id);
     const saved = isSaved(product.id);

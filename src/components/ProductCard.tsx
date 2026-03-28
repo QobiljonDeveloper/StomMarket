@@ -21,7 +21,7 @@ export function ProductCard({ product }: ProductCardProps) {
     } = useCart();
 
     const { user } = useAuthContext();
-    const { isSaved, toggleWishlist } = useWishlist(user?.id?.toString());
+    const { isSaved, toggleWishlist } = useWishlist(user?.id);
 
     const saved = isSaved(product.id);
     const quantity = getItemQuantity(product.id);

@@ -18,7 +18,7 @@ interface SavedDrawerProps {
 
 export function SavedDrawer({ open, onOpenChange }: SavedDrawerProps) {
     const { user } = useAuthContext();
-    const { wishlist = [] } = useWishlist(user?.id?.toString());
+    const { wishlist = [] } = useWishlist(user?.id);
 
     const savedItems = wishlist;
 

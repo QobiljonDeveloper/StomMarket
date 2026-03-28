@@ -14,7 +14,7 @@ import { BadgeWrapper } from "./ui/BadgeWrapper";
 export function Layout({ children }: { children: ReactNode }) {
     const { cartCount } = useCart();
     const { user } = useAuthContext();
-    const { wishlist = [] } = useWishlist(user?.id?.toString());
+    const { wishlist = [] } = useWishlist(user?.id);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isSavedOpen, setIsSavedOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);

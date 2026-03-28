@@ -30,12 +30,25 @@ export function ProductCard({ product }: ProductCardProps) {
                 className="group flex flex-col bg-white p-3 rounded-2xl border border-slate-200 relative hover:border-[#007AFF]/30 shadow-[0_10px_30px_rgba(0,0,0,0.02)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.08)] transition-all duration-300 h-full cursor-pointer"
             >
                 {/* Image Area with soft medical blue backing */}
-                <div className="relative w-full aspect-square bg-[#F1F5F9] group-hover:bg-[#E0F2F1]/50 rounded-xl overflow-hidden mb-3 shrink-0 transition-colors duration-300 flex items-center justify-center">
-                    <img
-                        src={product.image}
-                        alt={product.name}
-                        className="w-[85%] h-[85%] object-contain transition-transform duration-700 group-hover:scale-105 drop-shadow-sm"
-                    />
+                <div className="relative w-full aspect-square bg-[#F1F5F9] group-hover:bg-[#E0F2F1]/50 rounded-xl overflow-hidden mb-3 shrink-0 transition-colors duration-300 flex items-center justify-center p-2">
+                    {product.images?.[0] ? (
+                        <img
+                            src={product.images[0]}
+                            alt={product.nameUz || product.name || "Mahsulot"}
+                            className="w-[85%] h-[85%] object-contain transition-transform duration-700 group-hover:scale-105 drop-shadow-sm"
+                        />
+                    ) : product.image ? (
+                        <img
+                            src={product.image}
+                            alt={product.nameUz || product.name || "Mahsulot"}
+                            className="w-[85%] h-[85%] object-contain transition-transform duration-700 group-hover:scale-105 drop-shadow-sm"
+                        />
+                    ) : (
+                        <div className="w-[80%] h-[80%] rounded-full bg-white/50 backdrop-blur-md border border-white shadow-[0_4px_16px_rgba(0,0,0,0.04)] flex flex-col items-center justify-center text-slate-400 font-bold tracking-widest uppercase text-[10px] text-center p-2 leading-tight">
+                            <span className="text-xl mb-1 opacity-50">📷</span>
+                            Rasm<br />yo'q
+                        </div>
+                    )}
 
                     {/* Like button: Minimalist heart */}
                     <button
@@ -66,7 +79,7 @@ export function ProductCard({ product }: ProductCardProps) {
                     </div>
 
                     <h3 className="text-[14px] font-semibold text-slate-900 line-clamp-2 leading-snug min-h-10 tracking-tight mt-1">
-                        {product.name}
+                        {product.nameUz || product.name}
                     </h3>
 
                     <div className="flex flex-col gap-0.5 mt-2 mb-3 h-8">
@@ -79,7 +92,7 @@ export function ProductCard({ product }: ProductCardProps) {
                     </div>
 
                     <span className="text-[16px] font-bold text-[#007AFF] mt-auto whitespace-nowrap">
-                        {product.price}
+                        {product.basePrice !== undefined ? `${product.basePrice.toLocaleString()} so'm` : product.price}
                     </span>
 
                     {/* Action Area */}

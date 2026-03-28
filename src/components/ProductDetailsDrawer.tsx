@@ -8,6 +8,8 @@ import { Heart, ShoppingCart, Minus, Plus, ShieldCheck, Truck, ArrowLeft } from 
 import { Button } from "./ui/button";
 import { ScrollArea } from "./ui/scroll-area";
 import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 interface ProductDetailsDrawerProps {
     open: boolean;
@@ -19,6 +21,9 @@ export function ProductDetailsDrawer({ open, onOpenChange, product }: ProductDet
     const { addToCart, getItemQuantity, updateQuantity, isProductSaved, toggleSaveProduct } = useCart();
     const quantity = getItemQuantity(product.id);
     const saved = isProductSaved(product.id);
+    const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
+    const mainImage = product.images?.[selectedImageIndex] || product.image;
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
@@ -43,16 +48,47 @@ export function ProductDetailsDrawer({ open, onOpenChange, product }: ProductDet
                 </div>
 
                 <ScrollArea className="flex-1 rounded-t-[2.5rem]">
-                    {/* Hero Image */}
-                    <div className="relative w-full aspect-square bg-[#F8FAFC] flex items-center justify-center p-8 border-b border-slate-100">
-                        {/* Soft Ambient Light Glow */}
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] bg-[#E0F2F1] rounded-full blur-[80px] pointer-events-none opacity-60" />
+                    {/* Hero Image & Gallery Layout */}
+                    <div className="flex border-b border-slate-100 min-h-[40vh]">
+                        {/* Lateral Thumbnails (Only show if multiple images) */}
+                        {product.images && product.images.length > 1 && (
+                            <div className="w-20 md:w-24 border-r border-slate-100 flex flex-col gap-2 p-3 overflow-y-auto max-h-[45vh] bg-slate-50/50">
+                                {product.images.map((img, idx) => (
+                                    <button
+                                        key={idx}
+                                        onClick={() => setSelectedImageIndex(idx)}
+                                        className={cn(
+                                            "w-full aspect-square rounded-xl bg-white border flex items-center justify-center p-1.5 transition-all overflow-hidden shrink-0",
+                                            selectedImageIndex === idx
+                                                ? "border-[#007AFF] ring-1 ring-[#007AFF]/20 shadow-sm opacity-100"
+                                                : "border-slate-200 hover:border-slate-300 opacity-60 hover:opacity-100"
+                                        )}
+                                    >
+                                        <img src={img} alt="" className="w-full h-full object-contain mix-blend-multiply" />
+                                    </button>
+                                ))}
+                            </div>
+                        )}
 
-                        <img
-                            src={product.image}
-                            alt={product.name}
-                            className="w-full h-full object-contain relative z-10 drop-shadow-xl saturate-110"
-                        />
+                        {/* Main Hero Image */}
+                        <div className="relative flex-1 aspect-square md:aspect-auto bg-[#F8FAFC] flex items-center justify-center p-8">
+                            {/* Soft Ambient Light Glow */}
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] bg-[#E0F2F1] rounded-full blur-[80px] pointer-events-none opacity-60" />
+
+                            {mainImage ? (
+                                <img
+                                    key={mainImage}
+                                    src={mainImage}
+                                    alt={product.nameUz || product.name || "Mahsulot"}
+                                    className="w-full h-full object-contain relative z-10 drop-shadow-xl saturate-110 animate-in fade-in zoom-in-95 duration-300"
+                                />
+                            ) : (
+                                <div className="w-32 h-32 rounded-full bg-white/60 backdrop-blur-md border border-white shadow-[0_8px_32px_rgba(0,0,0,0.06)] flex flex-col items-center justify-center text-slate-300 font-bold tracking-widest uppercase text-sm z-10 relative">
+                                    <span className="text-3xl mb-2 opacity-50">📷</span>
+                                    Rasm yo'q
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     <div className="px-6 py-8 space-y-8">
@@ -64,27 +100,41 @@ export function ProductDetailsDrawer({ open, onOpenChange, product }: ProductDet
                                         {product.brand}
                                     </span>
                                 )}
-                                {product.status === 'Omborda bor' && (
+                                {product.status === 'Omborda bor' || product.stock === 'Omborda bor' ? (
                                     <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded flex items-center gap-1.5 uppercase tracking-widest shadow-sm">
                                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                                         Mavjud
                                     </span>
+                                ) : product.stock && (
+                                    <span className="text-[10px] font-bold text-amber-600 bg-amber-50 border border-amber-100 px-2 py-0.5 rounded uppercase tracking-widest shadow-sm">
+                                        {product.stock}
+                                    </span>
+                                )}
+                                {product.sku && (
+                                    <span className="text-[10px] font-bold text-slate-500 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded tracking-widest">
+                                        SKU: {product.sku}
+                                    </span>
                                 )}
                             </div>
                             <h1 className="text-2xl font-bold text-slate-900 tracking-tight leading-tight">
-                                {product.name}
+                                {product.nameUz || product.name}
                             </h1>
-                            <p className="text-3xl font-black text-[#007AFF]">
-                                {product.price}
-                            </p>
+                            <div className="flex items-baseline gap-2">
+                                <p className="text-3xl font-black text-[#007AFF]">
+                                    {product.basePrice !== undefined ? `${product.basePrice.toLocaleString()} so'm` : product.price}
+                                </p>
+                                {product.unit && (
+                                    <span className="text-sm font-semibold text-slate-500">/ {product.unit}</span>
+                                )}
+                            </div>
                         </div>
 
                         {/* Description */}
-                        {product.description && (
+                        {(product.descriptionUz || product.description) && (
                             <div className="bg-[#F8FAFC] border border-slate-200 rounded-[1.25rem] p-6 shadow-sm">
                                 <h3 className="text-sm font-bold text-slate-900 mb-3 tracking-wide uppercase">Tavsif</h3>
                                 <p className="text-[15px] text-slate-600 font-normal leading-[1.6]">
-                                    {product.description}
+                                    {product.descriptionUz || product.description}
                                 </p>
                             </div>
                         )}
@@ -95,7 +145,7 @@ export function ProductDetailsDrawer({ open, onOpenChange, product }: ProductDet
                                 <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide px-1">Texnik ma'lumotlar</h3>
                                 <div className="bg-white border border-slate-200 rounded-[1.25rem] overflow-hidden shadow-sm">
                                     {product.specs.map((spec, idx) => (
-                                        <div key={idx} className={`flex justify-between items-center p-4 text-[14px] ${idx !== product.specs.length - 1 ? 'border-b border-slate-100' : ''}`}>
+                                        <div key={idx} className={`flex justify-between items-center p-4 text-[14px] ${idx !== (product.specs?.length ?? 0) - 1 ? 'border-b border-slate-100' : ''}`}>
                                             <span className="text-slate-500 font-medium">{spec.label}</span>
                                             <span className="text-slate-900 font-semibold text-right">{spec.value}</span>
                                         </div>

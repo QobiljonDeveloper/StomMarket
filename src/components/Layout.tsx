@@ -6,23 +6,25 @@ import { useCart } from "../context/CartContext";
 import { CartDrawer } from "./CartDrawer";
 import { SavedDrawer } from "./SavedDrawer";
 import { ProfilePage } from "./ProfilePage";
-import { useUserAvatar } from "../hooks/useUserAvatar";
+import { useAuthContext } from "../context/AuthContext";
 
 import { BadgeWrapper } from "./ui/BadgeWrapper";
 
 export function Layout({ children }: { children: ReactNode }) {
     const { savedItems, cartCount } = useCart();
+    const { user } = useAuthContext();
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isSavedOpen, setIsSavedOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
+    const [imageError, setImageError] = useState(false);
 
-    // Retrieve telegram id and run avatar query for the Header nav button
-    const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-    const { avatarUrl, isLoading, isError } = useUserAvatar(tgUser?.id);
-
-    const initials = tgUser
-        ? [tgUser.first_name, tgUser.last_name].filter(Boolean).join(" ").split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()
-        : "MR";
+    const displayName = user?.fullName || "Foydalanuvchi";
+    const initials = displayName
+        .split(" ")
+        .map(n => n[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase() || "U";
 
     return (
         <div className="min-h-screen bg-[#F8FAFC] font-sans text-slate-900 flex flex-col selection:bg-[#007AFF]/20 selection:text-[#007AFF]">
@@ -69,26 +71,32 @@ export function Layout({ children }: { children: ReactNode }) {
                         {/* Profile */}
                         <Button
                             variant="ghost"
-                            size="icon"
-                            className="h-9 w-9 sm:ml-2 rounded-full border border-slate-200 p-0 overflow-hidden hover:border-slate-300 transition-all shadow-sm ring-1 ring-slate-200/50 bg-[#E0F2F1]/50 relative"
+                            className="h-10 sm:ml-2 rounded-full p-1 pl-3 pr-1 bg-white/60 hover:bg-white/80 border border-white backdrop-blur-xl shadow-[0_2px_12px_rgba(0,0,0,0.04),inset_0_2px_4px_rgba(255,255,255,0.8)] transition-all relative flex items-center justify-between gap-3 text-slate-700 hover:text-slate-900 group"
                             onClick={() => setIsProfileOpen(true)}
                         >
-                            {isLoading ? (
-                                <div className="w-full h-full flex items-center justify-center">
-                                    <div className="w-3 h-3 border-2 border-[#007AFF]/30 border-t-[#007AFF] rounded-full animate-spin"></div>
+                            {/* Dynamic User Name (Hidden on very small screens) */}
+                            <span className="hidden sm:inline-block text-[13px] font-bold tracking-tight">
+                                {displayName}
+                            </span>
+
+                            {/* Circular Glassmorphism Avatar Container (Scaled for Header) */}
+                            <div className="w-8 h-8 rounded-full relative drop-shadow-[0_4px_8px_rgba(0,0,0,0.06)] flex items-center justify-center p-0.5 bg-white/80 border border-white shadow-[inset_0_1px_4px_rgba(255,255,255,0.9)] overflow-hidden shrink-0">
+                                <div className="w-full h-full rounded-full overflow-hidden bg-linear-to-br from-slate-50 to-slate-100 flex items-center justify-center shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)] relative z-10 text-[#007AFF]">
+                                    {user?.photoUrl && !imageError ? (
+                                        <img
+                                            src={user.photoUrl}
+                                            alt="User Avatar"
+                                            className="w-full h-full object-cover transition-opacity duration-300 opacity-0 group-hover:scale-105"
+                                            onLoad={(e) => e.currentTarget.classList.remove('opacity-0')}
+                                            onError={() => setImageError(true)}
+                                        />
+                                    ) : (
+                                        <span className="text-xs font-black tracking-tight drop-shadow-sm">
+                                            {initials}
+                                        </span>
+                                    )}
                                 </div>
-                            ) : (avatarUrl && !isError) ? (
-                                <img
-                                    src={avatarUrl}
-                                    alt="User Avatar"
-                                    className="w-full h-full object-cover transition-opacity duration-500 opacity-0"
-                                    onLoad={(e) => e.currentTarget.classList.remove('opacity-0')}
-                                />
-                            ) : (
-                                <div className="w-full h-full flex items-center justify-center text-[#007AFF] text-[11px] font-bold">
-                                    {initials}
-                                </div>
-                            )}
+                            </div>
                         </Button>
                     </div>
                 </div>

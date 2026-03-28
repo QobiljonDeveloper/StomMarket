@@ -5,7 +5,7 @@ import { CartProvider } from './context/CartContext';
 import { Layout } from './components/Layout';
 import { CategoryBar } from './components/CategoryBar';
 import { ProductCard } from './components/ProductCard';
-import { products } from './data/mockData';
+import { useProducts } from './hooks/useProducts';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TelegramAuthDebug } from './components/TelegramAuthDebug';
 import { useAuth } from './hooks/useAuth';
@@ -42,10 +42,12 @@ function AppContent() {
     }
   }, [syncUser, token]);
 
+  const { data: products = [], isLoading: isLoadingProducts } = useProducts();
+
   const filteredProducts = useMemo(() => {
     if (selectedCategory === "Barchasi") return products;
     return products.filter((product) => product.category === selectedCategory);
-  }, [selectedCategory]);
+  }, [selectedCategory, products]);
 
   return (
     <CartProvider>
@@ -78,7 +80,19 @@ function AppContent() {
               </h2>
             </div>
 
-            {filteredProducts.length > 0 ? (
+            {isLoadingProducts ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4 items-stretch">
+                {[...Array(10)].map((_, i) => (
+                  <div key={i} className="bg-white rounded-2xl border border-slate-100 p-3 h-full flex flex-col gap-3">
+                    <div className="w-full aspect-square bg-[#F1F5F9] rounded-xl animate-pulse"></div>
+                    <div className="h-4 bg-slate-100 rounded animate-pulse w-3/4"></div>
+                    <div className="h-4 bg-slate-100 rounded animate-pulse w-1/2"></div>
+                    <div className="h-6 bg-slate-100 rounded animate-pulse w-1/3 mt-auto"></div>
+                    <div className="h-10 bg-slate-100 rounded-xl animate-pulse w-full mt-2"></div>
+                  </div>
+                ))}
+              </div>
+            ) : filteredProducts.length > 0 ? (
               <motion.div
                 layout
                 className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4 items-stretch"

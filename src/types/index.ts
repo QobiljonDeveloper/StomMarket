@@ -26,6 +26,7 @@ export interface Product {
     nameUz: string;
     basePrice: number;
     images: ProductImage[];
+    primaryImageUrl?: string | null;
     descriptionUz?: string;
     unit?: string;
     sku?: string;
@@ -45,8 +46,10 @@ export interface Product {
     specs?: ProductSpec[];
 }
 
-export interface CartItem extends Product {
+export interface CartItem {
+    id: string; // The backend cart item ID (used for DELETE and PATCH)
     quantity: number;
+    product: Product; // The actual product object
 }
 
 export interface WishlistItem {

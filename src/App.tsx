@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { TelegramAuthDebug } from './components/TelegramAuthDebug';
 import { useAuth } from './hooks/useAuth';
 import { AuthProvider, useAuthContext } from './context/AuthContext';
+import { SearchX } from 'lucide-react';
 
 // Hardcoded to true for temporary debugging per requirements.
 const DEV_MODE = true;
@@ -23,9 +24,24 @@ const queryClient = new QueryClient({
   },
 });
 
+// Debounce hook
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
 function AppContent() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [selectedCategoryName, setSelectedCategoryName] = useState<string>("Barchasi");
+  const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearch = useDebounce(searchQuery, 400);
+
   const { token } = useAuthContext();
   const { mutate: syncUser, isPending } = useAuth();
 
@@ -43,10 +59,19 @@ function AppContent() {
     }
   }, [syncUser, token]);
 
-  const { data: products = [], isLoading: isLoadingProducts } = useProducts(selectedCategoryId || undefined);
+  const { data: products = [], isLoading: isLoadingProducts } = useProducts(
+    selectedCategoryId || undefined,
+    debouncedSearch || undefined
+  );
 
-  // Backend handles filtering via categoryId parameter
-  const filteredProducts = products;
+  const isSearching = debouncedSearch.length > 0;
+
+  // Dynamic heading
+  const heading = isSearching
+    ? `"${debouncedSearch}" bo'yicha natijalar`
+    : !selectedCategoryId
+      ? "Barcha mahsulotlar"
+      : selectedCategoryName;
 
   return (
     <CartProvider>
@@ -65,7 +90,7 @@ function AppContent() {
         )}
       </AnimatePresence>
 
-      <Layout>
+      <Layout searchQuery={searchQuery} onSearchChange={setSearchQuery}>
         <CategoryBar
           selectedCategoryId={selectedCategoryId}
           onSelectCategory={(id, name) => {
@@ -78,7 +103,7 @@ function AppContent() {
           <div id="catalog" className="scroll-mt-24">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4 px-1">
               <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 drop-shadow-sm">
-                {!selectedCategoryId ? "Barcha mahsulotlar" : selectedCategoryName}
+                {heading}
               </h2>
             </div>
 
@@ -94,13 +119,13 @@ function AppContent() {
                   </div>
                 ))}
               </div>
-            ) : filteredProducts.length > 0 ? (
+            ) : products.length > 0 ? (
               <motion.div
                 layout
                 className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4 items-stretch"
               >
                 <AnimatePresence mode="popLayout">
-                  {filteredProducts.map((product) => (
+                  {products.map((product) => (
                     <motion.div
                       key={product.id}
                       layout
@@ -121,20 +146,30 @@ function AppContent() {
                 className="text-center py-32 flex flex-col items-center justify-center bg-white rounded-3xl border border-slate-200 shadow-sm"
               >
                 <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-8 border border-slate-100 shadow-inner">
-                  <span className="text-slate-400 text-4xl">📦</span>
+                  {isSearching ? (
+                    <SearchX className="w-10 h-10 text-slate-300" strokeWidth={1.5} />
+                  ) : (
+                    <span className="text-slate-400 text-4xl">📦</span>
+                  )}
                 </div>
-                <h3 className="text-2xl font-bold text-slate-900 mb-3 tracking-wide drop-shadow-sm">Mahsulot topilmadi</h3>
+                <h3 className="text-2xl font-bold text-slate-900 mb-3 tracking-wide drop-shadow-sm">
+                  {isSearching ? "Natija topilmadi" : "Mahsulot topilmadi"}
+                </h3>
                 <p className="text-slate-500 max-w-sm text-lg font-medium">
-                  Ushbu turkumda hozircha mahsulotlar yo'q. Boshqa turkumni tanlab ko'ring.
+                  {isSearching
+                    ? `"${debouncedSearch}" so'rovi bo'yicha hech narsa topilmadi. Boshqa kalit so'z bilan urinib ko'ring.`
+                    : "Ushbu turkumda hozircha mahsulotlar yo'q. Boshqa turkumni tanlab ko'ring."
+                  }
                 </p>
                 <button
                   onClick={() => {
+                    setSearchQuery('');
                     setSelectedCategoryId(null);
                     setSelectedCategoryName("Barchasi");
                   }}
                   className="mt-10 font-medium text-[#007AFF] hover:text-[#005bb5] bg-[#007AFF]/5 hover:bg-[#007AFF]/10 px-8 py-3 rounded-full transition-all border border-[#007AFF]/20"
                 >
-                  Barcha mahsulotlarni ko'rish
+                  {isSearching ? "Qidiruvni tozalash" : "Barcha mahsulotlarni ko'rish"}
                 </button>
               </motion.div>
             )}

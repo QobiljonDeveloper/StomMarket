@@ -16,7 +16,7 @@ export const useWishlist = (userId: string | undefined | null) => {
         queryKey: ['wishlist', userId],
         queryFn: async (): Promise<Product[]> => {
             if (!userId) return [];
-            const { data } = await api.get(`/wishlist/${userId}`);
+            const { data } = await api.get(`/wishlist/${userId}/`);
             return data;
         },
         enabled: !!userId,
@@ -28,10 +28,15 @@ export const useWishlist = (userId: string | undefined | null) => {
     const toggleMutation = useMutation({
         mutationFn: async ({ productId, isCurrentlySaved }: TogglePayload) => {
             if (!userId) throw new Error("User not logged in");
-            if (isCurrentlySaved) {
-                await api.delete(`/wishlist/${userId}/${productId}`);
-            } else {
-                await api.post(`/wishlist/${userId}/${productId}`);
+            try {
+                if (isCurrentlySaved) {
+                    await api.delete(`/wishlist/${userId}/${productId}/`);
+                } else {
+                    await api.post(`/wishlist/${userId}/${productId}/`);
+                }
+            } catch (error) {
+                console.error("Wishlist mutation failed:", error);
+                throw error;
             }
         },
         onMutate: async ({ product, isCurrentlySaved }: TogglePayload) => {
@@ -59,12 +64,12 @@ export const useWishlist = (userId: string | undefined | null) => {
         },
         // If the mutation fails, use the context returned from onMutate to roll back
         onError: (_err, _variables, context) => {
+            console.error("Reverting optimistic UI update due to backend error");
             if (context?.previousWishlist) {
                 queryClient.setQueryData(['wishlist', userId], context.previousWishlist);
             }
         },
-        // Always refetch after error or success:
-        onSettled: () => {
+        onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['wishlist', userId] });
         },
     });

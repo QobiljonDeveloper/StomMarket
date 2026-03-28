@@ -29,15 +29,25 @@ export const useWishlist = (userId: string | undefined | null) => {
         mutationFn: async ({ productId, isCurrentlySaved }: TogglePayload) => {
             if (!userId) throw new Error("User not logged in");
             const url = `/wishlist/${userId}/${productId}`;
-            console.log("Wishlist request:", isCurrentlySaved ? "DELETE" : "POST", api.defaults.baseURL + url);
+            const fullUrl = `${api.defaults.baseURL}${url}`;
+            console.log("=== WISHLIST DEBUG ===");
+            console.log("Method:", isCurrentlySaved ? "DELETE" : "POST");
+            console.log("User ID:", userId);
+            console.log("Product ID:", productId);
+            console.log("Full URL:", fullUrl);
+            console.log("Token:", localStorage.getItem('token')?.slice(0, 20) + "...");
+            console.log("=====================");
             try {
                 if (isCurrentlySaved) {
                     await api.delete(url);
                 } else {
-                    await api.post(url, {});
+                    await api.post(url, null);
                 }
-            } catch (error) {
-                console.error("Wishlist mutation failed:", error);
+            } catch (error: any) {
+                console.error("Wishlist mutation failed:");
+                console.error("  Status:", error?.response?.status);
+                console.error("  Data:", error?.response?.data);
+                console.error("  Message:", error?.message);
                 throw error;
             }
         },

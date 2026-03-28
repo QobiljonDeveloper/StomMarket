@@ -6,6 +6,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { ProductDetailsDrawer } from "./ProductDetailsDrawer";
 import { cn } from "@/lib/utils";
+import { useAuthContext } from "../context/AuthContext";
+import { useWishlist } from "../hooks/useWishlist";
 
 interface ProductCardProps {
     product: Product;
@@ -14,12 +16,14 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
     const {
         addToCart,
-        toggleSaveProduct,
-        isProductSaved,
         getItemQuantity,
         updateQuantity
     } = useCart();
-    const saved = isProductSaved(product.id);
+
+    const { user } = useAuthContext();
+    const { isSaved, toggleWishlist } = useWishlist(user?.id?.toString());
+
+    const saved = isSaved(product.id);
     const quantity = getItemQuantity(product.id);
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
@@ -51,9 +55,13 @@ export function ProductCard({ product }: ProductCardProps) {
                         onClick={(e) => {
                             e.stopPropagation();
                             e.preventDefault();
-                            toggleSaveProduct(product);
+                            if (user?.id) toggleWishlist(product);
                         }}
-                        className="absolute top-2 right-2 z-10 p-2 transition-all duration-200 active:scale-90 outline-none rounded-full bg-white/80 backdrop-blur-md border border-slate-200 hover:bg-white shadow-sm flex items-center justify-center"
+                        disabled={!user?.id}
+                        className={cn(
+                            "absolute top-2 right-2 z-10 p-2 transition-all duration-200 outline-none rounded-full bg-white/80 backdrop-blur-md border border-slate-200 shadow-sm flex items-center justify-center",
+                            user?.id ? "active:scale-90 hover:bg-white" : "opacity-50 cursor-not-allowed"
+                        )}
                     >
                         <Heart className={cn("w-4 h-4 transition-colors", saved ? 'text-red-500 fill-red-500' : 'text-slate-400')} strokeWidth={saved ? 0 : 2} />
                     </button>

@@ -10,6 +10,8 @@ import { ScrollArea } from "./ui/scroll-area";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { useAuthContext } from "../context/AuthContext";
+import { useWishlist } from "../hooks/useWishlist";
 
 interface ProductDetailsDrawerProps {
     open: boolean;
@@ -18,9 +20,12 @@ interface ProductDetailsDrawerProps {
 }
 
 export function ProductDetailsDrawer({ open, onOpenChange, product }: ProductDetailsDrawerProps) {
-    const { addToCart, getItemQuantity, updateQuantity, isProductSaved, toggleSaveProduct } = useCart();
+    const { addToCart, getItemQuantity, updateQuantity } = useCart();
+    const { user } = useAuthContext();
+    const { isSaved, toggleWishlist } = useWishlist(user?.id?.toString());
+
     const quantity = getItemQuantity(product.id);
-    const saved = isProductSaved(product.id);
+    const saved = isSaved(product.id);
 
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
@@ -50,8 +55,12 @@ export function ProductDetailsDrawer({ open, onOpenChange, product }: ProductDet
                     </button>
                     <span className="font-bold text-slate-800 tracking-tight text-sm">Tafsilotlar</span>
                     <button
-                        onClick={() => toggleSaveProduct(product)}
-                        className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center hover:bg-slate-50 transition-colors shadow-sm"
+                        onClick={() => user?.id && toggleWishlist(product)}
+                        disabled={!user?.id}
+                        className={cn(
+                            "w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center transition-colors shadow-sm",
+                            user?.id ? "hover:bg-slate-50" : "opacity-50 cursor-not-allowed"
+                        )}
                     >
                         <Heart className={`w-5 h-5 transition-colors ${saved ? 'text-red-500 fill-red-500' : 'text-slate-400'}`} strokeWidth={saved ? 0 : 2} />
                     </button>

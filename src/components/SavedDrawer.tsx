@@ -6,8 +6,9 @@ import {
 } from "./ui/sheet";
 import { ScrollArea } from "./ui/scroll-area";
 import { ProductCard } from "./ProductCard";
-import { useCart } from "../context/CartContext";
-import { Heart, Trash2 } from "lucide-react";
+import { useAuthContext } from "../context/AuthContext";
+import { useWishlist } from "../hooks/useWishlist";
+import { Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface SavedDrawerProps {
@@ -16,7 +17,10 @@ interface SavedDrawerProps {
 }
 
 export function SavedDrawer({ open, onOpenChange }: SavedDrawerProps) {
-    const { savedItems, clearSavedItems } = useCart();
+    const { user } = useAuthContext();
+    const { wishlist = [] } = useWishlist(user?.id?.toString());
+
+    const savedItems = wishlist;
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
@@ -38,15 +42,6 @@ export function SavedDrawer({ open, onOpenChange }: SavedDrawerProps) {
                                 )}
                             </div>
                         </div>
-
-                        {savedItems.length > 0 && (
-                            <button
-                                onClick={clearSavedItems}
-                                className="w-10 h-10 flex items-center justify-center rounded-full text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors shadow-sm bg-white border border-slate-200"
-                            >
-                                <Trash2 className="w-4 h-4" strokeWidth={2} />
-                            </button>
-                        )}
                     </div>
                 </SheetHeader>
 

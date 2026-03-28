@@ -8,11 +8,7 @@ interface CartContextType {
     removeFromCart: (productId: string) => void;
     updateQuantity: (productId: string, quantity: number) => void;
     clearCart: () => void;
-    toggleSaveProduct: (product: Product) => void;
-    clearSavedItems: () => void;
-    isProductSaved: (productId: string) => boolean;
     getItemQuantity: (productId: string) => number;
-    savedItems: Product[];
     cartTotal: number;
     cartCount: number;
 }
@@ -25,18 +21,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return savedCart ? JSON.parse(savedCart) : [];
     });
 
-    const [savedItems, setSavedItems] = useState<Product[]>(() => {
-        const saved = localStorage.getItem("stom_saved");
-        return saved ? JSON.parse(saved) : [];
-    });
-
     useEffect(() => {
         localStorage.setItem("stom_cart", JSON.stringify(cart));
     }, [cart]);
-
-    useEffect(() => {
-        localStorage.setItem("stom_saved", JSON.stringify(savedItems));
-    }, [savedItems]);
 
     const addToCart = (product: Product) => {
         setCart((prevCart) => {
@@ -82,22 +69,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
     const cartCount = cart.reduce((count, item) => count + item.quantity, 0);
 
-    const toggleSaveProduct = (product: Product) => {
-        setSavedItems((prev) => {
-            const isSaved = prev.some((item) => item.id === product.id);
-            if (isSaved) {
-                return prev.filter((item) => item.id !== product.id);
-            }
-            return [...prev, product];
-        });
-    };
-
-    const clearSavedItems = () => setSavedItems([]);
-
-    const isProductSaved = (productId: string) => {
-        return savedItems.some((item) => item.id === productId);
-    };
-
     return (
         <CartContext.Provider
             value={{
@@ -106,10 +77,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
                 removeFromCart,
                 updateQuantity,
                 clearCart,
-                toggleSaveProduct,
-                clearSavedItems,
-                isProductSaved,
-                savedItems,
                 cartTotal,
                 cartCount,
                 getItemQuantity,

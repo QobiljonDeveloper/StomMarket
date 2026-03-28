@@ -74,13 +74,22 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
                                                 exit={{ opacity: 0, x: -20 }}
                                                 className="bg-white p-3 rounded-2xl border border-slate-100 flex gap-4 transition-all hover:bg-slate-50 hover:border-slate-200 group shadow-sm"
                                             >
-                                                <div className="h-20 w-20 rounded-xl overflow-hidden bg-[#F8FAFC] shrink-0 border border-slate-100 p-2">
-                                                    <img src={item.image} alt={item.name} className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-sm" />
+                                                <div className="h-20 w-20 rounded-xl overflow-hidden bg-[#F8FAFC] shrink-0 border border-slate-100 p-2 flex items-center justify-center">
+                                                    {(() => {
+                                                        const imgUrl = item.images?.find(i => i.isPrimary)?.url || item.images?.[0]?.url || item.image;
+                                                        return imgUrl ? (
+                                                            <img src={imgUrl} alt={item.nameUz || item.name} className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-sm" />
+                                                        ) : (
+                                                            <div className="w-full h-full flex items-center justify-center text-[10px] text-slate-300 font-bold uppercase text-center leading-none">
+                                                                Rasm<br />yo'q
+                                                            </div>
+                                                        );
+                                                    })()}
                                                 </div>
                                                 <div className="flex flex-col flex-1 py-0.5 justify-between">
                                                     <div className="flex justify-between gap-2.5 items-start">
                                                         <h4 className="font-bold text-slate-900 text-sm leading-snug line-clamp-2">
-                                                            {item.name}
+                                                            {item.nameUz || item.name}
                                                         </h4>
                                                         <button
                                                             onClick={() => removeFromCart(item.id)}
@@ -92,7 +101,7 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
 
                                                     <div className="flex items-center justify-between mt-2">
                                                         <span className="font-bold text-[#007AFF] text-sm">
-                                                            {formatPrice(item.priceValue)}
+                                                            {formatPrice(item.basePrice || item.priceValue || 0)}
                                                         </span>
 
                                                         <div className="flex items-center gap-2 bg-[#F8FAFC] rounded-lg p-1 border border-slate-100">

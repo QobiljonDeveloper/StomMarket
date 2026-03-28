@@ -23,6 +23,8 @@ export function ProductCard({ product }: ProductCardProps) {
     const quantity = getItemQuantity(product.id);
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
+    const primaryImageUrl = product.images?.find(img => img.isPrimary)?.url || product.images?.[0]?.url || product.image;
+
     return (
         <>
             <div
@@ -31,15 +33,9 @@ export function ProductCard({ product }: ProductCardProps) {
             >
                 {/* Image Area with soft medical blue backing */}
                 <div className="relative w-full aspect-square bg-[#F1F5F9] group-hover:bg-[#E0F2F1]/50 rounded-xl overflow-hidden mb-3 shrink-0 transition-colors duration-300 flex items-center justify-center p-2">
-                    {product.images?.[0] ? (
+                    {primaryImageUrl ? (
                         <img
-                            src={product.images[0]}
-                            alt={product.nameUz || product.name || "Mahsulot"}
-                            className="w-[85%] h-[85%] object-contain transition-transform duration-700 group-hover:scale-105 drop-shadow-sm"
-                        />
-                    ) : product.image ? (
-                        <img
-                            src={product.image}
+                            src={primaryImageUrl}
                             alt={product.nameUz || product.name || "Mahsulot"}
                             className="w-[85%] h-[85%] object-contain transition-transform duration-700 group-hover:scale-105 drop-shadow-sm"
                         />

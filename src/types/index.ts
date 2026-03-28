@@ -3,13 +3,20 @@ export interface ProductSpec {
     value: string;
 }
 
+export interface ProductImage {
+    id: string;
+    url: string;
+    altText?: string;
+    isPrimary: boolean;
+}
+
 export interface Product {
     id: string;
 
     // New Backend Fields
     nameUz: string;
     basePrice: number;
-    images: string[];
+    images: ProductImage[];
     descriptionUz?: string;
     unit?: string;
     sku?: string;

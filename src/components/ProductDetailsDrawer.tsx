@@ -8,7 +8,7 @@ import { Heart, ShoppingCart, Minus, Plus, ShieldCheck, Truck, ArrowLeft } from 
 import { Button } from "./ui/button";
 import { ScrollArea } from "./ui/scroll-area";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 interface ProductDetailsDrawerProps {
@@ -21,9 +21,18 @@ export function ProductDetailsDrawer({ open, onOpenChange, product }: ProductDet
     const { addToCart, getItemQuantity, updateQuantity, isProductSaved, toggleSaveProduct } = useCart();
     const quantity = getItemQuantity(product.id);
     const saved = isProductSaved(product.id);
+
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
-    const mainImage = product.images?.[selectedImageIndex] || product.image;
+    // Reset default selected image when opened
+    useEffect(() => {
+        if (open && product.images?.length) {
+            const primaryIdx = product.images.findIndex(img => img.isPrimary);
+            setSelectedImageIndex(primaryIdx >= 0 ? primaryIdx : 0);
+        }
+    }, [open, product.images]);
+
+    const mainImage = product.images?.[selectedImageIndex]?.url || product.image;
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
@@ -64,7 +73,7 @@ export function ProductDetailsDrawer({ open, onOpenChange, product }: ProductDet
                                                 : "border-slate-200 hover:border-slate-300 opacity-60 hover:opacity-100"
                                         )}
                                     >
-                                        <img src={img} alt="" className="w-full h-full object-contain mix-blend-multiply" />
+                                        <img src={img.url} alt="" className="w-full h-full object-contain mix-blend-multiply" />
                                     </button>
                                 ))}
                             </div>

@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import type { Product, CartItem } from "../types";
-import { products } from "../data/mockData";
+
 
 interface CartContextType {
     cart: CartItem[];
@@ -26,12 +26,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     });
 
     const [savedItems, setSavedItems] = useState<Product[]>(() => {
-        const saved = localStorage.getItem("savedItems");
-        if (saved) return JSON.parse(saved);
-        // Seed default saved item for "Sariq va qizil apekso-lokator" (id: "p1")
-        const allProducts = products; // products is available from mockData
-        const defaultSaved = allProducts.find((p: Product) => p.id === "p1");
-        return defaultSaved ? [defaultSaved] : [];
+        const saved = localStorage.getItem("stom_saved");
+        return saved ? JSON.parse(saved) : [];
     });
 
     useEffect(() => {
@@ -80,7 +76,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const clearCart = () => setCart([]);
 
     const cartTotal = cart.reduce(
-        (total, item) => total + item.priceValue * item.quantity,
+        (total, item) => total + (item.basePrice || item.priceValue || 0) * item.quantity,
         0
     );
 

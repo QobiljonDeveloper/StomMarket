@@ -40,23 +40,24 @@ export function ProductDetailsDrawer({ open, onOpenChange, product }: ProductDet
                 side="bottom"
                 className="w-full h-[95vh] sm:max-w-md sm:h-[95vh] sm:mx-auto sm:rounded-t-[2.5rem] rounded-t-[2.5rem] flex flex-col bg-white border-t border-slate-200 p-0 text-slate-900 shadow-[0_-20px_50px_rgba(0,0,0,0.05)]"
             >
-                {/* Header Actions Overlay */}
-                <div className="absolute top-4 left-4 right-4 z-50 flex justify-between items-center pointer-events-none">
+                {/* Sticky Header Actions */}
+                <div className="flex justify-between items-center px-4 py-3 bg-white/90 backdrop-blur-xl border-b border-slate-100 z-50 shrink-0 sticky top-0 rounded-t-[2.5rem] shadow-sm">
                     <button
                         onClick={() => onOpenChange(false)}
-                        className="w-10 h-10 rounded-full bg-white/80 backdrop-blur-md border border-slate-200 flex items-center justify-center text-slate-500 pointer-events-auto hover:bg-slate-50 transition-colors shadow-sm"
+                        className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-colors shadow-sm"
                     >
-                        <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
+                        <ArrowLeft className="w-5 h-5" strokeWidth={2} />
                     </button>
+                    <span className="font-bold text-slate-800 tracking-tight text-sm">Tafsilotlar</span>
                     <button
                         onClick={() => toggleSaveProduct(product)}
-                        className="w-10 h-10 rounded-full bg-white/80 backdrop-blur-md border border-slate-200 flex items-center justify-center pointer-events-auto hover:bg-slate-50 transition-colors shadow-sm"
+                        className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center hover:bg-slate-50 transition-colors shadow-sm"
                     >
-                        <Heart className={`w-5 h-5 transition-colors ${saved ? 'text-red-500 fill-red-500' : 'text-slate-400'}`} strokeWidth={saved ? 0 : 1.5} />
+                        <Heart className={`w-5 h-5 transition-colors ${saved ? 'text-red-500 fill-red-500' : 'text-slate-400'}`} strokeWidth={saved ? 0 : 2} />
                     </button>
                 </div>
 
-                <ScrollArea className="flex-1 rounded-t-[2.5rem]">
+                <ScrollArea className="flex-1">
                     {/* Hero Image & Gallery Layout */}
                     <div className="flex border-b border-slate-100 min-h-[40vh]">
                         {/* Lateral Thumbnails (Only show if multiple images) */}
@@ -80,7 +81,7 @@ export function ProductDetailsDrawer({ open, onOpenChange, product }: ProductDet
                         )}
 
                         {/* Main Hero Image */}
-                        <div className="relative flex-1 aspect-square md:aspect-auto bg-[#F8FAFC] flex items-center justify-center p-8">
+                        <div className="relative flex-1 w-full aspect-square max-h-[400px] md:max-h-[500px] bg-[#F8FAFC] flex items-center justify-center p-6 sm:p-10">
                             {/* Soft Ambient Light Glow */}
                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] bg-[#E0F2F1] rounded-full blur-[80px] pointer-events-none opacity-60" />
 

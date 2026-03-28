@@ -32,15 +32,15 @@ export function ProductCard({ product }: ProductCardProps) {
                 className="group flex flex-col bg-white p-3 rounded-2xl border border-slate-200 relative hover:border-[#007AFF]/30 shadow-[0_10px_30px_rgba(0,0,0,0.02)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.08)] transition-all duration-300 h-full cursor-pointer"
             >
                 {/* Image Area with soft medical blue backing */}
-                <div className="relative w-full aspect-square bg-[#F1F5F9] group-hover:bg-[#E0F2F1]/50 rounded-xl overflow-hidden mb-3 shrink-0 transition-colors duration-300 flex items-center justify-center p-2">
+                <div className="relative w-full aspect-square bg-[#F1F5F9] group-hover:bg-[#E0F2F1]/50 rounded-xl overflow-hidden mb-3 shrink-0 transition-colors duration-300 flex items-center justify-center p-4">
                     {primaryImageUrl ? (
                         <img
                             src={primaryImageUrl}
                             alt={product.nameUz || product.name || "Mahsulot"}
-                            className="w-[85%] h-[85%] object-contain transition-transform duration-700 group-hover:scale-105 drop-shadow-sm"
+                            className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105 drop-shadow-sm"
                         />
                     ) : (
-                        <div className="w-[80%] h-[80%] rounded-full bg-white/50 backdrop-blur-md border border-white shadow-[0_4px_16px_rgba(0,0,0,0.04)] flex flex-col items-center justify-center text-slate-400 font-bold tracking-widest uppercase text-[10px] text-center p-2 leading-tight">
+                        <div className="w-full h-full rounded-full bg-white/50 backdrop-blur-md border border-white shadow-[0_4px_16px_rgba(0,0,0,0.04)] flex flex-col items-center justify-center text-slate-400 font-bold tracking-widest uppercase text-[10px] text-center p-2 leading-tight">
                             <span className="text-xl mb-1 opacity-50">📷</span>
                             Rasm<br />yo'q
                         </div>

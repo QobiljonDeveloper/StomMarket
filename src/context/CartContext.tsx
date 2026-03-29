@@ -29,8 +29,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
         queryKey: ['cart', userId],
         queryFn: async (): Promise<CartItem[]> => {
             if (!userId) return [];
-            const { data } = await api.get(`/cart/${userId}`);
-            return data;
+            try {
+                const { data } = await api.get(`cart/${userId}`);
+                return data;
+            } catch (error) {
+                console.error("Failed fetching Cart:", error);
+                throw error;
+            }
         },
         enabled: !!userId,
         staleTime: Infinity,
@@ -48,12 +53,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return item ? item.quantity : 0;
     };
 
-    // 2. Add To Cart Mutation
     const addMutation = useMutation({
         mutationFn: async (productId: string) => {
-            if (!userId) return;
+            if (!userId || !productId) return;
             try {
-                await api.post(`/cart/${userId}`, { productId, quantity: 1 });
+                await api.post(`cart/${userId}`, { productId, quantity: 1 });
             } catch (error: any) {
                 console.error("Cart API Error:", error);
                 throw error;
@@ -93,8 +97,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     // 3. Remove From Cart Mutation
     const removeMutation = useMutation({
         mutationFn: async (cartItemId: string) => {
-            if (!userId) return;
-            await api.delete(`/cart/${userId}/items/${cartItemId}`);
+            if (!userId || !cartItemId) return;
+            await api.delete(`cart/${userId}/items/${cartItemId}`);
         },
         onMutate: async (cartItemId) => {
             await queryClient.cancelQueries({ queryKey: ['cart', userId] });
@@ -120,8 +124,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     // 4. Update Quantity Mutation
     const updateMutation = useMutation({
         mutationFn: async ({ cartItemId, quantity }: { cartItemId: string; quantity: number }) => {
-            if (!userId) return;
-            await api.patch(`/cart/${userId}/items/${cartItemId}?quantity=${quantity}`);
+            if (!userId || !cartItemId) return;
+            await api.patch(`cart/${userId}/items/${cartItemId}?quantity=${quantity}`);
         },
         onMutate: async ({ cartItemId, quantity }) => {
             await queryClient.cancelQueries({ queryKey: ['cart', userId] });

@@ -67,6 +67,21 @@ function AppContent() {
 
   const isSearching = debouncedSearch.length > 0;
 
+  // Strict Fallback / Redirect equivalent for Telegram Web App
+  if (!token && !isPending && !DEV_MODE) {
+    return (
+      <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-6 border border-slate-200 shadow-sm">
+          <span className="text-4xl text-slate-400">🔒</span>
+        </div>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900 mb-2">Tizimga kigiring</h1>
+        <p className="text-slate-500 max-w-sm mb-8 leading-relaxed font-medium">
+          Iltimos, avtorizatsiya uchun ilovani Telegram orqali kiriting.
+        </p>
+      </div>
+    );
+  }
+
   // Dynamic heading
   const heading = isSearching
     ? `"${debouncedSearch}" bo'yicha natijalar`

@@ -12,8 +12,13 @@ export const useWishlist = (userId: string | undefined | null) => {
         queryKey: ['wishlist', safeUserId],
         queryFn: async (): Promise<WishlistItem[]> => {
             if (!safeUserId) return [];
-            const { data } = await api.get(`/wishlist/${safeUserId}`);
-            return data;
+            try {
+                const { data } = await api.get(`wishlist/${safeUserId}`);
+                return data;
+            } catch (error) {
+                console.error("Wishlist error:", error);
+                throw error;
+            }
         },
         enabled: !!safeUserId,
     });
@@ -25,8 +30,8 @@ export const useWishlist = (userId: string | undefined | null) => {
     // Toggle mutation (add/remove from catalog ProductCard)
     const toggleMutation = useMutation({
         mutationFn: async ({ productId, isCurrentlySaved }: { productId: string; isCurrentlySaved: boolean }) => {
-            if (!safeUserId) return;
-            const url = `/wishlist/${safeUserId}/${productId}`;
+            if (!safeUserId || !productId) return;
+            const url = `wishlist/${safeUserId}/${productId}`;
             if (isCurrentlySaved) {
                 await api.delete(url);
             } else {
@@ -62,8 +67,8 @@ export const useWishlist = (userId: string | undefined | null) => {
     // Remove mutation (used from WishlistCard trash button)
     const removeMutation = useMutation({
         mutationFn: async (productId: string) => {
-            if (!safeUserId) return;
-            await api.delete(`/wishlist/${safeUserId}/${productId}`);
+            if (!safeUserId || !productId) return;
+            await api.delete(`wishlist/${safeUserId}/${productId}`);
         },
         onMutate: async (productId: string) => {
             await queryClient.cancelQueries({ queryKey: ['wishlist', safeUserId] });

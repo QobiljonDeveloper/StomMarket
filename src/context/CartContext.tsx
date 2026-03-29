@@ -30,7 +30,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         queryFn: async (): Promise<CartItem[]> => {
             if (!userId) return [];
             try {
-                const { data } = await api.get(`cart/${userId}`);
+                const { data } = await api.get(`/api/cart/${userId}`);
                 return data;
             } catch (error) {
                 console.error("Failed fetching Cart:", error);
@@ -57,7 +57,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         mutationFn: async (productId: string) => {
             if (!userId || !productId) return;
             try {
-                await api.post(`cart/${userId}`, { productId, quantity: 1 });
+                await api.post(`/api/cart/${userId}`, { productId, quantity: 1 });
             } catch (error: any) {
                 console.error("Cart API Error:", error);
                 throw error;
@@ -98,7 +98,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const removeMutation = useMutation({
         mutationFn: async (cartItemId: string) => {
             if (!userId || !cartItemId) return;
-            await api.delete(`cart/${userId}/items/${cartItemId}`);
+            await api.delete(`/api/cart/${userId}/items/${cartItemId}`);
         },
         onMutate: async (cartItemId) => {
             await queryClient.cancelQueries({ queryKey: ['cart', userId] });
@@ -125,7 +125,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const updateMutation = useMutation({
         mutationFn: async ({ cartItemId, quantity }: { cartItemId: string; quantity: number }) => {
             if (!userId || !cartItemId) return;
-            await api.patch(`cart/${userId}/items/${cartItemId}?quantity=${quantity}`);
+            await api.patch(`/api/cart/${userId}/items/${cartItemId}?quantity=${quantity}`);
         },
         onMutate: async ({ cartItemId, quantity }) => {
             await queryClient.cancelQueries({ queryKey: ['cart', userId] });

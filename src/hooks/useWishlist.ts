@@ -13,7 +13,7 @@ export const useWishlist = (userId: string | undefined | null) => {
         queryFn: async (): Promise<WishlistItem[]> => {
             if (!safeUserId) return [];
             try {
-                const { data } = await api.get(`wishlist/${safeUserId}`);
+                const { data } = await api.get(`/api/wishlist/${safeUserId}`);
                 return data;
             } catch (error) {
                 console.error("Wishlist error:", error);
@@ -31,7 +31,7 @@ export const useWishlist = (userId: string | undefined | null) => {
     const toggleMutation = useMutation({
         mutationFn: async ({ productId, isCurrentlySaved }: { productId: string; isCurrentlySaved: boolean }) => {
             if (!safeUserId || !productId) return;
-            const url = `wishlist/${safeUserId}/${productId}`;
+            const url = `/api/wishlist/${safeUserId}/${productId}`;
             if (isCurrentlySaved) {
                 await api.delete(url);
             } else {
@@ -68,7 +68,7 @@ export const useWishlist = (userId: string | undefined | null) => {
     const removeMutation = useMutation({
         mutationFn: async (productId: string) => {
             if (!safeUserId || !productId) return;
-            await api.delete(`wishlist/${safeUserId}/${productId}`);
+            await api.delete(`/api/wishlist/${safeUserId}/${productId}`);
         },
         onMutate: async (productId: string) => {
             await queryClient.cancelQueries({ queryKey: ['wishlist', safeUserId] });

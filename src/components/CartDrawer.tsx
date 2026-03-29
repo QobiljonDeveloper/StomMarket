@@ -13,6 +13,7 @@ import { ScrollArea } from "./ui/scroll-area";
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, ArrowLeft } from "lucide-react";
 import { CheckoutDrawer } from "./CheckoutDrawer";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 interface CartDrawerProps {
     open: boolean;
@@ -22,6 +23,7 @@ interface CartDrawerProps {
 export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
     const { cart, updateQuantity, removeFromCart, cartTotal, cartCount, refetchCart } = useCart();
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (open) {
@@ -108,7 +110,13 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
                                                     </div>
                                                     <div className="flex flex-col flex-1 py-0.5 justify-between">
                                                         <div className="flex justify-between gap-2.5 items-start">
-                                                            <h4 className="font-bold text-slate-900 text-sm leading-snug line-clamp-2">
+                                                            <h4
+                                                                className="font-bold text-slate-900 text-sm leading-snug line-clamp-2 cursor-pointer hover:text-[#007AFF] transition-colors"
+                                                                onClick={() => {
+                                                                    onOpenChange(false);
+                                                                    navigate(`/product/${item.productId}`);
+                                                                }}
+                                                            >
                                                                 {item.productNameUz}
                                                             </h4>
                                                             <button
@@ -121,7 +129,7 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
 
                                                         <div className="flex items-center justify-between mt-2">
                                                             <span className="font-bold text-[#007AFF] text-sm">
-                                                                {formatPrice(item.basePrice || 0)}
+                                                                {formatPrice(item.unitPrice || item.basePrice || 0)}
                                                             </span>
 
                                                             <div className="flex items-center gap-2 bg-[#F8FAFC] rounded-lg p-1 border border-slate-100">

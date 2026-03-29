@@ -24,9 +24,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     // Xavfsizlik qatlami: cart doim massiv ekanligiga ishonch hosil qilish
     const safeCart = Array.isArray(cart) ? cart : (cart as any)?.items || [];
 
-    const cartCount = safeCart.reduce((count: number, item: any) => count + (item?.quantity || 0), 0);
+    const cartCount = safeCart.length;
     const cartTotal = safeCart.reduce(
-        (total: number, item: any) => total + ((item?.basePrice || item?.priceValue || item?.price || 0) * (item?.quantity || 0)),
+        (total: number, item: any) => total + ((item?.unitPrice || item?.basePrice || item?.priceValue || item?.price || 0) * (item?.quantity || 0)),
         0
     );
 

@@ -62,6 +62,7 @@ export const useCartApi = (userId: string | undefined | null) => {
                     id: `temp-${Date.now()}`,
                     productId: product.id,
                     productNameUz: product.nameUz || product.name || '',
+                    unitPrice: product.basePrice || product.priceValue || 0,
                     basePrice: product.basePrice || product.priceValue || 0,
                     primaryImageUrl: product.primaryImageUrl || product.images?.find(i => i.isPrimary)?.url || product.images?.[0]?.url || product.image || null,
                     quantity: 1
@@ -121,7 +122,6 @@ export const useCartApi = (userId: string | undefined | null) => {
             console.error("Update quantity error details:", err);
         },
         onSuccess: () => {
-            toast.success("Savat yangilandi");
             queryClient.invalidateQueries({ queryKey: ['cart'] });
             queryClient.invalidateQueries({ queryKey: ['products'] });
         },

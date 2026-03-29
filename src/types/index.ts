@@ -51,6 +51,7 @@ export interface CartItem {
     productId: string;
     productNameUz: string;
     quantity: number;
+    unitPrice?: number;
     basePrice?: number;
     primaryImageUrl?: string | null;
 }

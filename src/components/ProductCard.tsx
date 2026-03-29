@@ -113,6 +113,7 @@ export function ProductCard({ product }: ProductCardProps) {
                                     <Button
                                         onClick={(e) => {
                                             e.stopPropagation();
+                                            e.preventDefault();
                                             console.log(`ProductCard: Triggering addToCart for product ${product.id}`);
                                             addToCart(product);
                                         }}
@@ -134,6 +135,7 @@ export function ProductCard({ product }: ProductCardProps) {
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
+                                            e.preventDefault();
                                             const newQuantity = Math.max(0, quantity - 1);
                                             console.log(`ProductCard: Triggering updateQuantity for product ${product.id} to ${newQuantity}`);
                                             updateQuantity(product.id, newQuantity);
@@ -150,6 +152,7 @@ export function ProductCard({ product }: ProductCardProps) {
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
+                                            e.preventDefault();
                                             const newQuantity = quantity + 1;
                                             console.log(`ProductCard: Triggering updateQuantity for product ${product.id} to ${newQuantity}`);
                                             updateQuantity(product.id, newQuantity);

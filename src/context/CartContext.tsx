@@ -36,14 +36,34 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }, [safeCart]);
 
     const addToCart = useCallback((product: Product) => {
-        addToCartMutation.mutate(product);
-    }, [addToCartMutation]);
+        if (!user?.id) {
+            console.warn("Add to cart blocked: Missing user?.id");
+            return;
+        }
+        if (!product || !product.id) {
+            console.warn("Add to cart blocked: Missing product or product.id");
+            return;
+        }
+        try {
+            if (addToCartMutation && typeof addToCartMutation.mutate === 'function') {
+                addToCartMutation.mutate(product);
+            } else {
+                console.error("addToCartMutation is undefined or uninitialized");
+            }
+        } catch (err) {
+            console.error("Error executing addToCart mutation:", err);
+        }
+    }, [addToCartMutation, user?.id]);
 
     const removeFromCart = useCallback((productId: string) => {
-        if (!user?.id) return;
-        const item = safeCart.find((i: any) => i?.product?.id === productId);
-        if (item) {
-            removeCartItemMutation.mutate(item.id);
+        if (!user?.id || !productId) return;
+        try {
+            const item = safeCart.find((i: any) => i?.product?.id === productId);
+            if (item) {
+                removeCartItemMutation.mutate(item.id);
+            }
+        } catch (err) {
+            console.error("Error executing removeFromCart mutation:", err);
         }
     }, [user?.id, safeCart, removeCartItemMutation]);
 

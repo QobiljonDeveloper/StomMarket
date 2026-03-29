@@ -22,7 +22,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUserState] = useState<User | null>(() => {
         try {
             const stored = localStorage.getItem('user');
-            return stored ? JSON.parse(stored) : null;
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                // Hard reset if we detect the known bad static ID the user warned about
+                if (parsed.id === 'a3f3af69-c22e-4746-8504-a084d03b1a76') {
+                    localStorage.removeItem('user');
+                    localStorage.removeItem('token');
+                    return null;
+                }
+                return parsed;
+            }
+            return null;
         } catch {
             return null;
         }

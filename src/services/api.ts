@@ -3,7 +3,7 @@ import axios from 'axios';
 
 
 export const api = axios.create({
-    baseURL: 'https://ortadant-markert-api.kubesec.uz/api',
+    baseURL: 'https://ortadant-market-api.kubesec.uz/api',
     // Ensures no trailing slash inside base configuration
     headers: {
         'Content-Type': 'application/json',

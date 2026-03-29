@@ -83,66 +83,69 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
                             <ScrollArea className="flex-1 px-4 py-6">
                                 <div className="flex flex-col gap-3">
                                     <AnimatePresence initial={false}>
-                                        {cart.map((item) => (
-                                            <motion.div
-                                                key={item.id}
-                                                layout
-                                                initial={{ opacity: 0, y: 10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                exit={{ opacity: 0, x: -20 }}
-                                                className="bg-white p-3 rounded-2xl border border-slate-100 flex gap-4 transition-all hover:bg-slate-50 hover:border-slate-200 group shadow-sm"
-                                            >
-                                                <div className="h-20 w-20 rounded-xl overflow-hidden bg-[#F8FAFC] shrink-0 border border-slate-100 p-2 flex items-center justify-center">
-                                                    {(() => {
-                                                        const imgUrl = item.product?.primaryImageUrl || item.product?.images?.find(i => i.isPrimary)?.url || item.product?.images?.[0]?.url || item.product?.image;
-                                                        return imgUrl ? (
-                                                            <img src={imgUrl} alt={item.product?.nameUz || item.product?.name} className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-sm" />
-                                                        ) : (
-                                                            <div className="w-full h-full flex items-center justify-center text-[10px] text-slate-300 font-bold uppercase text-center leading-none">
-                                                                Rasm<br />yo'q
-                                                            </div>
-                                                        );
-                                                    })()}
-                                                </div>
-                                                <div className="flex flex-col flex-1 py-0.5 justify-between">
-                                                    <div className="flex justify-between gap-2.5 items-start">
-                                                        <h4 className="font-bold text-slate-900 text-sm leading-snug line-clamp-2">
-                                                            {item.product?.nameUz || item.product?.name}
-                                                        </h4>
-                                                        <button
-                                                            onClick={() => removeFromCart(item.product.id)}
-                                                            className="text-slate-300 hover:text-red-500 bg-white border border-slate-100 hover:bg-red-50 hover:border-red-100 rounded-lg p-1.5 transition-all shadow-sm shrink-0"
-                                                        >
-                                                            <Trash2 className="w-4 h-4" strokeWidth={2} />
-                                                        </button>
+                                        {cart.map((item) => {
+                                            if (!item) return null;
+                                            return (
+                                                <motion.div
+                                                    key={item.id}
+                                                    layout
+                                                    initial={{ opacity: 0, y: 10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    exit={{ opacity: 0, x: -20 }}
+                                                    className="bg-white p-3 rounded-2xl border border-slate-100 flex gap-4 transition-all hover:bg-slate-50 hover:border-slate-200 group shadow-sm"
+                                                >
+                                                    <div className="h-20 w-20 rounded-xl overflow-hidden bg-[#F8FAFC] shrink-0 border border-slate-100 p-2 flex items-center justify-center">
+                                                        {(() => {
+                                                            const imgUrl = item.primaryImageUrl;
+                                                            return imgUrl ? (
+                                                                <img src={imgUrl} alt={item.productNameUz || "Mahsulot"} className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-sm" />
+                                                            ) : (
+                                                                <div className="w-full h-full flex items-center justify-center text-[10px] text-slate-300 font-bold uppercase text-center leading-none">
+                                                                    Rasm<br />yo'q
+                                                                </div>
+                                                            );
+                                                        })()}
                                                     </div>
-
-                                                    <div className="flex items-center justify-between mt-2">
-                                                        <span className="font-bold text-[#007AFF] text-sm">
-                                                            {formatPrice(item.product?.basePrice || item.product?.priceValue || 0)}
-                                                        </span>
-
-                                                        <div className="flex items-center gap-2 bg-[#F8FAFC] rounded-lg p-1 border border-slate-100">
+                                                    <div className="flex flex-col flex-1 py-0.5 justify-between">
+                                                        <div className="flex justify-between gap-2.5 items-start">
+                                                            <h4 className="font-bold text-slate-900 text-sm leading-snug line-clamp-2">
+                                                                {item.productNameUz}
+                                                            </h4>
                                                             <button
-                                                                className="w-7 h-7 flex items-center justify-center rounded-md bg-white hover:bg-slate-50 text-slate-700 transition-all active:scale-95 border border-slate-200 shadow-sm"
-                                                                onClick={() => updateQuantity(item.product.id, Math.max(0, item.quantity - 1))}
+                                                                onClick={() => removeFromCart(item.productId)}
+                                                                className="text-slate-300 hover:text-red-500 bg-white border border-slate-100 hover:bg-red-50 hover:border-red-100 rounded-lg p-1.5 transition-all shadow-sm shrink-0"
                                                             >
-                                                                <Minus className="w-3.5 h-3.5" strokeWidth={2.5} />
-                                                            </button>
-                                                            <span className="w-5 text-center text-xs font-black text-slate-900 tracking-wider">
-                                                                {item.quantity}
-                                                            </span>
-                                                            <button
-                                                                className="w-7 h-7 flex items-center justify-center rounded-md bg-[#007AFF]/10 hover:bg-[#007AFF]/20 text-[#007AFF] transition-all active:scale-95 border border-[#007AFF]/20 shadow-sm"
-                                                                onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                                                            >
-                                                                <Plus className="w-3.5 h-3.5" strokeWidth={2.5} />
+                                                                <Trash2 className="w-4 h-4" strokeWidth={2} />
                                                             </button>
                                                         </div>
+
+                                                        <div className="flex items-center justify-between mt-2">
+                                                            <span className="font-bold text-[#007AFF] text-sm">
+                                                                {formatPrice(item.basePrice || 0)}
+                                                            </span>
+
+                                                            <div className="flex items-center gap-2 bg-[#F8FAFC] rounded-lg p-1 border border-slate-100">
+                                                                <button
+                                                                    className="w-7 h-7 flex items-center justify-center rounded-md bg-white hover:bg-slate-50 text-slate-700 transition-all active:scale-95 border border-slate-200 shadow-sm"
+                                                                    onClick={() => updateQuantity(item.productId, Math.max(0, item.quantity - 1))}
+                                                                >
+                                                                    <Minus className="w-3.5 h-3.5" strokeWidth={2.5} />
+                                                                </button>
+                                                                <span className="w-5 text-center text-xs font-black text-slate-900 tracking-wider">
+                                                                    {item.quantity}
+                                                                </span>
+                                                                <button
+                                                                    className="w-7 h-7 flex items-center justify-center rounded-md bg-[#007AFF]/10 hover:bg-[#007AFF]/20 text-[#007AFF] transition-all active:scale-95 border border-[#007AFF]/20 shadow-sm"
+                                                                    onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                                                                >
+                                                                    <Plus className="w-3.5 h-3.5" strokeWidth={2.5} />
+                                                                </button>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </motion.div>
-                                        ))}
+                                                </motion.div>
+                                            );
+                                        })}
                                     </AnimatePresence>
                                 </div>
                             </ScrollArea>

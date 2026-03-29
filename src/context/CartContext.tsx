@@ -26,12 +26,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
     const cartCount = safeCart.reduce((count: number, item: any) => count + (item?.quantity || 0), 0);
     const cartTotal = safeCart.reduce(
-        (total: number, item: any) => total + ((item?.product?.basePrice || item?.product?.priceValue || 0) * (item?.quantity || 0)),
+        (total: number, item: any) => total + ((item?.basePrice || item?.priceValue || item?.price || 0) * (item?.quantity || 0)),
         0
     );
 
     const getItemQuantity = useCallback((productId: string) => {
-        const item = safeCart.find((item: any) => item?.product?.id === productId);
+        if (!productId) return 0;
+        const item = safeCart.find((item: any) => item?.productId === productId);
         return item ? item.quantity : 0;
     }, [safeCart]);
 
@@ -58,7 +59,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const removeFromCart = useCallback((productId: string) => {
         if (!user?.id || !productId) return;
         try {
-            const item = safeCart.find((i: any) => i?.product?.id === productId);
+            const item = safeCart.find((i: any) => i?.productId === productId);
             if (item) {
                 removeCartItemMutation.mutate(item.id);
             }
@@ -68,11 +69,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }, [user?.id, safeCart, removeCartItemMutation]);
 
     const updateQuantity = useCallback((productId: string, quantity: number) => {
-        if (!user?.id) return;
+        if (!user?.id || !productId) return;
         if (quantity <= 0) {
             removeFromCart(productId);
         } else {
-            const item = safeCart.find((i: any) => i?.product?.id === productId);
+            const item = safeCart.find((i: any) => i?.productId === productId);
             if (item) {
                 updateQuantityMutation.mutate({ cartItemId: item.id, quantity });
             } else if (quantity === 1) {

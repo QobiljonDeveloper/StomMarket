@@ -48,8 +48,11 @@ export interface Product {
 
 export interface CartItem {
     id: string; // The backend cart item ID (used for DELETE and PATCH)
+    productId: string;
+    productNameUz: string;
     quantity: number;
-    product: Product; // The actual product object
+    basePrice?: number;
+    primaryImageUrl?: string | null;
 }
 
 export interface WishlistItem {

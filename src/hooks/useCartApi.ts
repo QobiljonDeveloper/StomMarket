@@ -48,11 +48,11 @@ export const useCartApi = (userId: string | undefined | null) => {
             const previousData = queryClient.getQueryData<any>(['cart', safeUserId]);
             const previousCart: CartItem[] = Array.isArray(previousData) ? previousData : (previousData?.items || []);
 
-            const existing = previousCart.find(item => item?.product?.id === product.id);
+            const existing = previousCart.find(item => item?.productId === product.id);
             if (existing) {
                 queryClient.setQueryData<CartItem[]>(['cart', safeUserId],
                     previousCart.map(item =>
-                        item?.product?.id === product.id
+                        item?.productId === product.id
                             ? { ...item, quantity: (item.quantity || 0) + 1 }
                             : item
                     )
@@ -60,8 +60,11 @@ export const useCartApi = (userId: string | undefined | null) => {
             } else {
                 const newItem: CartItem = {
                     id: `temp-${Date.now()}`,
-                    quantity: 1,
-                    product
+                    productId: product.id,
+                    productNameUz: product.nameUz || product.name || '',
+                    basePrice: product.basePrice || product.priceValue || 0,
+                    primaryImageUrl: product.primaryImageUrl || product.images?.find(i => i.isPrimary)?.url || product.images?.[0]?.url || product.image || null,
+                    quantity: 1
                 };
                 queryClient.setQueryData<CartItem[]>(['cart', safeUserId], [...previousCart, newItem]);
             }

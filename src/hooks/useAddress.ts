@@ -13,7 +13,7 @@ export interface Region {
 export interface AddressPayload {
     userId: string;
     label: string;
-    region: string;
+    region: number;
     city: string;
     street: string;
     isDefault: boolean;
@@ -51,7 +51,10 @@ export const useAddress = (userId?: string) => {
     // Create Address
     const createAddressMutation = useMutation({
         mutationFn: async (payload: AddressPayload) => {
-            const res = await axios.post(`${API_BASE}/addresses`, payload);
+            console.log("=== ADDRESS DEBUG === Sending dto:", payload);
+            const res = await axios.post(`${API_BASE}/addresses`, { dto: payload }, {
+                headers: { 'Content-Type': 'application/json' }
+            });
             return res.data;
         },
         onSuccess: () => {

@@ -35,10 +35,11 @@ export function AddressPopup({ open, onOpenChange, onSaveSuccess }: AddressPopup
         }
 
         try {
+            const regionInt = parseInt(region, 10);
             const newAddr = await createAddress({
                 userId: user.id,
                 label,
-                region,
+                region: regionInt,
                 city,
                 street,
                 isDefault
@@ -80,7 +81,7 @@ export function AddressPopup({ open, onOpenChange, onSaveSuccess }: AddressPopup
                             </SelectTrigger>
                             <SelectContent className="max-h-[200px] border-slate-100 shadow-xl rounded-xl bg-white z-100">
                                 {regions.map((r) => (
-                                    <SelectItem key={r.value.toString()} value={r.name} className="font-medium cursor-pointer focus:bg-slate-50">{r.name}</SelectItem>
+                                    <SelectItem key={r.value.toString()} value={r.value.toString()} className="font-medium cursor-pointer focus:bg-slate-50">{r.name}</SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>

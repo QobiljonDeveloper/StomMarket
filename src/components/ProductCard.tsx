@@ -113,6 +113,7 @@ export function ProductCard({ product }: ProductCardProps) {
                                     <Button
                                         onClick={(e) => {
                                             e.stopPropagation();
+                                            console.log(`ProductCard: Triggering addToCart for product ${product.id}`);
                                             addToCart(product);
                                         }}
                                         className="h-10 w-full bg-[#007AFF] hover:bg-[#005bb5] text-white rounded-xl text-[12px] font-bold flex items-center justify-center gap-2 transition-all p-0 shadow-sm"
@@ -133,7 +134,9 @@ export function ProductCard({ product }: ProductCardProps) {
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            updateQuantity(product.id, Math.max(0, quantity - 1));
+                                            const newQuantity = Math.max(0, quantity - 1);
+                                            console.log(`ProductCard: Triggering updateQuantity for product ${product.id} to ${newQuantity}`);
+                                            updateQuantity(product.id, newQuantity);
                                         }}
                                         className="w-8 h-8 flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors active:scale-95 shrink-0"
                                     >
@@ -147,7 +150,9 @@ export function ProductCard({ product }: ProductCardProps) {
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            updateQuantity(product.id, quantity + 1);
+                                            const newQuantity = quantity + 1;
+                                            console.log(`ProductCard: Triggering updateQuantity for product ${product.id} to ${newQuantity}`);
+                                            updateQuantity(product.id, newQuantity);
                                         }}
                                         className="w-8 h-8 flex items-center justify-center bg-[#007AFF]/10 hover:bg-[#007AFF]/20 text-[#007AFF] rounded-lg transition-colors active:scale-95 shrink-0"
                                     >

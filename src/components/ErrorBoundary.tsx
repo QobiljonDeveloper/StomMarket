@@ -38,13 +38,15 @@ export class ErrorBoundary extends Component<Props, State> {
                     {this.state.error && (
                         <div className="bg-white p-4 rounded-xl border border-red-200 text-left w-full max-w-md overflow-auto mb-8 shadow-sm">
                             <p className="text-red-600 font-bold mb-2 text-sm">Xatolik xabari:</p>
-                            <p className="text-slate-800 text-xs font-mono bg-slate-50 p-2 rounded mb-4 break-words">
+                            <p className="text-slate-800 text-xs font-mono bg-slate-50 p-2 rounded mb-4 wrap-break-word">
                                 {this.state.error.message}
                             </p>
                             <p className="text-red-600 font-bold mb-2 text-sm">Stack Trace:</p>
-                            <pre className="text-slate-800 text-[10px] font-mono bg-slate-50 p-2 rounded whitespace-pre-wrap break-all">
-                                {this.state.error.stack}
-                            </pre>
+                            <textarea
+                                className="w-full text-slate-800 text-[10px] font-mono bg-slate-50 p-2 rounded h-32 border border-slate-200 outline-none resize-none focus:ring-0"
+                                readOnly
+                                value={this.state.error.stack || ''}
+                            />
                         </div>
                     )}
 

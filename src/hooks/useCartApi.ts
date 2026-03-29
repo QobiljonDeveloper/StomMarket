@@ -44,6 +44,9 @@ export const useCartApi = (userId: string | undefined | null) => {
             }
         },
         onMutate: async (product: Product) => {
+            console.log("=== CART DEBUG: Add to Cart ===");
+            console.log("-> UserId:", safeUserId);
+            console.log("-> Product Payload:", product);
             await queryClient.cancelQueries({ queryKey: ['cart', safeUserId] });
             const previousData = queryClient.getQueryData<any>(['cart', safeUserId]);
             const previousCart: CartItem[] = Array.isArray(previousData) ? previousData : (previousData?.items || []);
@@ -72,13 +75,15 @@ export const useCartApi = (userId: string | undefined | null) => {
             return { previousCart: previousData };
         },
         onError: (err: any, _product, context) => {
+            console.error("=== CART DEBUG: Add to Cart ERROR ===", err?.response?.data || err);
             if (context?.previousCart) {
                 queryClient.setQueryData(['cart', safeUserId], context.previousCart);
             }
             toast.error(err?.response?.data?.message || "Savatga qo'shishda xatolik");
             console.error("Add to cart error details:", err);
         },
-        onSuccess: () => {
+        onSuccess: (data) => {
+            console.log("=== CART DEBUG: Add to Cart SUCCESS ===", data);
             toast.success("Savatga qo'shildi");
             queryClient.invalidateQueries({ queryKey: ['cart'] });
             queryClient.invalidateQueries({ queryKey: ['products'] });
@@ -101,6 +106,9 @@ export const useCartApi = (userId: string | undefined | null) => {
             }
         },
         onMutate: async ({ cartItemId, quantity }) => {
+            console.log("=== CART DEBUG: Update Quantity ===");
+            console.log("-> UserId:", safeUserId);
+            console.log("-> CartItemId:", cartItemId, "| New Quantity:", quantity);
             await queryClient.cancelQueries({ queryKey: ['cart', safeUserId] });
             const previousData = queryClient.getQueryData<any>(['cart', safeUserId]);
             const previousCart: CartItem[] = Array.isArray(previousData) ? previousData : (previousData?.items || []);
@@ -115,13 +123,15 @@ export const useCartApi = (userId: string | undefined | null) => {
             return { previousCart: previousData };
         },
         onError: (err: any, _vars, context) => {
+            console.error("=== CART DEBUG: Update Quantity ERROR ===", err?.response?.data || err);
             if (context?.previousCart) {
                 queryClient.setQueryData(['cart', safeUserId], context.previousCart);
             }
             toast.error(err?.response?.data?.message || "Miqdorni o'zgartirishda xatolik");
             console.error("Update quantity error details:", err);
         },
-        onSuccess: () => {
+        onSuccess: (data) => {
+            console.log("=== CART DEBUG: Update Quantity SUCCESS ===", data);
             queryClient.invalidateQueries({ queryKey: ['cart'] });
             queryClient.invalidateQueries({ queryKey: ['products'] });
         },
@@ -143,6 +153,9 @@ export const useCartApi = (userId: string | undefined | null) => {
             }
         },
         onMutate: async (cartItemId: string) => {
+            console.log("=== CART DEBUG: Remove Item ===");
+            console.log("-> UserId:", safeUserId);
+            console.log("-> CartItemId:", cartItemId);
             await queryClient.cancelQueries({ queryKey: ['cart', safeUserId] });
             const previousData = queryClient.getQueryData<any>(['cart', safeUserId]);
             const previousCart: CartItem[] = Array.isArray(previousData) ? previousData : (previousData?.items || []);
@@ -153,13 +166,15 @@ export const useCartApi = (userId: string | undefined | null) => {
             return { previousCart: previousData };
         },
         onError: (err: any, _vars, context) => {
+            console.error("=== CART DEBUG: Remove Item ERROR ===", err?.response?.data || err);
             if (context?.previousCart) {
                 queryClient.setQueryData(['cart', safeUserId], context.previousCart);
             }
             toast.error(err?.response?.data?.message || "O'chirishda xatolik");
             console.error("Remove cart item error details:", err);
         },
-        onSuccess: () => {
+        onSuccess: (data) => {
+            console.log("=== CART DEBUG: Remove Item SUCCESS ===", data);
             toast.success("Savatdan o'chirildi");
             queryClient.invalidateQueries({ queryKey: ['cart'] });
             queryClient.invalidateQueries({ queryKey: ['products'] });

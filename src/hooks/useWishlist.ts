@@ -47,6 +47,10 @@ export const useWishlist = (userId: string | undefined | null) => {
             }
         },
         onMutate: async ({ product, isCurrentlySaved }: TogglePayload) => {
+            console.log("=== WISHLIST DEBUG: Toggle Item ===");
+            console.log("-> UserId:", safeUserId);
+            console.log(`-> Action: ${isCurrentlySaved ? "REMOVE" : "ADD"}`);
+            console.log("-> Product Payload:", product);
             await queryClient.cancelQueries({ queryKey: ['wishlist', safeUserId] });
             const previousWishlist = queryClient.getQueryData<WishlistItem[]>(['wishlist', safeUserId]);
 
@@ -76,13 +80,14 @@ export const useWishlist = (userId: string | undefined | null) => {
             return { previousWishlist };
         },
         onError: (err: any, _variables, context) => {
-            console.error("Wishlist error — reverting UI");
+            console.error("=== WISHLIST DEBUG: Toggle Item ERROR ===", err?.response?.data || err);
             if (context?.previousWishlist) {
                 queryClient.setQueryData(['wishlist', safeUserId], context.previousWishlist);
             }
             toast.error(err?.response?.data?.message || err?.message || "Xatolik yuz berdi");
         },
-        onSuccess: () => {
+        onSuccess: (data) => {
+            console.log("=== WISHLIST DEBUG: Toggle Item SUCCESS ===", data);
             queryClient.invalidateQueries({ queryKey: ['wishlist', safeUserId] });
         },
     });

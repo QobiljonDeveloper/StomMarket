@@ -22,12 +22,17 @@ api.interceptors.request.use((config) => {
         config.url = config.url.replace(/([^:]\/)\/+/g, '$1').replace(/\/+$/, '');
     }
 
+    console.log(`[API Request] URL: ${config.baseURL || ''}${config.url} | Method: ${config.method?.toUpperCase()} | Body:`, config.data);
+
     return config;
 });
 
 // Response Interceptor: specific error toasts instead of crashing the UI
 api.interceptors.response.use(
-    (response) => response,
+    (response) => {
+        console.log(`[API Response] Status: ${response.status} | URL: ${response.config.url}`, response.data);
+        return response;
+    },
     (error) => {
         // Quietly pass 404 avatar requests without polluting the console
         if (error.response?.status === 404 && error.config?.url?.includes('/avatar')) {

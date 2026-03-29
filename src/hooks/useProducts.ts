@@ -4,13 +4,16 @@ import { Product } from '../types';
 
 export const useProducts = (categoryId?: string, searchQuery?: string) => {
     return useQuery({
-        queryKey: ['products', categoryId ?? null, searchQuery ?? ''],
+        queryKey: ['products', categoryId, searchQuery],
         queryFn: async (): Promise<Product[]> => {
             try {
                 const params = new URLSearchParams();
                 if (categoryId) params.append('categoryId', categoryId);
                 if (searchQuery) params.append('q', searchQuery);
-                const url = `/api/products${params.toString() ? '?' + params.toString() : ''}`;
+
+                const queryString = params.toString();
+                const url = `/api/products${queryString ? '?' + queryString : ''}`;
+
                 const { data } = await api.get(url);
                 return data;
             } catch (error) {

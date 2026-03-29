@@ -1,5 +1,5 @@
 import { ReactNode, useState } from "react";
-import { Search, Heart, ShoppingCart, X } from "lucide-react";
+import { Search, Heart, ShoppingCart } from "lucide-react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { useCart } from "../context/CartContext";
@@ -11,13 +11,7 @@ import { useWishlist } from "../hooks/useWishlist";
 
 import { BadgeWrapper } from "./ui/BadgeWrapper";
 
-interface LayoutProps {
-    children: ReactNode;
-    searchQuery: string;
-    onSearchChange: (value: string) => void;
-}
-
-export function Layout({ children, searchQuery, onSearchChange }: LayoutProps) {
+export function Layout({ children, onSearch }: { children: ReactNode; onSearch?: (val: string) => void }) {
     const { cartCount } = useCart();
     const { user } = useAuthContext();
     const { wishlist = [] } = useWishlist(user?.id);
@@ -45,20 +39,10 @@ export function Layout({ children, searchQuery, onSearchChange }: LayoutProps) {
                             <Search className="w-4 h-4" strokeWidth={2} />
                         </div>
                         <Input
-                            value={searchQuery}
-                            onChange={(e) => onSearchChange(e.target.value)}
                             placeholder="Mahsulot qidirish..."
-                            className="w-full h-10 pl-11 pr-10 rounded-xl bg-[#F1F5F9] border border-transparent text-[13px] focus-visible:ring-1 focus-visible:ring-[#007AFF] focus-visible:border-[#007AFF]/20 transition-all font-medium text-slate-900 placeholder:text-slate-500 hover:bg-[#E2E8F0]/50"
+                            onChange={(e) => onSearch?.(e.target.value)}
+                            className="w-full h-10 pl-11 pr-4 rounded-xl bg-[#F1F5F9] border border-transparent text-[13px] focus-visible:ring-1 focus-visible:ring-[#007AFF] focus-visible:border-[#007AFF]/20 transition-all font-medium text-slate-900 placeholder:text-slate-500 hover:bg-[#E2E8F0]/50"
                         />
-                        {/* Clear Search Button */}
-                        {searchQuery && (
-                            <button
-                                onClick={() => onSearchChange("")}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-300 hover:bg-slate-400 flex items-center justify-center transition-colors"
-                            >
-                                <X className="w-3 h-3 text-white" strokeWidth={3} />
-                            </button>
-                        )}
                     </div>
 
                     {/* Actions */}

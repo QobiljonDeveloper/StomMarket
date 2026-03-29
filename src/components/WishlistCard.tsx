@@ -1,7 +1,6 @@
-import { Trash2, Loader2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import type { WishlistItem } from "../types";
 import { motion } from "framer-motion";
-import { useState } from "react";
 
 interface WishlistCardProps {
     item: WishlistItem;
@@ -10,27 +9,19 @@ interface WishlistCardProps {
 
 export function WishlistCard({ item, onRemove }: WishlistCardProps) {
     const formattedPrice = item.basePrice.toLocaleString("uz-UZ");
-    const [isRemoving, setIsRemoving] = useState(false);
-
-    const handleRemove = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        e.preventDefault();
-        setIsRemoving(true);
-        onRemove(item.productId);
-    };
 
     return (
         <motion.div
             layout
-            className="flex flex-col bg-white p-3 rounded-2xl border border-slate-200 relative shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-all duration-300 h-full"
+            className="group flex flex-col bg-white p-3 rounded-2xl border border-slate-200 relative hover:border-red-200 shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] transition-all duration-300 h-full"
         >
             {/* Image */}
-            <div className="relative w-full aspect-square bg-[#F1F5F9] rounded-xl overflow-hidden mb-3 shrink-0 flex items-center justify-center p-3">
+            <div className="relative w-full aspect-square bg-[#F1F5F9] rounded-xl overflow-hidden mb-3 shrink-0 transition-colors duration-300 flex items-center justify-center p-3">
                 {item.primaryImageUrl ? (
                     <img
                         src={item.primaryImageUrl}
                         alt={item.productNameUz}
-                        className="w-full h-full object-contain drop-shadow-sm"
+                        className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105 drop-shadow-sm"
                     />
                 ) : (
                     <div className="w-full h-full rounded-xl bg-white/60 backdrop-blur-md border border-slate-100 shadow-[0_4px_16px_rgba(0,0,0,0.03)] flex flex-col items-center justify-center text-slate-300">
@@ -54,18 +45,17 @@ export function WishlistCard({ item, onRemove }: WishlistCardProps) {
                     </div>
                 )}
 
-                {/* Trash — always visible, 44x44 touch target, red glassmorphism */}
+                {/* Trash / Remove Button */}
                 <button
-                    onClick={handleRemove}
-                    disabled={isRemoving}
-                    className="absolute top-1.5 right-1.5 z-10 w-11 h-11 rounded-full bg-red-500/10 backdrop-blur-md border border-red-200/60 shadow-sm flex items-center justify-center text-red-500 hover:bg-red-500/20 hover:border-red-300 transition-all duration-200 active:scale-90 disabled:opacity-50"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        onRemove(item.productId);
+                    }}
+                    className="absolute top-2 right-2 z-10 p-2 rounded-full bg-white/90 backdrop-blur-md border border-slate-200 shadow-sm flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 hover:border-red-200 transition-all duration-200 active:scale-90 opacity-0 group-hover:opacity-100"
                     aria-label="O'chirish"
                 >
-                    {isRemoving ? (
-                        <Loader2 className="w-4.5 h-4.5 animate-spin" strokeWidth={2} />
-                    ) : (
-                        <Trash2 className="w-4.5 h-4.5" strokeWidth={2} />
-                    )}
+                    <Trash2 className="w-4 h-4" strokeWidth={2} />
                 </button>
             </div>
 

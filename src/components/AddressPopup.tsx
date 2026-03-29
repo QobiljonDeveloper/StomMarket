@@ -4,50 +4,61 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { MapPin } from "lucide-react";
+import { MapPin, Loader2 } from "lucide-react";
+import { useAddress } from "../hooks/useAddress";
+import { useAuthContext } from "../context/AuthContext";
 
 interface AddressPopupProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    onSave: (address: any) => void;
+    onSaveSuccess: (addressId?: string) => void;
 }
 
-const REGIONS = [
-    "Toshkent shahri",
-    "Toshkent viloyati",
-    "Andijon viloyati",
-    "Buxoro viloyati",
-    "Farg'ona viloyati",
-    "Jizzax viloyati",
-    "Xorazm viloyati",
-    "Namangan viloyati",
-    "Navoiy viloyati",
-    "Qashqadaryo viloyati",
-    "Qoraqalpog'iston Respublikasi",
-    "Samarqand viloyati",
-    "Sirdaryo viloyati",
-    "Surxondaryo viloyati"
-];
+export function AddressPopup({ open, onOpenChange, onSaveSuccess }: AddressPopupProps) {
+    const { user } = useAuthContext();
+    const { regions, createAddress, isCreatingAddress } = useAddress(user?.id);
 
-export function AddressPopup({ open, onOpenChange, onSave }: AddressPopupProps) {
     const [region, setRegion] = useState("");
     const [city, setCity] = useState("");
     const [street, setStreet] = useState("");
     const [label, setLabel] = useState("Uy");
     const [isDefault, setIsDefault] = useState(true);
 
-    const handleSave = () => {
+    const handleSave = async () => {
+        if (!user?.id) {
+            alert("Foydalanuvchi tizimga kirmagan.");
+            return;
+        }
         if (!region || !city || !street || !label) {
             alert("Iltimos, barcha maydonlarni to'ldiring.");
             return;
         }
-        onSave({ region, city, street, label, isDefault });
-        onOpenChange(false);
+
+        try {
+            const newAddr = await createAddress({
+                userId: user.id,
+                label,
+                region,
+                city,
+                street,
+                isDefault
+            });
+            onSaveSuccess(newAddr.id);
+            // Reset fields dynamically
+            setRegion("");
+            setCity("");
+            setStreet("");
+            setLabel("Uy");
+            setIsDefault(true);
+            onOpenChange(false);
+        } catch (err) {
+            console.error("Popup address failure:", err);
+        }
     };
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[425px] w-[95%] rounded-4xl p-6 bg-white border-slate-100 shadow-[0_20px_60px_rgba(0,0,0,0.08)]">
+            <DialogContent className="sm:max-w-[425px] w-[95%] rounded-4xl p-6 bg-white border-slate-100 shadow-[0_20px_60px_rgba(0,0,0,0.08)] z-50">
                 <DialogHeader className="mb-4 text-left">
                     <DialogTitle className="text-xl font-bold text-slate-900 flex items-center gap-2">
                         <div className="w-8 h-8 rounded-full bg-[#007AFF]/10 flex items-center justify-center text-[#007AFF]">
@@ -67,9 +78,9 @@ export function AddressPopup({ open, onOpenChange, onSave }: AddressPopupProps) 
                             <SelectTrigger className="w-full h-12 rounded-xl border-slate-200 bg-[#F8FAFC] focus:ring-2 focus:ring-[#007AFF]/20 transition-all font-medium">
                                 <SelectValue placeholder="Viloyatni tanlang" />
                             </SelectTrigger>
-                            <SelectContent className="max-h-[200px] border-slate-100 shadow-xl rounded-xl">
-                                {REGIONS.map((r) => (
-                                    <SelectItem key={r} value={r} className="font-medium cursor-pointer focus:bg-slate-50">{r}</SelectItem>
+                            <SelectContent className="max-h-[200px] border-slate-100 shadow-xl rounded-xl bg-white z-100">
+                                {regions.map((r) => (
+                                    <SelectItem key={r.value.toString()} value={r.name} className="font-medium cursor-pointer focus:bg-slate-50">{r.name}</SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
@@ -119,9 +130,10 @@ export function AddressPopup({ open, onOpenChange, onSave }: AddressPopupProps) 
                 <DialogFooter className="mt-6 sm:justify-start flex-col sm:flex-col gap-2">
                     <Button
                         onClick={handleSave}
+                        disabled={isCreatingAddress}
                         className="w-full h-12 rounded-xl bg-[#007AFF] hover:bg-[#005bb5] text-white font-bold shadow-[0_8px_20px_rgba(0,122,255,0.2)] transition-colors"
                     >
-                        Manzilni saqlash
+                        {isCreatingAddress ? <Loader2 className="w-4 h-4 animate-spin mx-auto" strokeWidth={2.5} /> : "Manzilni saqlash"}
                     </Button>
                     <Button
                         type="button"

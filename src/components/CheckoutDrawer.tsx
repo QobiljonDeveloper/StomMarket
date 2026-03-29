@@ -15,6 +15,7 @@ import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Textarea } from "./ui/textarea";
 import { CreditCard, Truck, User, Phone, MapPin, MessageSquare, ArrowLeft, Store, ShieldCheck } from "lucide-react";
 import { AddressPopup } from "./AddressPopup";
+import { useAddress } from "../hooks/useAddress";
 
 interface CheckoutDrawerProps {
     open: boolean;
@@ -24,12 +25,13 @@ interface CheckoutDrawerProps {
 export function CheckoutDrawer({ open, onOpenChange }: CheckoutDrawerProps) {
     const { cartTotal, clearCart } = useCart();
     const { user } = useAuthContext();
+    const { addresses, isLoadingAddresses } = useAddress(user?.id);
 
     const [paymentMethod, setPaymentMethod] = useState("online");
     const [deliveryMethod, setDeliveryMethod] = useState("delivery");
 
     // Address UI State
-    const [address, setAddress] = useState<any>(null);
+    const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
     const [isAddressPopupOpen, setIsAddressPopupOpen] = useState(false);
 
     // Form Personal Data
@@ -41,6 +43,14 @@ export function CheckoutDrawer({ open, onOpenChange }: CheckoutDrawerProps) {
             setFullName(user?.fullName || "");
         }
     }, [open, user]);
+
+    // Automatically select the default or first address whenever addresses load
+    useEffect(() => {
+        if (addresses.length > 0 && !selectedAddressId) {
+            const defaultAddress = addresses.find((a: any) => a.isDefault) || addresses[0];
+            setSelectedAddressId(defaultAddress.id);
+        }
+    }, [addresses, selectedAddressId]);
 
     const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         let val = e.target.value.replace(/[^\d+]/g, '');
@@ -55,7 +65,7 @@ export function CheckoutDrawer({ open, onOpenChange }: CheckoutDrawerProps) {
 
     const handleDeliveryChange = (value: string) => {
         setDeliveryMethod(value);
-        if (value === "delivery" && !address) {
+        if (value === "delivery" && addresses.length === 0) {
             setIsAddressPopupOpen(true);
         }
     };
@@ -214,24 +224,32 @@ export function CheckoutDrawer({ open, onOpenChange }: CheckoutDrawerProps) {
                                 <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
                                     <Label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Yetkazib berish manzili</Label>
 
-                                    {address ? (
-                                        <div className="relative p-3.5 rounded-xl border border-[#007AFF]/20 bg-[#007AFF]/5 flex items-start gap-3 shadow-sm group">
-                                            <div className="mt-0.5 text-[#007AFF]">
-                                                <MapPin className="w-4 h-4" strokeWidth={2.5} />
-                                            </div>
-                                            <div className="flex-1 flex flex-col pr-8">
-                                                <span className="text-xs font-bold text-slate-900 leading-tight">
-                                                    {address.region}, {address.city}
-                                                </span>
-                                                <span className="text-xs font-medium text-slate-500 mt-1 line-clamp-2">
-                                                    {address.street}
-                                                </span>
+                                    {isLoadingAddresses ? (
+                                        <div className="h-16 w-full rounded-xl bg-slate-50 border border-slate-100 animate-pulse"></div>
+                                    ) : selectedAddressId && addresses.find((a: any) => a.id === selectedAddressId) ? (
+                                        <div className="space-y-2">
+                                            <div className="relative p-3.5 rounded-xl border border-[#007AFF]/20 bg-[#007AFF]/5 flex items-start gap-3 shadow-sm group">
+                                                <div className="mt-0.5 text-[#007AFF]">
+                                                    <MapPin className="w-4 h-4" strokeWidth={2.5} />
+                                                </div>
+                                                <div className="flex-1 flex flex-col pr-2">
+                                                    <span className="text-xs font-bold text-slate-900 leading-tight">
+                                                        {(() => {
+                                                            const addr = addresses.find((a: any) => a.id === selectedAddressId);
+                                                            return `${addr?.region}, ${addr?.city}`;
+                                                        })()}
+                                                    </span>
+                                                    <span className="text-xs font-medium text-slate-500 mt-1 line-clamp-2">
+                                                        {addresses.find((a: any) => a.id === selectedAddressId)?.street}
+                                                    </span>
+                                                </div>
                                             </div>
                                             <button
                                                 onClick={() => setIsAddressPopupOpen(true)}
-                                                className="absolute right-3 top-3 text-xs font-bold text-[#007AFF] bg-white border border-[#007AFF]/20 px-2 py-1 rounded-lg shadow-sm hover:bg-[#007AFF] hover:text-white transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
+                                                className="w-full flex items-center justify-center gap-2 h-10 rounded-lg border border-dashed border-[#007AFF]/30 bg-[#007AFF]/5 text-[#007AFF] hover:bg-[#007AFF]/10 hover:border-[#007AFF]/50 transition-all font-bold text-xs mt-1"
                                             >
-                                                O'zgar.
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="M12 5v14" /></svg>
+                                                Boshqa manzil qo'shish
                                             </button>
                                         </div>
                                     ) : (
@@ -287,7 +305,9 @@ export function CheckoutDrawer({ open, onOpenChange }: CheckoutDrawerProps) {
             <AddressPopup
                 open={isAddressPopupOpen}
                 onOpenChange={setIsAddressPopupOpen}
-                onSave={setAddress}
+                onSaveSuccess={(id: string | undefined) => {
+                    if (id) setSelectedAddressId(id);
+                }}
             />
         </Sheet>
     );

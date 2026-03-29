@@ -13,7 +13,7 @@ export const useAuth = () => {
 
     return useMutation({
         mutationFn: async (initData: string): Promise<AuthResponse> => {
-            const response = await api.post('/api/auth/telegram', { initData });
+            const response = await api.post('/auth/telegram', { initData });
             return response.data;
         },
         onSuccess: (data) => {

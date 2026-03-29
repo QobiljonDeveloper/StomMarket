@@ -11,6 +11,7 @@ import { TelegramAuthDebug } from './components/TelegramAuthDebug';
 import { useAuth } from './hooks/useAuth';
 import { AuthProvider, useAuthContext } from './context/AuthContext';
 import { SearchX } from 'lucide-react';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 // Hardcoded to true for temporary debugging per requirements.
 const DEV_MODE = true;
@@ -193,7 +194,9 @@ function App() {
             style: { background: '#ffffff', color: '#0f172a' }
           }}
         />
-        <AppContent />
+        <ErrorBoundary>
+          <AppContent />
+        </ErrorBoundary>
       </AuthProvider>
     </QueryClientProvider>
   );

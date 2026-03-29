@@ -3,7 +3,8 @@ import axios from 'axios';
 
 
 export const api = axios.create({
-    baseURL: 'https://ortadant-markert-api.kubesec.uz',
+    baseURL: 'https://ortadant-markert-api.kubesec.uz/api',
+    // Ensures no trailing slash inside base configuration
     headers: {
         'Content-Type': 'application/json',
     },
@@ -40,7 +41,7 @@ api.interceptors.response.use(
 
 // Fetch user profile image via Telegram ID as a Blob
 export const getUserAvatar = async (telegramId: number) => {
-    return await api.get(`/api/users/telegram/${telegramId}/avatar`, {
+    return await api.get(`/users/telegram/${telegramId}/avatar`, {
         responseType: 'blob'
     });
 };

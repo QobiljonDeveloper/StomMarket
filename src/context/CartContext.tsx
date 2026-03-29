@@ -29,7 +29,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         queryKey: ['cart', userId],
         queryFn: async (): Promise<CartItem[]> => {
             if (!userId) return [];
-            const { data } = await api.get(`/api/cart/${userId}`);
+            const { data } = await api.get(`/cart/${userId}`);
             return data;
         },
         enabled: !!userId,
@@ -51,10 +51,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     // 2. Add To Cart Mutation
     const addMutation = useMutation({
         mutationFn: async (productId: string) => {
-            if (!userId) throw new Error("Not logged in");
+            if (!userId) return;
             try {
-                await api.post(`/api/cart/${userId}`, { productId, quantity: 1 });
-            } catch (error) {
+                await api.post(`/cart/${userId}`, { productId, quantity: 1 });
+            } catch (error: any) {
                 console.error("Cart API Error:", error);
                 throw error;
             }
@@ -79,11 +79,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
             }
             return { previousCart };
         },
-        onError: (_err, _vars, context) => {
+        onError: (err: any, _vars, context) => {
             if (context?.previousCart) {
                 queryClient.setQueryData(['cart', userId], context.previousCart);
             }
-            toast.error("Savatga qo'shib bo'lmadi");
+            toast.error(err?.message || "Savatga qo'shib bo'lmadi");
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['cart', userId] });
@@ -93,8 +93,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     // 3. Remove From Cart Mutation
     const removeMutation = useMutation({
         mutationFn: async (cartItemId: string) => {
-            if (!userId) throw new Error("Not logged in");
-            await api.delete(`/api/cart/${userId}/items/${cartItemId}`);
+            if (!userId) return;
+            await api.delete(`/cart/${userId}/items/${cartItemId}`);
         },
         onMutate: async (cartItemId) => {
             await queryClient.cancelQueries({ queryKey: ['cart', userId] });
@@ -106,11 +106,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
             }
             return { previousCart };
         },
-        onError: (_err, _vars, context) => {
+        onError: (err: any, _vars, context) => {
             if (context?.previousCart) {
                 queryClient.setQueryData(['cart', userId], context.previousCart);
             }
-            toast.error("Savatdan o'chirishda xatolik yuz berdi");
+            toast.error(err?.message || "Savatdan o'chirishda xatolik yuz berdi");
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['cart', userId] });
@@ -120,8 +120,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     // 4. Update Quantity Mutation
     const updateMutation = useMutation({
         mutationFn: async ({ cartItemId, quantity }: { cartItemId: string; quantity: number }) => {
-            if (!userId) throw new Error("Not logged in");
-            await api.patch(`/api/cart/${userId}/items/${cartItemId}?quantity=${quantity}`);
+            if (!userId) return;
+            await api.patch(`/cart/${userId}/items/${cartItemId}?quantity=${quantity}`);
         },
         onMutate: async ({ cartItemId, quantity }) => {
             await queryClient.cancelQueries({ queryKey: ['cart', userId] });
@@ -135,11 +135,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
             }
             return { previousCart };
         },
-        onError: (_err, _vars, context) => {
+        onError: (err: any, _vars, context) => {
             if (context?.previousCart) {
                 queryClient.setQueryData(['cart', userId], context.previousCart);
             }
-            toast.error("Miqdorni o'zgartirishda xatolik yuz berdi");
+            toast.error(err?.message || "Miqdorni o'zgartirishda xatolik yuz berdi");
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['cart', userId] });

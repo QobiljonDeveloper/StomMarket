@@ -45,28 +45,27 @@ export const useCartApi = (userId: string | undefined | null) => {
         },
         onMutate: async (product: Product) => {
             await queryClient.cancelQueries({ queryKey: ['cart', safeUserId] });
-            const previousCart = queryClient.getQueryData<CartItem[]>(['cart', safeUserId]);
+            const previousData = queryClient.getQueryData<any>(['cart', safeUserId]);
+            const previousCart: CartItem[] = Array.isArray(previousData) ? previousData : (previousData?.items || []);
 
-            if (previousCart) {
-                const existing = previousCart.find(item => item.product.id === product.id);
-                if (existing) {
-                    queryClient.setQueryData<CartItem[]>(['cart', safeUserId],
-                        previousCart.map(item =>
-                            item.product.id === product.id
-                                ? { ...item, quantity: item.quantity + 1 }
-                                : item
-                        )
-                    );
-                } else {
-                    const newItem: CartItem = {
-                        id: `temp-${Date.now()}`,
-                        quantity: 1,
-                        product
-                    };
-                    queryClient.setQueryData<CartItem[]>(['cart', safeUserId], [...previousCart, newItem]);
-                }
+            const existing = previousCart.find(item => item?.product?.id === product.id);
+            if (existing) {
+                queryClient.setQueryData<CartItem[]>(['cart', safeUserId],
+                    previousCart.map(item =>
+                        item?.product?.id === product.id
+                            ? { ...item, quantity: (item.quantity || 0) + 1 }
+                            : item
+                    )
+                );
+            } else {
+                const newItem: CartItem = {
+                    id: `temp-${Date.now()}`,
+                    quantity: 1,
+                    product
+                };
+                queryClient.setQueryData<CartItem[]>(['cart', safeUserId], [...previousCart, newItem]);
             }
-            return { previousCart };
+            return { previousCart: previousData };
         },
         onError: (err: any, _product, context) => {
             if (context?.previousCart) {
@@ -99,18 +98,17 @@ export const useCartApi = (userId: string | undefined | null) => {
         },
         onMutate: async ({ cartItemId, quantity }) => {
             await queryClient.cancelQueries({ queryKey: ['cart', safeUserId] });
-            const previousCart = queryClient.getQueryData<CartItem[]>(['cart', safeUserId]);
+            const previousData = queryClient.getQueryData<any>(['cart', safeUserId]);
+            const previousCart: CartItem[] = Array.isArray(previousData) ? previousData : (previousData?.items || []);
 
-            if (previousCart) {
-                queryClient.setQueryData<CartItem[]>(['cart', safeUserId],
-                    previousCart.map(item =>
-                        item.id === cartItemId
-                            ? { ...item, quantity }
-                            : item
-                    )
-                );
-            }
-            return { previousCart };
+            queryClient.setQueryData<CartItem[]>(['cart', safeUserId],
+                previousCart.map(item =>
+                    item?.id === cartItemId
+                        ? { ...item, quantity }
+                        : item
+                )
+            );
+            return { previousCart: previousData };
         },
         onError: (err: any, _vars, context) => {
             if (context?.previousCart) {
@@ -143,14 +141,13 @@ export const useCartApi = (userId: string | undefined | null) => {
         },
         onMutate: async (cartItemId: string) => {
             await queryClient.cancelQueries({ queryKey: ['cart', safeUserId] });
-            const previousCart = queryClient.getQueryData<CartItem[]>(['cart', safeUserId]);
+            const previousData = queryClient.getQueryData<any>(['cart', safeUserId]);
+            const previousCart: CartItem[] = Array.isArray(previousData) ? previousData : (previousData?.items || []);
 
-            if (previousCart) {
-                queryClient.setQueryData<CartItem[]>(['cart', safeUserId],
-                    previousCart.filter(item => item.id !== cartItemId)
-                );
-            }
-            return { previousCart };
+            queryClient.setQueryData<CartItem[]>(['cart', safeUserId],
+                previousCart.filter(item => item?.id !== cartItemId)
+            );
+            return { previousCart: previousData };
         },
         onError: (err: any, _vars, context) => {
             if (context?.previousCart) {

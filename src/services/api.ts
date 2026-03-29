@@ -3,7 +3,7 @@ import axios from 'axios';
 
 
 export const api = axios.create({
-    baseURL: 'https://ortadant-market-api.kubesec.uz',
+    baseURL: 'https://ortadant-markert-api.kubesec.uz',
     withCredentials: false,
     headers: {
         'Content-Type': 'application/json',

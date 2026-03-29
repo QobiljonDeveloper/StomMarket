@@ -14,6 +14,7 @@ interface CartContextType {
     getItemQuantity: (productId: string) => number;
     cartTotal: number;
     cartCount: number;
+    refetchCart: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -24,14 +25,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const userId = user?.id;
 
     // 1. Fetch Cart
-    const { data: cart = [] } = useQuery({
+    const { data: cart = [], refetch: refetchCart } = useQuery({
         queryKey: ['cart', userId],
         queryFn: async (): Promise<CartItem[]> => {
             if (!userId) return [];
-            const { data } = await api.get(`/cart/${userId}`);
+            const { data } = await api.get(`/api/cart/${userId}`);
             return data;
         },
         enabled: !!userId,
+        staleTime: Infinity,
     });
 
     // Calculations
@@ -50,7 +52,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const addMutation = useMutation({
         mutationFn: async (productId: string) => {
             if (!userId) throw new Error("Not logged in");
-            await api.post(`/cart/${userId}`, { productId, quantity: 1 });
+            try {
+                await api.post(`/api/cart/${userId}`, { productId, quantity: 1 });
+            } catch (error) {
+                console.error("Cart API Error:", error);
+                throw error;
+            }
         },
         onMutate: async (productId) => {
             await queryClient.cancelQueries({ queryKey: ['cart', userId] });
@@ -76,7 +83,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
             if (context?.previousCart) {
                 queryClient.setQueryData(['cart', userId], context.previousCart);
             }
-            toast.error("Savatga qo'shishda xatolik yuz berdi");
+            toast.error("Savatga qo'shib bo'lmadi");
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['cart', userId] });
@@ -87,7 +94,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const removeMutation = useMutation({
         mutationFn: async (cartItemId: string) => {
             if (!userId) throw new Error("Not logged in");
-            await api.delete(`/cart/${userId}/items/${cartItemId}`);
+            await api.delete(`/api/cart/${userId}/items/${cartItemId}`);
         },
         onMutate: async (cartItemId) => {
             await queryClient.cancelQueries({ queryKey: ['cart', userId] });
@@ -114,7 +121,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const updateMutation = useMutation({
         mutationFn: async ({ cartItemId, quantity }: { cartItemId: string; quantity: number }) => {
             if (!userId) throw new Error("Not logged in");
-            await api.patch(`/cart/${userId}/items/${cartItemId}?quantity=${quantity}`);
+            await api.patch(`/api/cart/${userId}/items/${cartItemId}?quantity=${quantity}`);
         },
         onMutate: async ({ cartItemId, quantity }) => {
             await queryClient.cancelQueries({ queryKey: ['cart', userId] });
@@ -187,6 +194,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
                 cartTotal,
                 cartCount,
                 getItemQuantity,
+                refetchCart,
             }}
         >
             {children}

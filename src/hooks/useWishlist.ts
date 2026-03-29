@@ -11,7 +11,7 @@ export const useWishlist = (userId: string | undefined | null) => {
         queryKey: ['wishlist', safeUserId],
         queryFn: async (): Promise<WishlistItem[]> => {
             if (!safeUserId) return [];
-            const { data } = await api.get(`/wishlist/${safeUserId}`);
+            const { data } = await api.get(`/api/wishlist/${safeUserId}`);
             return data;
         },
         enabled: !!safeUserId,
@@ -25,7 +25,7 @@ export const useWishlist = (userId: string | undefined | null) => {
     const toggleMutation = useMutation({
         mutationFn: async ({ productId, isCurrentlySaved }: { productId: string; isCurrentlySaved: boolean }) => {
             if (!safeUserId) throw new Error("User not logged in");
-            const url = `/wishlist/${safeUserId}/${productId}`;
+            const url = `/api/wishlist/${safeUserId}/${productId}`;
             if (isCurrentlySaved) {
                 await api.delete(url);
             } else {
@@ -61,7 +61,7 @@ export const useWishlist = (userId: string | undefined | null) => {
     const removeMutation = useMutation({
         mutationFn: async (productId: string) => {
             if (!safeUserId) throw new Error("User not logged in");
-            await api.delete(`/wishlist/${safeUserId}/${productId}`);
+            await api.delete(`/api/wishlist/${safeUserId}/${productId}`);
         },
         onMutate: async (productId: string) => {
             await queryClient.cancelQueries({ queryKey: ['wishlist', safeUserId] });

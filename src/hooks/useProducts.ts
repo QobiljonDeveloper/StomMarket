@@ -9,7 +9,7 @@ export const useProducts = (categoryId?: string, searchQuery?: string) => {
             const params = new URLSearchParams();
             if (categoryId) params.append('categoryId', categoryId);
             if (searchQuery) params.append('q', searchQuery);
-            const url = `/products${params.toString() ? '?' + params.toString() : ''}`;
+            const url = `/api/products${params.toString() ? '?' + params.toString() : ''}`;
             const { data } = await api.get(url);
             return data;
         }

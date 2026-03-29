@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCart } from "../context/CartContext";
 import { Button } from "./ui/button";
 import {
@@ -6,6 +6,7 @@ import {
     SheetContent,
     SheetHeader,
     SheetTitle,
+    SheetDescription,
     SheetFooter,
 } from "./ui/sheet";
 import { ScrollArea } from "./ui/scroll-area";
@@ -19,8 +20,14 @@ interface CartDrawerProps {
 }
 
 export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
-    const { cart, updateQuantity, removeFromCart, cartTotal, cartCount } = useCart();
+    const { cart, updateQuantity, removeFromCart, cartTotal, cartCount, refetchCart } = useCart();
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+
+    useEffect(() => {
+        if (open) {
+            refetchCart();
+        }
+    }, [open, refetchCart]);
 
     const formatPrice = (price: number) => {
         return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " UZS";
@@ -45,6 +52,9 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
                             </div>
                             Savat
                         </SheetTitle>
+                        <SheetDescription className="sr-only">
+                            Savatdagi mahsulotlar ro'yxati
+                        </SheetDescription>
                     </SheetHeader>
 
                     {cart.length === 0 ? (

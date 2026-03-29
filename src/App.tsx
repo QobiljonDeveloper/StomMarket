@@ -64,8 +64,18 @@ function AppContent() {
 
   const filteredProducts = useMemo(() => products, [products]);
 
+  // Full-screen loader while authenticating
+  if (isPending) {
+    return (
+      <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center p-6 text-center z-[100] relative">
+        <div className="w-12 h-12 border-4 border-slate-200 border-t-[#007AFF] rounded-full animate-spin mb-4 shadow-sm"></div>
+        <p className="text-slate-500 font-bold uppercase tracking-widest text-xs animate-pulse">Bog'lanmoqda...</p>
+      </div>
+    );
+  }
+
   // Strict Fallback / Redirect equivalent for Telegram Web App
-  if (!token && !isPending && !DEV_MODE) {
+  if (!token && !DEV_MODE) {
     return (
       <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center p-6 text-center">
         <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-6 border border-slate-200 shadow-sm">
@@ -81,19 +91,6 @@ function AppContent() {
 
   return (
     <CartProvider>
-      <AnimatePresence>
-        {isPending && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed top-0 left-0 w-full z-[100] bg-[#007AFF] text-white text-[11px] font-bold uppercase tracking-widest py-1.5 flex items-center justify-center gap-2 shadow-md"
-          >
-            <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-            Bog'lanmoqda...
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       <Layout onSearch={setSearchTerm}>
         <CategoryBar
@@ -183,19 +180,19 @@ function AppContent() {
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <Toaster
-          richColors
-          position="top-center"
-          toastOptions={{
-            className: 'font-[Inter] rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-slate-100',
-            style: { background: '#ffffff', color: '#0f172a' }
-          }}
-        />
-        <ErrorBoundary>
+      <ErrorBoundary>
+        <AuthProvider>
+          <Toaster
+            richColors
+            position="top-center"
+            toastOptions={{
+              className: 'font-[Inter] rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-slate-100',
+              style: { background: '#ffffff', color: '#0f172a' }
+            }}
+          />
           <AppContent />
-        </ErrorBoundary>
-      </AuthProvider>
+        </AuthProvider>
+      </ErrorBoundary>
     </QueryClientProvider>
   );
 }

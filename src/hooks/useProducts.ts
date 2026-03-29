@@ -16,8 +16,9 @@ export const useProducts = (categoryId?: string, searchQuery?: string) => {
 
                 const { data } = await api.get(url);
                 return data;
-            } catch (error) {
+            } catch (error: any) {
                 console.error("Products fetch error:", error);
+                alert(`Products xatolik: ${error?.message || error}`);
                 throw error;
             }
         }

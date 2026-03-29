@@ -19,6 +19,7 @@ export const useCartApi = (userId: string | undefined | null) => {
                 return data;
             } catch (error: any) {
                 console.error("Error fetching cart data:", error);
+                alert(`Cart fetch xatoligi: ${error?.message || error}`);
                 throw error;
             }
         },
@@ -36,6 +37,7 @@ export const useCartApi = (userId: string | undefined | null) => {
                 return data;
             } catch (error: any) {
                 console.error("Error adding product to cart:", error);
+                alert(`Cart add xatoligi: ${error?.message || error}`);
                 throw error;
             }
         },
@@ -89,6 +91,7 @@ export const useCartApi = (userId: string | undefined | null) => {
                 return data;
             } catch (error: any) {
                 console.error("Error updating cart item quantity:", error);
+                alert(`Cart update xatoligi: ${error?.message || error}`);
                 throw error;
             }
         },
@@ -132,6 +135,7 @@ export const useCartApi = (userId: string | undefined | null) => {
                 return data;
             } catch (error: any) {
                 console.error("Error removing cart item:", error);
+                alert(`Cart remove xatoligi: ${error?.message || error}`);
                 throw error;
             }
         },

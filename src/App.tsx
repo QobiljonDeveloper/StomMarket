@@ -11,6 +11,7 @@ import { TelegramAuthDebug } from './components/TelegramAuthDebug';
 import { useAuth } from './hooks/useAuth';
 import { AuthProvider, useAuthContext } from './context/AuthContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 // Telegram WebApp e'lon qilinishi (TypeScript uchun)
 declare global {
@@ -179,20 +180,27 @@ function AppContent() {
 
 export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ErrorBoundary>
-        <AuthProvider>
-          <Toaster
-            richColors
-            position="top-center"
-            toastOptions={{
-              className: 'font-[Inter] rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-slate-100',
-              style: { background: '#ffffff', color: '#0f172a' }
-            }}
-          />
-          <AppContent />
-        </AuthProvider>
-      </ErrorBoundary>
-    </QueryClientProvider>
+    <BrowserRouter>
+      <QueryClientProvider client={queryClient}>
+        <ErrorBoundary>
+          <AuthProvider>
+            <Toaster
+              richColors
+              position="top-center"
+              toastOptions={{
+                className: 'font-[Inter] rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-slate-100',
+                style: { background: '#ffffff', color: '#0f172a' }
+              }}
+            />
+            <Routes>
+              {/* Home Catalog Route */}
+              <Route path="/" element={<AppContent />} />
+              {/* Catch-all to Home if Product Details isn't ready yet or just fallback */}
+              <Route path="*" element={<AppContent />} />
+            </Routes>
+          </AuthProvider>
+        </ErrorBoundary>
+      </QueryClientProvider>
+    </BrowserRouter>
   );
 }

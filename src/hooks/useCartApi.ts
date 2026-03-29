@@ -16,7 +16,9 @@ export const useCartApi = (userId: string | undefined | null) => {
             try {
                 const data = await cartService.getCart(safeUserId);
                 console.log("Cart data received:", data);
-                return data;
+                // Xavfsizlik qatlami: array emas bo'lsa (masalan {items: []} obyekt kelsa), array ni ajratib olish
+                const items = Array.isArray(data) ? data : (data as any)?.items || [];
+                return items;
             } catch (error: any) {
                 console.error("Error fetching cart data:", error);
                 alert(`Cart fetch xatoligi: ${error?.message || error}`);

@@ -21,16 +21,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const { user } = useAuthContext();
     const { cart, refetch, addToCartMutation, updateQuantityMutation, removeCartItemMutation } = useCartApi(user?.id);
 
-    const cartCount = cart.reduce((count, item) => count + item.quantity, 0);
-    const cartTotal = cart.reduce(
-        (total, item) => total + (item.product.basePrice || item.product.priceValue || 0) * item.quantity,
+    // Xavfsizlik qatlami: cart doim massiv ekanligiga ishonch hosil qilish
+    const safeCart = Array.isArray(cart) ? cart : (cart as any)?.items || [];
+
+    const cartCount = safeCart.reduce((count: number, item: any) => count + (item?.quantity || 0), 0);
+    const cartTotal = safeCart.reduce(
+        (total: number, item: any) => total + ((item?.product?.basePrice || item?.product?.priceValue || 0) * (item?.quantity || 0)),
         0
     );
 
     const getItemQuantity = useCallback((productId: string) => {
-        const item = cart.find((item) => item.product.id === productId);
+        const item = safeCart.find((item: any) => item?.product?.id === productId);
         return item ? item.quantity : 0;
-    }, [cart]);
+    }, [safeCart]);
 
     const addToCart = useCallback((product: Product) => {
         addToCartMutation.mutate(product);
@@ -38,29 +41,25 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
     const removeFromCart = useCallback((productId: string) => {
         if (!user?.id) return;
-        const item = cart.find((i) => i.product.id === productId);
+        const item = safeCart.find((i: any) => i?.product?.id === productId);
         if (item) {
             removeCartItemMutation.mutate(item.id);
         }
-    }, [user?.id, cart, removeCartItemMutation]);
+    }, [user?.id, safeCart, removeCartItemMutation]);
 
     const updateQuantity = useCallback((productId: string, quantity: number) => {
         if (!user?.id) return;
         if (quantity <= 0) {
             removeFromCart(productId);
         } else {
-            const item = cart.find((i) => i.product.id === productId);
+            const item = safeCart.find((i: any) => i?.product?.id === productId);
             if (item) {
                 updateQuantityMutation.mutate({ cartItemId: item.id, quantity });
             } else if (quantity === 1) {
                 // Failsafe in case product isn't mapped but update was fired
-                const productToMap = cart.find((i) => i.product.id === productId)?.product;
-                if (productToMap) {
-                    addToCartMutation.mutate(productToMap);
-                }
             }
         }
-    }, [user?.id, cart, removeFromCart, updateQuantityMutation, addToCartMutation]);
+    }, [user?.id, safeCart, removeFromCart, updateQuantityMutation]);
 
     const clearCart = useCallback(() => {
         // Typically a loop removing everything, or better a dedicated backend endpoint.
@@ -71,7 +70,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return (
         <CartContext.Provider
             value={{
-                cart,
+                cart: safeCart,
                 addToCart,
                 removeFromCart,
                 updateQuantity,

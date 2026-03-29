@@ -5,9 +5,14 @@ import './index.css'
 import App from './App.tsx'
 
 // Global Axios Logging Interceptor for Raw Queries
-axios.interceptors.request.use((request) => {
-  console.log(`[Axios Request] URL: ${request.baseURL || ''}${request.url} | Method: ${request.method?.toUpperCase()} | Body:`, request.data);
-  return request;
+axios.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+    console.log("=== AUTH DEBUG === Generated/Active Token:", token);
+  }
+  console.log(`[Axios Request] URL: ${config.baseURL || ''}${config.url} | Method: ${config.method?.toUpperCase()} | Body:`, config.data);
+  return config;
 });
 
 axios.interceptors.response.use(
@@ -16,7 +21,12 @@ axios.interceptors.response.use(
     return response;
   },
   (error) => {
-    console.error(`[Axios Error] Status: ${error.response?.status} | URL: ${error.config?.url} | Message: ${error.message}`, error.response?.data);
+    const token = localStorage.getItem('token');
+    let reason = "";
+    if (error.response?.status === 401) {
+      reason = token ? "Token expired or invalid" : "Token missing";
+    }
+    console.error(`[Axios Error] Status: ${error.response?.status} | URL: ${error.config?.url} | Reason: ${reason} | Message: ${error.message}`, error.response?.data);
     return Promise.reject(error);
   }
 );

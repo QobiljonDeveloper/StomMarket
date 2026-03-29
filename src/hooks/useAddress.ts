@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { toast } from "sonner";
+import { useAuthContext } from "../context/AuthContext";
 
 const API_BASE = "https://ortadant-markert-api.kubesec.uz/api";
 
@@ -24,6 +25,7 @@ export interface AddressResponse extends AddressPayload {
 
 export const useAddress = (userId?: string) => {
     const queryClient = useQueryClient();
+    const { token } = useAuthContext();
 
     // Fetch Regions
     const { data: regions = [], isLoading: isLoadingRegions } = useQuery<Region[]>({
@@ -32,6 +34,7 @@ export const useAddress = (userId?: string) => {
             const res = await axios.get(`${API_BASE}/enums/Region`);
             return res.data;
         },
+        enabled: !!token,
     });
 
     // Fetch User Addresses

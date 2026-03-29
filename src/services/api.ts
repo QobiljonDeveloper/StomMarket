@@ -15,6 +15,7 @@ api.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
+        console.log("=== AUTH DEBUG === [custom instance] Active Token:", token);
     }
 
     // Sanitize URL: remove double slashes (except after protocol) and trailing slashes
@@ -43,8 +44,14 @@ api.interceptors.response.use(
         const url = error.config?.url || '';
         const method = (error.config?.method || '').toUpperCase();
 
+        let reason = "";
+        const token = localStorage.getItem('token');
+        if (status === 401) {
+            reason = token ? "Token expired or invalid" : "Token missing";
+        }
+
         // Console debug info
-        console.error(`API Error [${method}] ${url} → ${status || 'Network Error'}`);
+        console.error(`API Error [${method}] ${url} → ${status || 'Network Error'} | ${reason}`);
 
         // Show user-facing toasts for specific HTTP errors
         if (status === 404) {

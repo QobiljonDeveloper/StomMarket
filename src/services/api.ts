@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-
+import { toast } from 'sonner';
 
 export const api = axios.create({
     baseURL: 'https://ortadant-markert-api.kubesec.uz',
@@ -10,30 +9,51 @@ export const api = axios.create({
     },
 });
 
-// Request interceptor to attach JWT Token automatically
+// Request interceptor: attach JWT + sanitize URLs
 api.interceptors.request.use((config) => {
+    // Attach token
     const token = localStorage.getItem('token');
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // Sanitize URL: remove double slashes (except after protocol) and trailing slashes
+    if (config.url) {
+        config.url = config.url.replace(/([^:]\/)\/+/g, '$1').replace(/\/+$/, '');
+    }
+
     return config;
 });
 
-// Response Interceptor for advanced Network/CORS Debugging
+// Response Interceptor: specific error toasts instead of crashing the UI
 api.interceptors.response.use(
-    (response) => {
-        return response;
-    },
+    (response) => response,
     (error) => {
         // Quietly pass 404 avatar requests without polluting the console
         if (error.response?.status === 404 && error.config?.url?.includes('/avatar')) {
             return Promise.reject(error);
         }
 
-        console.error("DEBUG - URL:", error.config?.url);
-        console.error("DEBUG - Method:", error.config?.method);
-        console.error("DEBUG - Status:", error.response?.status);
-        console.error("DEBUG - Is CORS?", error.message?.includes('Network Error') && !error.response);
+        const status = error.response?.status;
+        const url = error.config?.url || '';
+        const method = (error.config?.method || '').toUpperCase();
+
+        // Console debug info
+        console.error(`API Error [${method}] ${url} → ${status || 'Network Error'}`);
+
+        // Show user-facing toasts for specific HTTP errors
+        if (status === 404) {
+            toast.error("Ma'lumot topilmadi (404)");
+        } else if (status === 500) {
+            toast.error("Server xatoligi (500). Keyinroq urinib ko'ring.");
+        } else if (status === 401) {
+            toast.error("Avtorizatsiya muddati tugadi. Qayta kiring.");
+        } else if (status === 403) {
+            toast.error("Ruxsat berilmagan so'rov (403).");
+        } else if (!error.response) {
+            // Network error (CORS, offline, etc.)
+            toast.error("Tarmoq xatoligi. Internet aloqasini tekshiring.");
+        }
 
         return Promise.reject(error);
     }

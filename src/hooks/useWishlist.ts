@@ -21,6 +21,7 @@ export const useWishlist = (userId: string | undefined | null) => {
             }
         },
         enabled: !!safeUserId,
+        retry: 1,
     });
 
     // Check if a product is saved — match on productId

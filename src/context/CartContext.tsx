@@ -39,6 +39,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         },
         enabled: !!userId,
         staleTime: Infinity,
+        retry: 1,
     });
 
     // Calculations

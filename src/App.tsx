@@ -173,7 +173,7 @@ function AppContent() {
           </div>
         </main>
       </Layout>
-      <TelegramAuthDebug devMode={DEV_MODE} />
+      <TelegramAuthDebug />
     </CartProvider>
   );
 }

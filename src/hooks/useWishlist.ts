@@ -3,43 +3,50 @@ import { api } from '../services/api';
 import { Product, WishlistItem } from '../types';
 import { toast } from 'sonner';
 
+interface TogglePayload {
+    productId: string;
+    product: Product;
+    isCurrentlySaved: boolean;
+}
+
 export const useWishlist = (userId: string | undefined | null) => {
     const queryClient = useQueryClient();
     const safeUserId = userId ? String(userId) : null;
 
-    // Fetch wishlist — returns WishlistItem[] from backend
+    // Fetch wishlist
     const { data: wishlist = [], isLoading } = useQuery({
         queryKey: ['wishlist', safeUserId],
         queryFn: async (): Promise<WishlistItem[]> => {
             if (!safeUserId) return [];
-            try {
-                const { data } = await api.get(`/api/wishlist/${safeUserId}`);
-                return data;
-            } catch (error) {
-                console.error("Wishlist error:", error);
-                throw error;
-            }
+            console.log("Fetching wishlist for user:", safeUserId);
+            const { data } = await api.get(`/wishlist/${safeUserId}`);
+            return data;
         },
         enabled: !!safeUserId,
-        retry: 1,
     });
 
-    // Check if a product is saved — match on productId
+    // Check if a product is saved — match on productId field
     const isSaved = (productId: string) =>
         wishlist.some((item: WishlistItem) => item.productId === productId);
 
-    // Toggle mutation (add/remove from catalog ProductCard)
+    // Toggle mutation
     const toggleMutation = useMutation({
-        mutationFn: async ({ productId, isCurrentlySaved }: { productId: string; isCurrentlySaved: boolean }) => {
-            if (!safeUserId || !productId) return;
-            const url = `/api/wishlist/${safeUserId}/${productId}`;
+        mutationFn: async ({ productId, isCurrentlySaved }: TogglePayload) => {
+            if (!safeUserId) throw new Error("User not logged in");
+            const url = `/wishlist/${safeUserId}/${productId}`;
+            console.log("=== WISHLIST DEBUG ===");
+            console.log("Method:", isCurrentlySaved ? "DELETE" : "POST");
+            console.log("Current Auth User ID:", safeUserId);
+            console.log("Product ID:", productId);
+            console.log("Full URL:", `${api.defaults.baseURL}${url}`);
+            console.log("=====================");
             if (isCurrentlySaved) {
                 await api.delete(url);
             } else {
                 await api.post(url, null);
             }
         },
-        onMutate: async ({ productId, isCurrentlySaved }) => {
+        onMutate: async ({ product, isCurrentlySaved }: TogglePayload) => {
             await queryClient.cancelQueries({ queryKey: ['wishlist', safeUserId] });
             const previousWishlist = queryClient.getQueryData<WishlistItem[]>(['wishlist', safeUserId]);
 
@@ -47,47 +54,63 @@ export const useWishlist = (userId: string | undefined | null) => {
                 if (isCurrentlySaved) {
                     queryClient.setQueryData<WishlistItem[]>(
                         ['wishlist', safeUserId],
-                        previousWishlist.filter(item => item.productId !== productId)
+                        previousWishlist.filter(p => p.productId !== product.id)
+                    );
+                } else {
+                    // Create a temporary optimistic WishlistItem
+                    const optimisticItem: WishlistItem = {
+                        id: `temp-${product.id}`,
+                        productId: product.id,
+                        productNameUz: product.nameUz,
+                        productNameRu: '',
+                        slug: '',
+                        basePrice: product.basePrice,
+                        primaryImageUrl: product.images?.[0]?.url || null,
+                    };
+                    queryClient.setQueryData<WishlistItem[]>(
+                        ['wishlist', safeUserId],
+                        [...previousWishlist, optimisticItem]
                     );
                 }
-                // For add, we can't construct a full WishlistItem locally — let onSuccess refetch
             }
             return { previousWishlist };
         },
         onError: (err: any, _variables, context) => {
+            console.error("Wishlist error — reverting UI");
             if (context?.previousWishlist) {
                 queryClient.setQueryData(['wishlist', safeUserId], context.previousWishlist);
             }
-            toast.error(err?.message || "Xatolik yuz berdi");
+            toast.error(err?.response?.data?.message || err?.message || "Xatolik yuz berdi");
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['wishlist', safeUserId] });
         },
     });
 
-    // Remove mutation (used from WishlistCard trash button)
+    // Remove mutation (for SavedDrawer trash button)
     const removeMutation = useMutation({
         mutationFn: async (productId: string) => {
-            if (!safeUserId || !productId) return;
-            await api.delete(`/api/wishlist/${safeUserId}/${productId}`);
+            if (!safeUserId) throw new Error("User not logged in");
+            const url = `/wishlist/${safeUserId}/${productId}`;
+            console.log("Removing from wishlist:", `${api.defaults.baseURL}${url}`);
+            await api.delete(url);
         },
         onMutate: async (productId: string) => {
             await queryClient.cancelQueries({ queryKey: ['wishlist', safeUserId] });
             const previousWishlist = queryClient.getQueryData<WishlistItem[]>(['wishlist', safeUserId]);
-
             if (previousWishlist) {
                 queryClient.setQueryData<WishlistItem[]>(
                     ['wishlist', safeUserId],
-                    previousWishlist.filter(item => item.productId !== productId)
+                    previousWishlist.filter(p => p.productId !== productId)
                 );
             }
             return { previousWishlist };
         },
-        onError: (err: any, _variables, context) => {
+        onError: (_err: any, _productId, context) => {
             if (context?.previousWishlist) {
                 queryClient.setQueryData(['wishlist', safeUserId], context.previousWishlist);
             }
-            toast.error(err?.message || "Xatolik yuz berdi");
+            toast.error("O'chirishda xatolik yuz berdi");
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['wishlist', safeUserId] });
@@ -102,6 +125,7 @@ export const useWishlist = (userId: string | undefined | null) => {
             if (!safeUserId) return;
             toggleMutation.mutate({
                 productId: product.id,
+                product,
                 isCurrentlySaved: isSaved(product.id),
             });
         },

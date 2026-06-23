@@ -1,8 +1,12 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import axios from 'axios'
+import VConsole from 'vconsole'
 import './index.css'
 import App from './App.tsx'
+
+// Initialize VConsole unconditionally for mobile/Telegram WebApp debugging
+new VConsole();
 
 // test
 

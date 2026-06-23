@@ -20,18 +20,15 @@ const REGION_MAP: Record<number, string> = {
     13: "Qoraqalpog'iston"
 };
 
-// 1. Exact TypeScript Interfaces mapping directly to the backend response
+// 1. Exact TypeScript Interfaces mapping perfectly to the backend flat JSON structure
 export interface OrderItem {
-    id: string | number;
-    productId: string;
+    name?: string;
     quantity: number;
-    unit_price: number;  // Price for 1 item (backend calculated)
-    total_price: number; // Pre-calculated: unit_price * quantity (backend calculated)
-    
-    // Casing fallback for compatibility
-    unitPrice?: number;
-    totalPrice?: number;
-
+    unitPrice: number;
+    totalPrice: number;
+    productId?: string;
+    sku?: string;
+    image?: string;
     product?: {
         name?: string;
         nameUz?: string;
@@ -41,19 +38,17 @@ export interface OrderItem {
     variantName?: string;
 }
 
-export interface OrderSummary {
-    subtotal: number;
-    delivery_fee: number;
-    total: number;
-}
-
 export interface Order {
-    id: string | number;
+    id: string;
+    orderNumber?: string;
+    deliveryPrice: number;
+    subtotal: number;
+    totalPrice: number;
     createdAt?: string;
-    status: number | string;
-    paymentStatus: number;
-    paymentMethod: number;
-    deliveryMethod: number;
+    status?: number | string;
+    paymentStatus?: number;
+    paymentMethod?: number;
+    deliveryMethod?: number;
     phoneNumber?: string;
     note?: string;
     address?: {
@@ -63,19 +58,11 @@ export interface Order {
         street?: string;
     };
     items: OrderItem[];
-    summary: OrderSummary;
-
-    // Casing fallback for compatibility
-    totalAmount?: number;
 }
 
-// 4. Formatting: Standard utility function using Intl.NumberFormat to display currency correctly
-export const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat('uz-UZ', {
-        style: 'decimal',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-    }).format(amount) + " so'm";
+// 4. Formatting: Standard currency formatter using Intl.NumberFormat
+export const formatCurrency = (price: number): string => {
+    return new Intl.NumberFormat('uz-UZ').format(price) + " so'm";
 };
 
 export function OrderDetails() {
@@ -138,10 +125,10 @@ export function OrderDetails() {
         paymentBadge = <span className="bg-slate-100 text-slate-500 border border-slate-200 px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider mt-1 inline-block">Qaytarilgan</span>;
     }
 
-    // 2. Zero Frontend Math: strictly bind to pre-calculated fields with safe fallbacks
-    const subTotal = order.summary?.subtotal ?? order.totalAmount ?? 0;
-    const deliveryFee = order.summary?.delivery_fee ?? 0;
-    const finalTotal = order.summary?.total ?? order.totalAmount ?? 0;
+    // 2. Dynamic Value Mapping & 3. ZERO Frontend Math
+    const displaySubtotal = order.subtotal;
+    const displayDeliveryPrice = order.deliveryPrice;
+    const displayTotalPrice = order.totalPrice;
 
     return (
         <AnimatePresence>
@@ -173,7 +160,7 @@ export function OrderDetails() {
                         <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex flex-col items-center text-center gap-1 relative overflow-hidden">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-full blur-2xl pointer-events-none" />
                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest break-all">
-                                Order Number: {order.id && String(order.id).includes('ORD-') ? order.id : `ORD-20260329-${String(order.id).slice(-4)}`}
+                                Order Number: {order.orderNumber || order.id}
                             </span>
                             {formattedDate && <span className="text-xs font-bold text-slate-500 mb-1">{formattedDate}</span>}
                             <span className="text-xl font-black text-slate-800">Status: <span className="text-emerald-600">{statusText}</span></span>
@@ -187,16 +174,10 @@ export function OrderDetails() {
                             </h3>
                             <div className="bg-white rounded-3xl border border-slate-100 p-2 shadow-sm space-y-2">
                                 {order.items?.map((item, idx: number) => {
-                                    const prodName = item.product?.name || item.product?.nameUz || productsMap[item.productId]?.nameUz || productsMap[item.productId]?.name || "Ortodontik mahsulot";
-                                    const sku = item.product?.sku || productsMap[item.productId]?.sku || "OM-002";
-                                    const imgUrl = item.product?.images?.[0]?.url || productsMap[item.productId]?.images?.[0]?.url || null;
+                                    const prodName = item.name || item.product?.nameUz || item.product?.name || productsMap[item.productId || '']?.nameUz || "Ortodontik mahsulot";
+                                    const sku = item.sku || item.product?.sku || productsMap[item.productId || '']?.sku || "OM-002";
+                                    const imgUrl = item.image || item.product?.images?.[0]?.url || productsMap[item.productId || '']?.images?.[0]?.url || null;
                                     
-                                    const qty = item.quantity || 1;
-                                    
-                                    // 2. Zero Frontend Math: use direct pre-calculated values from backend
-                                    const unitPrice = item.unit_price ?? item.unitPrice ?? 0;
-                                    const totalPrice = item.total_price ?? item.totalPrice ?? 0;
-
                                     // Extract variant name from item or notes
                                     let variantName = item.variantName || "";
                                     if (!variantName && order?.note) {
@@ -227,18 +208,18 @@ export function OrderDetails() {
                                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">SKU: {sku}</p>
                                                     <div className="w-1 rounded-full h-1 bg-slate-300"></div>
                                                     
-                                                    {/* 3. Correct UI Mapping: strictly display [quantity] x [unit_price] */}
+                                                    {/* 2. Dynamic Value Mapping: strictly [item.quantity] x [item.unitPrice] */}
                                                     <div className="flex items-center gap-1 text-[10px] font-bold text-slate-500 tracking-wide">
-                                                        <span>{qty} x</span>
-                                                        <span>{formatCurrency(unitPrice)}</span>
+                                                        <span>{item.quantity} x</span>
+                                                        <span>{formatCurrency(item.unitPrice)}</span>
                                                     </div>
                                                 </div>
                                             </div>
                                             
-                                            {/* 3. Correct UI Mapping: display the backend's pre-calculated [total_price] */}
+                                            {/* 2. Dynamic Value Mapping: strictly [item.totalPrice] */}
                                             <div className="flex flex-col items-end justify-center shrink-0">
                                                 <span className="text-sm font-black text-[#007AFF]">
-                                                    {totalPrice > 0 ? formatCurrency(totalPrice) : "Hisoblanmoqda"}
+                                                    {formatCurrency(item.totalPrice)}
                                                 </span>
                                             </div>
                                         </div>
@@ -272,19 +253,23 @@ export function OrderDetails() {
                                         {order.paymentMethod === 1 ? "Onlayn-o'tkazma (Card)" : "Naqd (Qabul qilinganda)"}
                                     </span>
                                 </div>
+                                
+                                {/* 2. Dynamic Value Mapping: order.subtotal */}
                                 <div className="flex justify-between items-center text-sm">
                                     <span className="font-medium text-slate-500">Oraliq summa</span>
-                                    <span className="font-bold text-slate-900">{formatCurrency(subTotal)}</span>
+                                    <span className="font-bold text-slate-900">{formatCurrency(displaySubtotal)}</span>
                                 </div>
+                                
+                                {/* 2. Dynamic Value Mapping: order.deliveryPrice */}
                                 <div className="flex justify-between items-center text-sm">
                                     <span className="font-medium text-slate-500">Yetkazib berish</span>
-                                    <span className="font-bold text-slate-900">
-                                        {deliveryFee > 0 ? formatCurrency(deliveryFee) : (isDelivery ? "Bepul" : "0 so'm")}
-                                    </span>
+                                    <span className="font-bold text-slate-900">{formatCurrency(displayDeliveryPrice)}</span>
                                 </div>
+                                
+                                {/* 2. Dynamic Value Mapping: order.totalPrice */}
                                 <div className="pt-3 border-t border-slate-100 flex justify-between items-center">
                                     <span className="text-xs font-black uppercase text-slate-400">Jami to'lov</span>
-                                    <span className="text-xl font-black text-[#007AFF]">{formatCurrency(finalTotal)}</span>
+                                    <span className="text-xl font-black text-[#007AFF]">{formatCurrency(displayTotalPrice)}</span>
                                 </div>
                             </div>
                         </div>

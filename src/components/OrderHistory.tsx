@@ -1,7 +1,6 @@
 import { X, Package, Clock, CheckCircle2, Truck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useMemo, useState } from 'react';
-import { calcOrderItemUnitPrice, calcOrderTotal } from '../utils/calculateTotal';
 
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../services/api';
@@ -60,12 +59,6 @@ export function OrderHistory({ open, onClose }: OrderHistoryProps) {
         fetchAll();
     }, [orders]);
 
-    // Helper: reconstruct full price using fetched product data.
-    // discountPrice IS the final adjusted price — not a discount amount to subtract.
-    const getFullPrice = (item: any) => {
-        return calcOrderItemUnitPrice(item, productsMap);
-    };
-
     useEffect(() => {
         if (!open) return;
         const interval = setInterval(() => {
@@ -115,9 +108,8 @@ export function OrderHistory({ open, onClose }: OrderHistoryProps) {
                                 const isDelivered = order.status === 3 || order.status === "DELIVERED" || order.status === "Yetkazib berildi";
                                 const statusText = order.status === 0 ? "Qabul qilindi" : order.status === 1 ? "Tayyorlanmoqda" : order.status === 2 ? "Yo'lda" : order.status === 3 ? "Yetkazib berildi" : order.status || "Tasdiqlanmoqda";
                                 const formattedDate = order.createdAt ? new Date(order.createdAt).toLocaleDateString('uz-UZ', { day: 'numeric', month: 'short', year: 'numeric' }) : "Bugun";
-                                // Use calcOrderTotal utility — discountPrice IS the final adjusted price.
-                                const actualTotal = calcOrderTotal(order.items || [], productsMap);
-                                const totalStr = actualTotal > 0 ? `${actualTotal.toLocaleString()} so'm` : "Hisoblanmoqda >";
+                                const actualTotal = order.totalPrice ?? 0;
+                                const totalStr = `${actualTotal.toLocaleString()} so'm`;
 
                                 const paymentStatus = order.paymentStatus || 0;
                                 let paymentBadge = null;

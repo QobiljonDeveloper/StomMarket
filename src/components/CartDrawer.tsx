@@ -10,7 +10,7 @@ import {
     SheetFooter,
 } from "./ui/sheet";
 import { ScrollArea } from "./ui/scroll-area";
-import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, ArrowLeft, Pencil } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, ArrowLeft, Pencil, AlertTriangle } from "lucide-react";
 import { CheckoutDrawer } from "./CheckoutDrawer";
 import { ProductDetailsDrawer } from "./ProductDetailsDrawer";
 import { motion, AnimatePresence } from "framer-motion";
@@ -319,6 +319,14 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
                                         <span className="text-sm font-bold text-slate-500 uppercase tracking-wide">Jami narx</span>
                                         <span className="text-2xl font-black text-slate-900 tracking-tight">{formatPrice(cartTotal)}</span>
                                     </div>
+                                </div>
+
+                                {/* 20-August Warning Notice */}
+                                <div className="mb-4 bg-amber-50 border border-amber-200/80 p-3 rounded-xl flex items-center gap-3 shadow-xs">
+                                    <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" strokeWidth={2.5} />
+                                    <p className="text-xs font-bold text-amber-800 leading-tight">
+                                        Buyurtma berish 20-avgustgacha vaqtincha yopilgan
+                                    </p>
                                 </div>
 
                                 <SheetFooter className="gap-3 flex-col items-stretch">

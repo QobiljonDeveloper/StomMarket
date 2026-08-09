@@ -616,10 +616,125 @@ export function CheckoutDrawer({ open, onOpenChange, onRequireVariant }: Checkou
                                     <p className="text-xs text-red-500 font-semibold mt-1 ml-1 animate-in fade-in slide-in-from-top-1">
                                         {phoneError}
                                     </p>
-                onSaveSuccess={(id: string | undefined) => {
-                    if (id) setSelectedAddressId(id);
-                }}
-            />
-        </Sheet>
-    );
-}
+                                )}
+                            </div>
+
+                            {deliveryMethod === "delivery" && (
+                                <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
+                                    <Label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Yetkazib berish manzili</Label>
+
+                                    {isLoadingAddresses ? (
+                                        <div className="h-16 w-full rounded-xl bg-slate-50 border border-slate-100 animate-pulse"></div>
+                                    ) : addresses.length > 0 ? (
+                                        <div className="space-y-3">
+                                            {addresses.map((address: any) => {
+                                                const isSelected = selectedAddressId === address.id;
+                                                const regionName = REGION_MAP[address.region as number] || address.region;
+
+                                                return (
+                                                    <div
+                                                        key={address.id}
+                                                        onClick={() => setSelectedAddressId(address.id)}
+                                                        className={`relative p-4 rounded-xl border transition-all cursor-pointer flex items-start gap-4 shadow-sm group ${isSelected
+                                                            ? "border-[#007AFF] bg-[#007AFF]/5"
+                                                            : "border-slate-200 bg-white hover:border-[#007AFF]/50 hover:bg-slate-50"
+                                                            }`}
+                                                    >
+                                                        <div className={`mt-0.5 ${isSelected ? 'text-[#007AFF]' : 'text-slate-400 group-hover:text-[#007AFF]/70'}`}>
+                                                            <MapPin className="w-5 h-5" strokeWidth={2.5} />
+                                                        </div>
+                                                        <div className="flex-1 flex flex-col pr-2">
+                                                            <div className="flex items-center gap-2 mb-1">
+                                                                <span className="text-sm font-bold text-slate-900 leading-tight">
+                                                                    {address.label || "Uy"}
+                                                                </span>
+                                                                {address.isDefault && (
+                                                                    <span className="px-2 py-0.5 rounded-full bg-[#007AFF]/10 text-[#007AFF] text-[10px] font-bold uppercase tracking-wide">
+                                                                        Asosiy
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            <span className="text-xs font-medium text-slate-500 leading-relaxed">
+                                                                {regionName}, {address.city}, {address.street}
+                                                            </span>
+                                                        </div>
+                                                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${isSelected ? 'border-[#007AFF] bg-white' : 'border-slate-200 bg-transparent'
+                                                            }`}>
+                                                            <div className={`w-2 h-2 rounded-full bg-[#007AFF] transition-all ${isSelected ? 'scale-100' : 'scale-0'
+                                                                }`} />
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                            <button
+                                                onClick={() => setIsAddressPopupOpen(true)}
+                                                className="w-full flex items-center justify-center gap-2 h-12 rounded-xl border border-dashed border-[#007AFF]/30 bg-[#007AFF]/5 text-[#007AFF] hover:bg-[#007AFF]/10 hover:border-[#007AFF]/50 transition-all font-bold text-xs"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="M12 5v14" /></svg>
+                                                Yangi manzil qo'shish
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div
+                                            onClick={() => setIsAddressPopupOpen(true)}
+                                            className="relative h-12 rounded-xl border-2 border-dashed border-[#007AFF]/30 bg-[#007AFF]/5 flex items-center justify-center gap-2 cursor-pointer hover:bg-[#007AFF]/10 hover:border-[#007AFF]/50 transition-all text-[#007AFF]"
+                                        >
+                                            <MapPin className="w-4 h-4" strokeWidth={2.5} />
+                                            <span className="text-sm font-bold">Karta ustiga manzil qo'shing</span>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            <div className="space-y-2">
+                                <Label htmlFor="comment" className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Izoh (ixtiyoriy)</Label>
+                                <div className="relative">
+                                    <div className="absolute left-4 top-4 text-slate-400">
+                                        <MessageSquare className="w-4 h-4" strokeWidth={2} />
+                                    </div>
+                                    <Textarea
+                                        id="comment"
+                                        value={customNote}
+                                        onChange={(e) => setCustomNote(e.target.value)}
+                                        placeholder="Qo'shimcha istaklaringiz..."
+                                        className="min-h-[100px] rounded-xl border-slate-200 bg-[#F8FAFC] focus-visible:ring-2 focus-visible:ring-[#007AFF]/20 focus-visible:border-[#007AFF] text-slate-900 font-medium resize-none pl-11 py-4 placeholder:text-slate-400 shadow-sm"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Trust Banner */}
+                        <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-2xl flex items-center gap-4 shadow-sm">
+                            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-emerald-500 shadow-sm">
+                                <ShieldCheck className="w-5 h-5" strokeWidth={2} />
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-xs font-bold text-emerald-800 tracking-tight">Xavfsiz buyurtma</span>
+                                <span className="text-[10px] text-emerald-600 font-medium">Barcha ma'lumotlar himoyalangan</span>
+                            </div>
+                        </div>
+                    </div>
+                </ScrollArea>
+
+                <div className="p-6 bg-white border-t border-slate-100 mt-auto shadow-[0_-10px_30px_rgba(0,0,0,0.03)] rounded-t-[2.5rem] relative">
+                    <Button
+                        disabled={true}
+                        className="w-full rounded-full h-14 text-sm sm:text-base font-black bg-amber-500 hover:bg-amber-600 text-white shadow-[0_8px_20px_rgba(245,158,11,0.25)] opacity-90 cursor-not-allowed transition-all flex items-center justify-center gap-2"
+                        onClick={handleConfirm}
+                    >
+                        <AlertTriangle className="w-5 h-5" strokeWidth={2.5} />
+                        Buyurtma berish yopilgan (20-avgustgacha)
+                    </Button>
+                </div>
+            </SheetContent>
+
+            <AddressPopup
+                open={isAddressPopupOpen}
+                onOpenChange={setIsAddressPopupOpen}
+                onSaveSuccess={(id: string | undefined) => {
+                    if (id) setSelectedAddressId(id);
+                }}
+            />
+        </Sheet>
+    );
+}

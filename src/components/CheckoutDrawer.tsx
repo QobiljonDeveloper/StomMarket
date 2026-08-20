@@ -1,64 +1,64 @@
 import { useState, useEffect, useMemo } from "react";
 import { useCart, calculateCartItemTotal } from "../context/CartContext";
-import { getEffectivePrice, calcCartItemTotal, formatSom } from "../utils/calculateTotal";
-import { useAuthContext } from "../context/AuthContext";
-import { Button } from "./ui/button";
-import {
-    Sheet,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-    SheetDescription,
-} from "./ui/sheet";
-import { ScrollArea } from "./ui/scroll-area";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
-import { Textarea } from "./ui/textarea";
-import { CreditCard, Truck, User, Phone, MapPin, MessageSquare, ArrowLeft, Store, ShieldCheck, Package, AlertTriangle } from "lucide-react";
-import { AddressPopup } from "./AddressPopup";
-import { useAddress } from "../hooks/useAddress";
-import { api, updateUserProfile } from "../services/api";
-import { toast } from "sonner";
-import { BtsDeliverySelector } from "./BtsDeliverySelector";
-
-const BTS_REGIONS_MAP: Record<string, string> = {
-    tashkent: "Toshkent shahri",
-    samarkand: "Samarqand viloyati",
-    fergana: "Farg'ona viloyati",
-    bukhara: "Buxoro viloyati"
-};
-
-const BTS_BRANCHES_MAP: Record<string, { name: string; address: string; phone: string }> = {
-    "bts-tashkent-1": { name: "BTS Yunusobod filiali", address: "Yunusobod tumani, 19-kvartal, 4-uy", phone: "+998 71 207-00-50" },
-    "bts-tashkent-2": { name: "BTS Chilonzor filiali", address: "Chilonzor tumani, Qatortol ko'chasi, 24-uy", phone: "+998 71 207-00-51" },
-    "bts-tashkent-3": { name: "BTS Mirobod (Bosh ofis)", address: "Mirobod tumani, Taras Shevchenko ko'chasi, 38-uy", phone: "+998 71 207-00-52" },
-    "bts-sam-1": { name: "BTS Samarqand markaziy filiali", address: "Samarqand shahri, Gagarin ko'chasi, 85-uy", phone: "+998 66 233-00-50" },
-    "bts-sam-2": { name: "BTS Registon filiali", address: "Samarqand shahri, Registon ko'chasi, 12-uy", phone: "+998 66 233-00-51" },
-    "bts-fer-1": { name: "BTS Farg'ona shahar filiali", address: "Farg'ona shahri, Al-Farg'oniy ko'chasi, 45-uy", phone: "+998 73 244-00-50" },
-    "bts-fer-2": { name: "BTS Qo'qon filiali", address: "Qo'qon shahri, Turon ko'chasi, 110-uy", phone: "+998 73 542-00-51" },
-    "bts-fer-3": { name: "BTS Marg'ilon filiali", address: "Marg'ilon shahri, Mustaqillik ko'chasi, 5-uy", phone: "+998 73 237-00-52" },
-    "bts-bux-1": { name: "BTS Buxoro markaziy filiali", address: "Buxoro shahri, Navoiy shoh ko'chasi, 18-uy", phone: "+998 65 221-00-50" },
-    "bts-bux-2": { name: "BTS G'ijduvon filiali", address: "G'ijduvon tumani, Yusuf Hamadoniy ko'chasi, 3-uy", phone: "+998 65 572-00-51" }
-};
-
-const REGION_MAP: Record<number, string> = {
-    0: "Toshkent",
-    1: "Toshkent viloyati",
-    2: "Samarqand",
-    3: "Buxoro",
-    4: "Andijon",
-    5: "Farg'ona",
-    6: "Namangan",
-    7: "Qashqadaryo",
-    8: "Surxondaryo",
-    9: "Xorazm",
-    10: "Navoiy",
-    11: "Jizzax",
-    12: "Sirdaryo",
-    13: "Qoraqalpog'iston"
-};
-
+import { getEffectivePrice, calcCartItemTotal, formatSom } from "../utils/calculateTotal";
+import { useAuthContext } from "../context/AuthContext";
+import { Button } from "./ui/button";
+import {
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+    SheetDescription,
+} from "./ui/sheet";
+import { ScrollArea } from "./ui/scroll-area";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
+import { Textarea } from "./ui/textarea";
+import { CreditCard, Truck, User, Phone, MapPin, MessageSquare, ArrowLeft, Store, ShieldCheck, Package } from "lucide-react";
+import { AddressPopup } from "./AddressPopup";
+import { useAddress } from "../hooks/useAddress";
+import { api, updateUserProfile } from "../services/api";
+import { toast } from "sonner";
+import { BtsDeliverySelector } from "./BtsDeliverySelector";
+
+const BTS_REGIONS_MAP: Record<string, string> = {
+    tashkent: "Toshkent shahri",
+    samarkand: "Samarqand viloyati",
+    fergana: "Farg'ona viloyati",
+    bukhara: "Buxoro viloyati"
+};
+
+const BTS_BRANCHES_MAP: Record<string, { name: string; address: string; phone: string }> = {
+    "bts-tashkent-1": { name: "BTS Yunusobod filiali", address: "Yunusobod tumani, 19-kvartal, 4-uy", phone: "+998 71 207-00-50" },
+    "bts-tashkent-2": { name: "BTS Chilonzor filiali", address: "Chilonzor tumani, Qatortol ko'chasi, 24-uy", phone: "+998 71 207-00-51" },
+    "bts-tashkent-3": { name: "BTS Mirobod (Bosh ofis)", address: "Mirobod tumani, Taras Shevchenko ko'chasi, 38-uy", phone: "+998 71 207-00-52" },
+    "bts-sam-1": { name: "BTS Samarqand markaziy filiali", address: "Samarqand shahri, Gagarin ko'chasi, 85-uy", phone: "+998 66 233-00-50" },
+    "bts-sam-2": { name: "BTS Registon filiali", address: "Samarqand shahri, Registon ko'chasi, 12-uy", phone: "+998 66 233-00-51" },
+    "bts-fer-1": { name: "BTS Farg'ona shahar filiali", address: "Farg'ona shahri, Al-Farg'oniy ko'chasi, 45-uy", phone: "+998 73 244-00-50" },
+    "bts-fer-2": { name: "BTS Qo'qon filiali", address: "Qo'qon shahri, Turon ko'chasi, 110-uy", phone: "+998 73 542-00-51" },
+    "bts-fer-3": { name: "BTS Marg'ilon filiali", address: "Marg'ilon shahri, Mustaqillik ko'chasi, 5-uy", phone: "+998 73 237-00-52" },
+    "bts-bux-1": { name: "BTS Buxoro markaziy filiali", address: "Buxoro shahri, Navoiy shoh ko'chasi, 18-uy", phone: "+998 65 221-00-50" },
+    "bts-bux-2": { name: "BTS G'ijduvon filiali", address: "G'ijduvon tumani, Yusuf Hamadoniy ko'chasi, 3-uy", phone: "+998 65 572-00-51" }
+};
+
+const REGION_MAP: Record<number, string> = {
+    0: "Toshkent",
+    1: "Toshkent viloyati",
+    2: "Samarqand",
+    3: "Buxoro",
+    4: "Andijon",
+    5: "Farg'ona",
+    6: "Namangan",
+    7: "Qashqadaryo",
+    8: "Surxondaryo",
+    9: "Xorazm",
+    10: "Navoiy",
+    11: "Jizzax",
+    12: "Sirdaryo",
+    13: "Qoraqalpog'iston"
+};
+
 interface OrderItemPayload {
     productId: string;
     productTypeId: string | null;
@@ -77,46 +77,42 @@ interface CreateOrderRequest {
     promoCode: string | null;
 }
 
-interface CheckoutDrawerProps {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-    onRequireVariant?: (productId: string) => void;
-}
-
-export function CheckoutDrawer({ open, onOpenChange, onRequireVariant }: CheckoutDrawerProps) {
-    const { clearCart, cart, cartTotal, productTypesMap, productsMap, variantMap } = useCart();
-
-    // Refresh trigger requested by user for reactivity
-    const [refreshCartTrigger, setRefreshCartTrigger] = useState(0);
-
-    useEffect(() => {
-        const handleVariantSaved = () => setRefreshCartTrigger(prev => prev + 1);
-        window.addEventListener('variantSaved', handleVariantSaved);
-        return () => window.removeEventListener('variantSaved', handleVariantSaved);
-    }, []);
+interface CheckoutDrawerProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    onRequireVariant?: (productId: string) => void;
+}
+
+export function CheckoutDrawer({ open, onOpenChange, onRequireVariant }: CheckoutDrawerProps) {
+    const { clearCart, cart, cartTotal, productTypesMap, productsMap, variantMap } = useCart();
+
+    const [refreshCartTrigger, setRefreshCartTrigger] = useState(0);
+
+    useEffect(() => {
+        const handleVariantSaved = () => setRefreshCartTrigger(prev => prev + 1);
+        window.addEventListener('variantSaved', handleVariantSaved);
+        return () => window.removeEventListener('variantSaved', handleVariantSaved);
+    }, []);
     const { user, token, setUser } = useAuthContext();
-    const [phoneError, setPhoneError] = useState<string | null>(null);
-    const { addresses, isLoadingAddresses } = useAddress(user?.id);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-
-    const [paymentMethod, setPaymentMethod] = useState("online");
-    const [deliveryMethod, setDeliveryMethod] = useState("delivery");
-    const [btsRegionId, setBtsRegionId] = useState<string | null>(null);
+    const [phoneError, setPhoneError] = useState<string | null>(null);
+    const { addresses, isLoadingAddresses } = useAddress(user?.id);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const [paymentMethod, setPaymentMethod] = useState("online");
+    const [deliveryMethod, setDeliveryMethod] = useState("delivery");
+    const [btsRegionId, setBtsRegionId] = useState<string | null>(null);
     const [btsBranchId, setBtsBranchId] = useState<string | null>(null);
     const [btsRegionName, setBtsRegionName] = useState<string | null>(null);
     const [btsBranchName, setBtsBranchName] = useState<string | null>(null);
     const [btsBranchAddress, setBtsBranchAddress] = useState<string | null>(null);
-    const [btsBranchPhone, setBtsBranchPhone] = useState<string | null>(null);
-
-    // Address UI State
-    const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
-    const [isAddressPopupOpen, setIsAddressPopupOpen] = useState(false);
-
-    // Form Personal Data
-    const [fullName, setFullName] = useState("");
-    const [phone, setPhone] = useState("+998");
-
-    // Custom note from user
+    const [btsBranchPhone, setBtsBranchPhone] = useState<string | null>(null);
+
+    const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+    const [isAddressPopupOpen, setIsAddressPopupOpen] = useState(false);
+
+    const [fullName, setFullName] = useState("");
+    const [phone, setPhone] = useState("+998");
+
     const [customNote, setCustomNote] = useState("");
     const [buyNowItems, setBuyNowItems] = useState<any[]>([]);
 
@@ -144,82 +140,76 @@ export function CheckoutDrawer({ open, onOpenChange, onRequireVariant }: Checkou
                 setBuyNowItems([]);
             }
         } else {
-            // Optional: reset buy now items when drawer closes so it doesn't linger
-            // We do this to ensure next time it opens naturally from cart, it's clean
             setBuyNowItems([]);
         }
     }, [open, user]);
 
     const activeCartItems = useMemo(() => {
         return buyNowItems.length > 0 ? buyNowItems : cart;
-    }, [buyNowItems, cart]);
-
-    const VARIANTS_STORAGE_KEY = 'tg_cart_variants';
-
-    const cartItemsWithDynamicPrices = useMemo(() => {
-        return activeCartItems.map((item: any) => {
-            // discountPrice IS the final adjusted price — use it directly if present.
-            const activePrice = getEffectivePrice(
-                item.discountPrice,
-                item.basePrice,
-                item.unitPrice
-            );
-
-            const parentPrice = item.selectedParentType?.price || 0;
-            const childPrice = item.selectedChildType?.price || 0;
-
-            const finalUnitPrice = activePrice + parentPrice + childPrice;
-            // For strikethrough display: the original (pre-discount) base price
-            const finalBasePrice = (item.basePrice || 0) + parentPrice + childPrice;
-            // Only show discount UI if discountPrice is set AND less than basePrice
-            const hasDiscount =
-                item.discountPrice != null &&
-                item.basePrice != null &&
-                item.discountPrice < item.basePrice;
-
-            const itemTotal = calcCartItemTotal(item);
-            const originalTotal = finalBasePrice * (item.quantity || 1);
-
-            return {
-                ...item,
-                displayPrice: finalUnitPrice,
-                originalPrice: finalBasePrice,
-                hasDiscount,
-                itemTotal,
-                originalTotal
-            };
-        });
-    }, [activeCartItems]);
-
-    const dynamicCartTotal = useMemo(() => {
-        return cartItemsWithDynamicPrices.reduce((total: number, item: any) => total + item.itemTotal, 0);
-    }, [cartItemsWithDynamicPrices]);
-
-    useEffect(() => {
-        if (open) {
-            setFullName(user?.fullName || "");
-            setPhone(user?.phone || "+998");
+    }, [buyNowItems, cart]);
+
+    const VARIANTS_STORAGE_KEY = 'tg_cart_variants';
+
+    const cartItemsWithDynamicPrices = useMemo(() => {
+        return activeCartItems.map((item: any) => {
+            const activePrice = getEffectivePrice(
+                item.discountPrice,
+                item.basePrice,
+                item.unitPrice
+            );
+
+            const parentPrice = item.selectedParentType?.price || 0;
+            const childPrice = item.selectedChildType?.price || 0;
+
+            const finalUnitPrice = activePrice + parentPrice + childPrice;
+            const finalBasePrice = (item.basePrice || 0) + parentPrice + childPrice;
+            const hasDiscount =
+                item.discountPrice != null &&
+                item.basePrice != null &&
+                item.discountPrice < item.basePrice;
+
+            const itemTotal = calcCartItemTotal(item);
+            const originalTotal = finalBasePrice * (item.quantity || 1);
+
+            return {
+                ...item,
+                displayPrice: finalUnitPrice,
+                originalPrice: finalBasePrice,
+                hasDiscount,
+                itemTotal,
+                originalTotal
+            };
+        });
+    }, [activeCartItems]);
+
+    const dynamicCartTotal = useMemo(() => {
+        return cartItemsWithDynamicPrices.reduce((total: number, item: any) => total + item.itemTotal, 0);
+    }, [cartItemsWithDynamicPrices]);
+
+    useEffect(() => {
+        if (open) {
+            setFullName(user?.fullName || "");
+            setPhone(user?.phone || "+998");
             setCustomNote("");
-            setPhoneError(null);
-        }
-    }, [open, user]);
-
-    // Automatically select the default or first address whenever addresses load
-    useEffect(() => {
-        if (addresses.length > 0 && !selectedAddressId) {
-            const defaultAddress = addresses.find((a: any) => a.isDefault) || addresses[0];
-            setSelectedAddressId(defaultAddress.id);
-        }
-    }, [addresses, selectedAddressId]);
-
-    const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        let val = e.target.value.replace(/[^\d+]/g, '');
-        if (!val.startsWith('+998')) {
-            val = '+998';
-        }
-        if (val.length > 13) {
-            val = val.slice(0, 13);
-        }
+            setPhoneError(null);
+        }
+    }, [open, user]);
+
+    useEffect(() => {
+        if (addresses.length > 0 && !selectedAddressId) {
+            const defaultAddress = addresses.find((a: any) => a.isDefault) || addresses[0];
+            setSelectedAddressId(defaultAddress.id);
+        }
+    }, [addresses, selectedAddressId]);
+
+    const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        let val = e.target.value.replace(/[^\d+]/g, '');
+        if (!val.startsWith('+998')) {
+            val = '+998';
+        }
+        if (val.length > 13) {
+            val = val.slice(0, 13);
+        }
         setPhone(val);
         const cleanPhone = val.replace(/[^\d]/g, '');
         if (val.trim() !== "" && val.trim() !== "+998" && cleanPhone !== "998" && val.length >= 13) {
@@ -356,7 +346,6 @@ export function CheckoutDrawer({ open, onOpenChange, onRequireVariant }: Checkou
                 }
             });
 
-            // Log the exact response immediately after request resolves successfully
             const successResponse = res.data;
             console.log('\n========================================');
             console.log('🛍️ ORDER CREATE RESPONSE:');
@@ -378,28 +367,15 @@ export function CheckoutDrawer({ open, onOpenChange, onRequireVariant }: Checkou
                 setBuyNowItems([]);
             }
             toast.success("Buyurtma qabul qilindi", { duration: 2000, position: 'top-right' });
-            onOpenChange(false);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            window.dispatchEvent(new CustomEvent('open-order-details', { detail: res?.data || payload }));
+            onOpenChange(false);
+
+            window.dispatchEvent(new CustomEvent('open-order-details', { detail: res?.data || payload }));
         } catch (error: any) {
-            // Log the exact error response immediately if the request fails
             const errorResponse = error?.response?.data || { message: error?.message || String(error) };
             console.log('\n========================================');
             console.log('🛍️ ORDER CREATE RESPONSE:');
             console.log(JSON.stringify(errorResponse, null, 2));
+            console.log('========================================\n');
             console.error("Order submission failed:", error);
             const errMsgs = error?.response?.data?.message || "Buyurtmani rasmiylashtirishda xatolik yuz berdi.";
             toast.error(typeof errMsgs === 'string' ? errMsgs : errMsgs[0] || "Xatolik yuz berdi");
@@ -455,7 +431,7 @@ export function CheckoutDrawer({ open, onOpenChange, onRequireVariant }: Checkou
                                                     <p className="text-sm font-bold text-slate-800 leading-snug line-clamp-1">
                                                         {item.productNameUz}
                                                     </p>
-{(item.selectedParentType || item.selectedChildType) && (
+                                                    {(item.selectedParentType || item.selectedChildType) && (
                                                         <p className="text-[11px] text-slate-500 mt-0.5 font-medium">
                                                             Variant: {item.selectedParentType?.name}
                                                             {item.selectedChildType?.name ? ` ➔ ${item.selectedChildType.name}` : ''}
@@ -529,202 +505,7 @@ export function CheckoutDrawer({ open, onOpenChange, onRequireVariant }: Checkou
                             </RadioGroup>
                         </div>
 
-                        {/* Delivery Method Selector (Standard, Pickup, BTS Dependent Selector) */}
-                        <BtsDeliverySelector 
-                            token={token}
-                            onChange={(data) => {
-                                setDeliveryMethod(data.method);
-                                setBtsRegionId(data.regionId);
-                                setBtsBranchId(data.branchId);
-                                setBtsRegionName(data.regionName || null);
-                                setBtsBranchName(data.branchName || null);
-                                setBtsBranchAddress(data.branchAddress || null);
-                                setBtsBranchPhone(data.branchPhone || null);
-                                if (data.method === "delivery" && addresses.length === 0) {
-                                    setIsAddressPopupOpen(true);
-                                }
-                            }}
-                        />
-
-                        {/* Personal Info */}
-                        <div className="space-y-6 pt-2">
-                            <div className="space-y-2">
-                                <Label htmlFor="name" className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Ism-sharif</Label>
-                                <div className="relative">
-                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                                        <User className="w-4 h-4" strokeWidth={2} />
-                                    </div>
-                                    <Input
-                                        id="name"
-                                        value={fullName}
-                                        onChange={(e) => setFullName(e.target.value)}
-                                        placeholder="To'liq ismingizni kiriting"
-                                        className="h-12 rounded-xl border-slate-200 bg-[#F8FAFC] focus-visible:ring-2 focus-visible:ring-[#007AFF]/20 focus-visible:border-[#007AFF] text-slate-900 font-bold placeholder:text-slate-400 shadow-sm pl-11"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="phone" className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
-                                    Telefon raqam <span className="text-red-500 font-bold">*</span>
-                                </Label>
-                                <div className="relative">
-                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                                        <Phone className="w-4 h-4" strokeWidth={2} />
-                                    </div>
-                                    <Input
-                                        id="phone"
-                                        type="tel"
-                                        value={phone}
-                                        onChange={handlePhoneChange}
-                                        placeholder="+998"
-                                        required
-                                        className={`h-12 rounded-xl bg-[#F8FAFC] focus-visible:ring-2 text-slate-900 font-bold placeholder:text-slate-400 shadow-sm pl-11 tracking-wide ${
-                                            phoneError 
-                                                ? "border-red-500 focus-visible:ring-red-500/20 focus-visible:border-red-500" 
-                                                : "border-slate-200 focus-visible:ring-[#007AFF]/20 focus-visible:border-[#007AFF]"
-                                        }`}
-                                    />
-                                </div>
-                                {phoneError && (
-                                    <p className="text-xs text-red-500 font-semibold mt-1 ml-1 animate-in fade-in slide-in-from-top-1">
-                                        {phoneError}
-                                    </p>
-                                )}
-                            </div>
-
-                            {deliveryMethod === "delivery" && (
-                                <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
-                                    <Label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Yetkazib berish manzili</Label>
-
-                                    {isLoadingAddresses ? (
-                                        <div className="h-16 w-full rounded-xl bg-slate-50 border border-slate-100 animate-pulse"></div>
-                                    ) : addresses.length > 0 ? (
-                                        <div className="space-y-3">
-                                            {addresses.map((address: any) => {
-                                                const isSelected = selectedAddressId === address.id;
-                                                const regionName = REGION_MAP[address.region as number] || address.region;
-
-                                                return (
-                                                    <div
-                                                        key={address.id}
-                                                        onClick={() => setSelectedAddressId(address.id)}
-                                                        className={`relative p-4 rounded-xl border transition-all cursor-pointer flex items-start gap-4 shadow-sm group ${isSelected
-                                                            ? "border-[#007AFF] bg-[#007AFF]/5"
-                                                            : "border-slate-200 bg-white hover:border-[#007AFF]/50 hover:bg-slate-50"
-                                                            }`}
-                                                    >
-                                                        <div className={`mt-0.5 ${isSelected ? 'text-[#007AFF]' : 'text-slate-400 group-hover:text-[#007AFF]/70'}`}>
-                                                            <MapPin className="w-5 h-5" strokeWidth={2.5} />
-                                                        </div>
-                                                        <div className="flex-1 flex flex-col pr-2">
-                                                            <div className="flex items-center gap-2 mb-1">
-                                                                <span className="text-sm font-bold text-slate-900 leading-tight">
-                                                                    {address.label || "Uy"}
-                                                                </span>
-                                                                {address.isDefault && (
-                                                                    <span className="px-2 py-0.5 rounded-full bg-[#007AFF]/10 text-[#007AFF] text-[10px] font-bold uppercase tracking-wide">
-                                                                        Asosiy
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                            <span className="text-xs font-medium text-slate-500 leading-relaxed">
-                                                                {regionName}, {address.city}, {address.street}
-                                                            </span>
-                                                        </div>
-                                                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${isSelected ? 'border-[#007AFF] bg-white' : 'border-slate-200 bg-transparent'
-                                                            }`}>
-                                                            <div className={`w-2 h-2 rounded-full bg-[#007AFF] transition-all ${isSelected ? 'scale-100' : 'scale-0'
-                                                                }`} />
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })}
-                                            <button
-                                                onClick={() => setIsAddressPopupOpen(true)}
-                                                className="w-full flex items-center justify-center gap-2 h-12 rounded-xl border border-dashed border-[#007AFF]/30 bg-[#007AFF]/5 text-[#007AFF] hover:bg-[#007AFF]/10 hover:border-[#007AFF]/50 transition-all font-bold text-xs"
-                                            >
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="M12 5v14" /></svg>
-                                                Yangi manzil qo'shish
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <div
-                                            onClick={() => setIsAddressPopupOpen(true)}
-                                            className="relative h-12 rounded-xl border-2 border-dashed border-[#007AFF]/30 bg-[#007AFF]/5 flex items-center justify-center gap-2 cursor-pointer hover:bg-[#007AFF]/10 hover:border-[#007AFF]/50 transition-all text-[#007AFF]"
-                                        >
-                                            <MapPin className="w-4 h-4" strokeWidth={2.5} />
-                                            <span className="text-sm font-bold">Karta ustiga manzil qo'shing</span>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-
-                            <div className="space-y-2">
-                                <Label htmlFor="comment" className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Izoh (ixtiyoriy)</Label>
-                                <div className="relative">
-                                    <div className="absolute left-4 top-4 text-slate-400">
-                                        <MessageSquare className="w-4 h-4" strokeWidth={2} />
-                                    </div>
-                                    <Textarea
-                                        id="comment"
-                                        value={customNote}
-                                        onChange={(e) => setCustomNote(e.target.value)}
-                                                            <span className="text-[11px] text-slate-600 font-semibold">
-                                                                {formatPrice(item.displayPrice)}
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                                <span className="text-sm font-bold text-slate-900 shrink-0">
-                                                    {formatPrice(item.itemTotal)}
-                                                </span>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Summary Section */}
-                        <div className="bg-[#F8FAFC] p-6 rounded-3xl border border-slate-200 flex flex-col items-center group shadow-sm relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-24 h-24 bg-[#007AFF]/5 rounded-full blur-[30px] pointer-events-none" />
-                            <span className="text-slate-500 font-bold uppercase tracking-widest text-[10px] mb-1">To'lov miqdori</span>
-                            <span className="text-slate-900 font-black text-3xl tracking-tight">
-                                {formatPrice(dynamicCartTotal)}
-                            </span>
-                        </div>
-
-                        {/* Payment Method */}
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-3 mb-2 ml-1">
-                                <div className="w-8 h-8 rounded-lg bg-[#E0F2F1] flex items-center justify-center text-[#007AFF] border border-[#007AFF]/10">
-                                    <CreditCard className="w-4 h-4" strokeWidth={2} />
-                                </div>
-                                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide">To'lov usuli</h3>
-                            </div>
-                            <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="grid gap-3">
-                                <div>
-                                    <RadioGroupItem value="online" id="online" className="peer sr-only" />
-                                    <Label
-                                        htmlFor="online"
-                                        className="flex items-center justify-between p-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 peer-data-[state=checked]:border-[#007AFF] peer-data-[state=checked]:bg-[#007AFF]/5 transition-all cursor-pointer shadow-sm group"
-                                    >
-                                        <div className="flex items-center gap-4">
-                                            <div className="p-2.5 rounded-xl bg-slate-50 text-slate-400 group-data-[state=checked]:text-[#007AFF] group-data-[state=checked]:bg-[#007AFF]/10 transition-colors border border-slate-100 group-data-[state=checked]:border-[#007AFF]/20">
-                                                <CreditCard className="w-5 h-5" strokeWidth={2} />
-                                            </div>
-                                            <span className="font-bold text-slate-600 group-data-[state=checked]:text-slate-900">Onlayn-o'tkazma</span>
-                                        </div>
-                                        <div className="w-6 h-6 rounded-full border-2 border-slate-200 peer-data-[state=checked]:border-[#007AFF] transition-all flex items-center justify-center bg-white">
-                                            <div className="w-3 h-3 rounded-full bg-[#007AFF] scale-0 peer-data-[state=checked]:scale-100 transition-transform" />
-                                        </div>
-                                    </Label>
-                                </div>
-                            </RadioGroup>
-                        </div>
-
-                        {/* Delivery Method Selector (Standard, Pickup, BTS Dependent Selector) */}
+                        {/* Delivery Method Selector */}
                         <BtsDeliverySelector 
                             token={token}
                             onChange={(data) => {
@@ -870,7 +651,7 @@ export function CheckoutDrawer({ open, onOpenChange, onRequireVariant }: Checkou
                                     />
                                 </div>
                             </div>
-                           </div>
+                        </div>
 
                         {/* Trust Banner */}
                         <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-2xl flex items-center gap-4 shadow-sm">

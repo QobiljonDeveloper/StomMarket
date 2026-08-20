@@ -321,14 +321,6 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
                                     </div>
                                 </div>
 
-                                {/* 20-August Warning Notice */}
-                                <div className="mb-4 bg-amber-50 border border-amber-200/80 p-3 rounded-xl flex items-center gap-3 shadow-xs">
-                                    <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" strokeWidth={2.5} />
-                                    <p className="text-xs font-bold text-amber-800 leading-tight">
-                                        Buyurtma berish 20-avgustgacha vaqtincha yopilgan
-                                    </p>
-                                </div>
-
                                 <SheetFooter className="gap-3 flex-col items-stretch">
                                     <Button
                                         className="w-full rounded-full h-14 text-base font-bold bg-[#007AFF] hover:bg-[#005bb5] text-white shadow-[0_8px_20px_rgba(0,122,255,0.2)] hover:shadow-[0_10px_25px_rgba(0,122,255,0.3)] transition-all flex items-center justify-center gap-2"

@@ -30,16 +30,35 @@ const BTS_REGIONS_MAP: Record<string, string> = {
 };
 
 const BTS_BRANCHES_MAP: Record<string, { name: string; address: string; phone: string }> = {
-    "bts-tashkent-1": { name: "BTS Yunusobod filiali", address: "Yunusobod tumani, 19-kvartal, 4-uy", phone: "+998 71 207-00-50" },
-    "bts-tashkent-2": { name: "BTS Chilonzor filiali", address: "Chilonzor tumani, Qatortol ko'chasi, 24-uy", phone: "+998 71 207-00-51" },
-    "bts-tashkent-3": { name: "BTS Mirobod (Bosh ofis)", address: "Mirobod tumani, Taras Shevchenko ko'chasi, 38-uy", phone: "+998 71 207-00-52" },
-    "bts-sam-1": { name: "BTS Samarqand markaziy filiali", address: "Samarqand shahri, Gagarin ko'chasi, 85-uy", phone: "+998 66 233-00-50" },
-    "bts-sam-2": { name: "BTS Registon filiali", address: "Samarqand shahri, Registon ko'chasi, 12-uy", phone: "+998 66 233-00-51" },
-    "bts-fer-1": { name: "BTS Farg'ona shahar filiali", address: "Farg'ona shahri, Al-Farg'oniy ko'chasi, 45-uy", phone: "+998 73 244-00-50" },
-    "bts-fer-2": { name: "BTS Qo'qon filiali", address: "Qo'qon shahri, Turon ko'chasi, 110-uy", phone: "+998 73 542-00-51" },
-    "bts-fer-3": { name: "BTS Marg'ilon filiali", address: "Marg'ilon shahri, Mustaqillik ko'chasi, 5-uy", phone: "+998 73 237-00-52" },
-    "bts-bux-1": { name: "BTS Buxoro markaziy filiali", address: "Buxoro shahri, Navoiy shoh ko'chasi, 18-uy", phone: "+998 65 221-00-50" },
-    "bts-bux-2": { name: "BTS G'ijduvon filiali", address: "G'ijduvon tumani, Yusuf Hamadoniy ko'chasi, 3-uy", phone: "+998 65 572-00-51" }
+    "0187": { name: "[0187] SAMPI", address: "TashGRES m, 21-uy", phone: "+998 71 207-00-50" },
+    "0164": { name: "[0164] MIRZO ULUG'BEK CHIMGAN", address: "Yalang'och daxasi", phone: "+998 71 207-00-51" },
+    "0176": { name: "[0176] MIRZO ULUG'BEK IT-PARK", address: "Mo'minova ko'chasi 7-uy 32", phone: "+998 71 207-00-52" },
+    "0190": { name: "[0190] YUNUSOBOD SAMARA", address: "13-mavze, 53-uy", phone: "+998 71 207-00-53" },
+    "1017": { name: "[1017] QIBRAY SELEKSIYA", address: "Universitet k, 37-uy", phone: "+998 71 207-00-54" },
+    "0188": { name: "[0188] TURKISTON METRO", address: "Ahmad Donish k, 5-uy", phone: "+998 71 207-00-55" },
+    "0162": { name: "[0162] MEGA PLANET", address: "11-mavze, 16-uy", phone: "+998 71 207-00-56" },
+    "0110": { name: "[0110] MAKSIM GORKIY", address: "Buyuk Ipak Yo'li k.", phone: "+998 71 207-00-57" },
+    "0108": { name: "[0108] YUNUSOBOD (SHAXRISTON)", address: "Shaxriston k.", phone: "+998 71 207-00-58" },
+    "1001": { name: "[1001] ANGREN FILIALI", address: "Angren shahri, Mustaqillik ko'chasi, 12-uy", phone: "+998 71 207-00-60" },
+    "1002": { name: "[1002] CHIRCHIQ FILIALI", address: "Chirchiq shahri, Alisher Navoiy ko'chasi, 45-uy", phone: "+998 71 207-00-70" },
+    "1801": { name: "[1801] SAMARQAND MARKAZIY", address: "Samarqand shahri, Gagarin ko'chasi, 85-uy", phone: "+998 66 233-00-50" },
+    "1802": { name: "[1802] REGISTON", address: "Registon ko'chasi, 12-uy", phone: "+998 66 233-00-51" },
+    "3001": { name: "[3001] FARG'ONA SHAHAR", address: "Farg'ona shahri, Al-Farg'oniy ko'chasi, 45-uy", phone: "+998 73 244-00-50" },
+    "3002": { name: "[3002] QO'QON", address: "Qo'qon shahri, Turon ko'chasi, 110-uy", phone: "+998 73 542-00-51" },
+    "3003": { name: "[3003] MARG'ILON", address: "Marg'ilon shahri, Mustaqillik ko'chasi, 5-uy", phone: "+998 73 237-00-52" },
+    "0601": { name: "[0601] BUXORO MARKAZIY", address: "Buxoro shahri, Navoiy shoh ko'chasi, 18-uy", phone: "+998 65 221-00-50" },
+    "0602": { name: "[0602] G'IJDUVON", address: "G'ijduvon tumani, Yusuf Hamadoniy ko'chasi, 3-uy", phone: "+998 65 572-00-51" },
+    // Legacy alias keys
+    "bts-tashkent-1": { name: "[0187] SAMPI", address: "Yunusobod tumani, 19-kvartal, 4-uy", phone: "+998 71 207-00-50" },
+    "bts-tashkent-2": { name: "[0162] MEGA PLANET", address: "Chilonzor tumani, Qatortol ko'chasi, 24-uy", phone: "+998 71 207-00-51" },
+    "bts-tashkent-3": { name: "[0176] MIRZO ULUG'BEK IT-PARK", address: "Mirobod tumani, Taras Shevchenko ko'chasi, 38-uy", phone: "+998 71 207-00-52" },
+    "bts-sam-1": { name: "[1801] Samarqand markaziy filiali", address: "Samarqand shahri, Gagarin ko'chasi, 85-uy", phone: "+998 66 233-00-50" },
+    "bts-sam-2": { name: "[1802] Registon filiali", address: "Samarqand shahri, Registon ko'chasi, 12-uy", phone: "+998 66 233-00-51" },
+    "bts-fer-1": { name: "[3001] Farg'ona shahar filiali", address: "Farg'ona shahri, Al-Farg'oniy ko'chasi, 45-uy", phone: "+998 73 244-00-50" },
+    "bts-fer-2": { name: "[3002] Qo'qon filiali", address: "Qo'qon shahri, Turon ko'chasi, 110-uy", phone: "+998 73 542-00-51" },
+    "bts-fer-3": { name: "[3003] Marg'ilon filiali", address: "Marg'ilon shahri, Mustaqillik ko'chasi, 5-uy", phone: "+998 73 237-00-52" },
+    "bts-bux-1": { name: "[0601] Buxoro markaziy filiali", address: "Buxoro shahri, Navoiy shoh ko'chasi, 18-uy", phone: "+998 65 221-00-50" },
+    "bts-bux-2": { name: "[0602] G'ijduvon filiali", address: "G'ijduvon tumani, Yusuf Hamadoniy ko'chasi, 3-uy", phone: "+998 65 572-00-51" }
 };
 
 const REGION_MAP: Record<number, string> = {
@@ -303,7 +322,10 @@ export function CheckoutDrawer({ open, onOpenChange, onRequireVariant }: Checkou
                     phone: btsBranchPhone || ""
                 } : BTS_BRANCHES_MAP[btsBranchId];
                 if (branchObj) {
-                    btsNote = `--- BTS Yetkazib Berish ---\n📍 Viloyat: ${regionName}\n🏦 Filial: ${branchObj.name}\n🏠 Manzil: ${branchObj.address}\n📞 Aloqa: ${branchObj.phone}`;
+                    const branchTitle = branchObj.name.startsWith('[') 
+                        ? branchObj.name 
+                        : (btsBranchId ? `[${btsBranchId}] ${branchObj.name}` : branchObj.name);
+                    btsNote = `--- BTS Yetkazib Berish ---\n📍 Viloyat: ${regionName}\n🏦 Filial: ${branchTitle}\n🏠 Manzil: ${branchObj.address}\n📞 Aloqa: ${branchObj.phone}`;
                 }
             }
 

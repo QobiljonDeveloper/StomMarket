@@ -109,8 +109,27 @@ export function OrderDetails() {
     if (!order) return null;
 
     const isDelivery = order.deliveryMethod === 1;
-    const regionName = order.address?.region !== undefined ? (REGION_MAP[order.address.region] || order.address.region) : "Samarqand";
-    const fullAddress = order.address ? `${regionName}, ${order.address.city || ""}, ${order.address.street || ""}` : "Samarqand (O'zi olib ketish)";
+    const isBts = order.deliveryMethod === 2;
+    const regionName = order.address?.region !== undefined ? (REGION_MAP[order.address.region] || order.address.region) : "Toshkent";
+
+    let deliveryTitle = "O'zi olib ketish (Samovivoz)";
+    let fullAddress = "Do'kondan olib ketish";
+
+    if (isDelivery) {
+        deliveryTitle = order.address?.label || "Yetkazib berish (Kuryer)";
+        fullAddress = order.address ? `${regionName}, ${order.address.city || ""}, ${order.address.street || ""}` : "Yetkazib berish manzili";
+    } else if (isBts) {
+        deliveryTitle = "BTS Express pochtasi";
+        let btsBranchInfo = "";
+        if (order.note) {
+            const filialMatch = order.note.match(/🏦 Filial:\s*([^\n\r]+)/);
+            const manzilMatch = order.note.match(/🏠 Manzil:\s*([^\n\r]+)/);
+            if (filialMatch) {
+                btsBranchInfo = filialMatch[1].trim() + (manzilMatch ? ` (${manzilMatch[1].trim()})` : "");
+            }
+        }
+        fullAddress = btsBranchInfo || "BTS filiali orqali yetkazish";
+    }
 
     const statusText = order.status === 0 ? "Qabul qilindi" : order.status === 1 ? "Tayyorlanmoqda" : order.status === 2 ? "Yo'lda" : order.status === 3 ? "Yetkazib berildi" : order.status || "Qabul qilindi";
     const formattedDate = order.createdAt ? new Date(order.createdAt).toLocaleDateString('uz-UZ', { day: '2-digit', month: 'short', year: 'numeric' }) : "";
@@ -235,7 +254,7 @@ export function OrderDetails() {
                             </h3>
                             <div className="bg-white rounded-3xl border border-slate-100 p-4 shadow-sm flex flex-col gap-1">
                                 <span className="text-sm font-bold text-slate-900">
-                                    {isDelivery ? (order.address?.label || "Uy manzili") : "O'zi olib ketish (Samarqand filial)"}
+                                    {deliveryTitle}
                                 </span>
                                 <span className="text-xs font-medium text-slate-500 leading-relaxed">{fullAddress}</span>
                             </div>

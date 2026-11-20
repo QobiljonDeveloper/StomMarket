@@ -160,6 +160,6 @@ export function calcOrderTotal(
  * Formats a numeric price value as Uzbek so'm string.
  * e.g. 3216000 → "3,216,000 so'm"
  */
-export function formatSom(price: number): string {
-    return `${price.toLocaleString()} so'm`;
+export function formatSom(price?: number | null): string {
+    return `${(price ?? 0).toLocaleString()} so'm`;
 }

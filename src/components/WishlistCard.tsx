@@ -73,18 +73,18 @@ export function WishlistCard({ item, onRemove }: WishlistCardProps) {
                 </h3>
 
                 <div className="flex flex-col gap-1 min-h-[38px] justify-end mt-1 pt-1">
-                    {item.discountPrice && item.discountPrice < item.basePrice ? (
+                    {item.discountPrice != null && item.discountPrice > 0 && item.discountPrice < item.basePrice ? (
                         <>
                             <span className="text-[12px] text-slate-400 line-through font-medium leading-none">
-                                {item.basePrice.toLocaleString()} so'm
+                                {(item.basePrice ?? 0).toLocaleString()} so'm
                             </span>
                             <span className="text-[16px] font-bold text-[#007AFF] leading-tight">
-                                {item.discountPrice.toLocaleString()} so'm
+                                {(item.discountPrice ?? 0).toLocaleString()} so'm
                             </span>
                         </>
                     ) : (
                         <span className="text-[16px] font-bold text-[#007AFF] leading-tight">
-                            {item.basePrice.toLocaleString()} so'm
+                            {(item.basePrice ?? 0).toLocaleString()} so'm
                         </span>
                     )}
                 </div>

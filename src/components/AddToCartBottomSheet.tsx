@@ -169,9 +169,9 @@ export function AddToCartDrawer({
                 productId: String(product.id),
                 productNameUz: product.nameUz,
                 quantity: item.quantity,
-                unitPrice: product.discountPrice !== undefined && product.discountPrice < product.basePrice ? product.discountPrice : product.basePrice,
-                basePrice: product.basePrice,
-                discountPrice: product.discountPrice,
+                unitPrice: (product.discountPrice != null && product.discountPrice > 0 && product.discountPrice < product.basePrice) ? product.discountPrice : (product.basePrice ?? 0),
+                basePrice: product.basePrice ?? 0,
+                discountPrice: (product.discountPrice != null && product.discountPrice > 0) ? product.discountPrice : undefined,
                 primaryImageUrl: product.images?.find(img => img.isPrimary)?.url || product.images?.[0]?.url || product.image || null,
                 selectedParentType: parent ? { id: String(parent.id), name: parent.name, price: parent.priceExtra || parent.price || 0 } : null,
                 selectedChildType: child ? { id: String(child.id), name: child.name, price: child.priceExtra || child.price || 0 } : null,
@@ -299,18 +299,18 @@ export function AddToCartDrawer({
                                     {product.nameUz}
                                 </h3>
                                 <div className="flex flex-col mt-0.5">
-                                    {product.discountPrice && product.discountPrice < product.basePrice ? (
+                                    {product.discountPrice != null && product.discountPrice > 0 && product.discountPrice < product.basePrice ? (
                                         <>
                                             <span className="text-[11px] text-slate-400 line-through font-medium leading-none">
-                                                {product.basePrice.toLocaleString()} so'm
+                                                {(product.basePrice ?? 0).toLocaleString()} so'm
                                             </span>
                                             <span className="text-blue-500 font-bold text-[17px] leading-tight mt-0.5">
-                                                {product.discountPrice.toLocaleString()} so'm
+                                                {(product.discountPrice ?? 0).toLocaleString()} so'm
                                             </span>
                                         </>
                                     ) : (
                                         <p className="text-blue-500 font-bold text-[17px] leading-tight">
-                                            {product.basePrice?.toLocaleString()} so'm
+                                            {(product.basePrice ?? 0).toLocaleString()} so'm
                                         </p>
                                     )}
                                 </div>
@@ -323,7 +323,7 @@ export function AddToCartDrawer({
                                 <MultiVariantSelector
                                     productId={String(product.id)}
                                     productName={product.nameUz}
-                                    basePrice={product.discountPrice !== undefined && product.discountPrice < product.basePrice ? product.discountPrice : product.basePrice}
+                                    basePrice={(product.discountPrice != null && product.discountPrice > 0 && product.discountPrice < product.basePrice) ? product.discountPrice : (product.basePrice ?? 0)}
                                     variants={variantsData}
                                     onAddToCart={handleAddToCart}
                                     onBuyNow={handleBuyNow}

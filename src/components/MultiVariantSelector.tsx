@@ -26,7 +26,7 @@ export interface ParentVariant {
 interface MultiVariantSelectorProps {
     productId?: string;
     productName?: string;
-    basePrice?: number;      // Product baseline price
+    basePrice?: number | null;      // Product baseline price
     variants?: ParentVariant[];
     onAddToCart?: (items: { type: "parent" | "subType"; id: string | number; parentId?: string | number; quantity: number; name: string; priceExtra: number }[]) => void;
     onBuyNow?: (items: { type: "parent" | "subType"; id: string | number; parentId?: string | number; quantity: number; name: string; priceExtra: number }[]) => void;
@@ -69,11 +69,12 @@ const DEFAULT_NESTED_VARIANTS: ParentVariant[] = [
 export function MultiVariantSelector({
     productId = "prod-99",
     productName = "Premium Medical Specimen Drawer",
-    basePrice = 150000, // 150,000 UZS baseline
+    basePrice: rawBasePrice = 150000, // 150,000 UZS baseline
     variants = DEFAULT_NESTED_VARIANTS,
     onAddToCart,
     onBuyNow,
 }: MultiVariantSelectorProps) {
+    const basePrice = rawBasePrice ?? 0;
     // 3. State tracking chosen quantities for BOTH parents and sub-types: { "parent-1": 2, "sub-101": 1 }
     const [quantities, setQuantities] = useState<Record<string, number>>({});
 
@@ -187,7 +188,7 @@ export function MultiVariantSelector({
     }, [quantities, selectedItemsList]);
     
     const totalPricing = selectedItemsList.reduce(
-        (sum, item) => sum + (basePrice + item.priceExtra) * item.quantity,
+        (sum, item) => sum + (basePrice + (item.priceExtra || 0)) * item.quantity,
         0
     );
 
@@ -251,8 +252,8 @@ export function MultiVariantSelector({
         }
     };
 
-    const formatPrice = (price: number) => {
-        return price.toLocaleString() + " so'm";
+    const formatPrice = (price?: number | null) => {
+        return (price ?? 0).toLocaleString() + " so'm";
     };
 
     return (
@@ -466,7 +467,7 @@ export function MultiVariantSelector({
                                     {item.name} <span className="text-[#007AFF]">({item.quantity} ta)</span>
                                 </span>
                                 <span className="font-bold text-slate-900 shrink-0">
-                                    {formatPrice((basePrice + item.priceExtra) * item.quantity)}
+                                    {formatPrice((basePrice + (item.priceExtra || 0)) * item.quantity)}
                                 </span>
                             </div>
                         ))}

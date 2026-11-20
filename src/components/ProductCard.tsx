@@ -61,9 +61,9 @@ export function ProductCard({ product }: ProductCardProps) {
                 productId: String(product.id),
                 productNameUz: product.nameUz,
                 quantity: qty,
-                unitPrice: product.discountPrice !== undefined && product.discountPrice < product.basePrice ? product.discountPrice : product.basePrice,
-                basePrice: product.basePrice,
-                discountPrice: product.discountPrice,
+                unitPrice: (product.discountPrice != null && product.discountPrice > 0 && product.discountPrice < product.basePrice) ? product.discountPrice : (product.basePrice ?? 0),
+                basePrice: product.basePrice ?? 0,
+                discountPrice: (product.discountPrice != null && product.discountPrice > 0) ? product.discountPrice : undefined,
                 primaryImageUrl: primaryImageUrl || null,
                 selectedParentType: null,
                 selectedChildType: null
@@ -184,18 +184,18 @@ export function ProductCard({ product }: ProductCardProps) {
                     </div>
 
                     <div className="mt-auto flex flex-col gap-1 min-h-[40px] justify-end">
-                        {product.discountPrice && product.discountPrice < product.basePrice ? (
+                        {product.discountPrice != null && product.discountPrice > 0 && product.discountPrice < product.basePrice ? (
                             <>
                                 <span className="text-[12px] text-slate-400 line-through font-medium leading-none">
-                                    {product.basePrice.toLocaleString()} so'm
+                                    {(product.basePrice ?? 0).toLocaleString()} so'm
                                 </span>
                                 <span className="text-[16px] font-bold text-[#007AFF] leading-tight">
-                                    {product.discountPrice.toLocaleString()} so'm
+                                    {(product.discountPrice ?? 0).toLocaleString()} so'm
                                 </span>
                             </>
                         ) : (
                             <span className="text-[16px] font-bold text-[#007AFF] leading-tight">
-                                {product.basePrice !== undefined ? `${product.basePrice.toLocaleString()} so'm` : `${(0).toLocaleString()} so'm`}
+                                {`${(product.basePrice ?? 0).toLocaleString()} so'm`}
                             </span>
                         )}
                     </div>

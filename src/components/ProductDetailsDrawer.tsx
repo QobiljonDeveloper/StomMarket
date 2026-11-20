@@ -30,7 +30,7 @@ export function ProductDetailsDrawer({ open, onOpenChange, product, isLoading }:
     const { user } = useAuthContext();
     const { isSaved, toggleWishlist } = useWishlist(user?.id);
 
-    const saved = isSaved(product.id);
+    const saved = product?.id ? isSaved(product.id) : false;
     const { addToCart, getItemQuantity, updateQuantity } = useCart();
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
     const [_selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
@@ -158,9 +158,9 @@ export function ProductDetailsDrawer({ open, onOpenChange, product, isLoading }:
                 productId: String(product.id),
                 productNameUz: product.nameUz,
                 quantity: item.quantity,
-                unitPrice: product.discountPrice !== undefined && product.discountPrice < product.basePrice ? product.discountPrice : product.basePrice,
-                basePrice: product.basePrice,
-                discountPrice: product.discountPrice,
+                unitPrice: (product.discountPrice != null && product.discountPrice > 0 && product.discountPrice < product.basePrice) ? product.discountPrice : (product.basePrice ?? 0),
+                basePrice: product.basePrice ?? 0,
+                discountPrice: (product.discountPrice != null && product.discountPrice > 0) ? product.discountPrice : undefined,
                 primaryImageUrl: product.images?.find(img => img.isPrimary)?.url || product.images?.[0]?.url || product.image || null,
                 selectedParentType: parent ? { id: String(parent.id), name: parent.name, price: parent.priceExtra || parent.price || 0 } : null,
                 selectedChildType: child ? { id: String(child.id), name: child.name, price: child.priceExtra || child.price || 0 } : null,
@@ -201,14 +201,17 @@ export function ProductDetailsDrawer({ open, onOpenChange, product, isLoading }:
             };
         }
 
+        const base = product?.basePrice ?? 0;
+        const effectiveUnit = (product?.discountPrice != null && product.discountPrice > 0 && product.discountPrice < base) ? product.discountPrice : base;
+
         const buyNowPayload = [{
             id: `${product.id}--`,
             productId: String(product.id),
             productNameUz: product?.nameUz || "",
             quantity: qty,
-            unitPrice: (product?.discountPrice !== undefined && product.discountPrice < (product?.basePrice || 0) ? product.discountPrice : (product?.basePrice || 0)) + extraVariantPrice,
-            basePrice: (product?.basePrice || 0) + extraVariantPrice,
-            discountPrice: product?.discountPrice !== undefined ? product.discountPrice + extraVariantPrice : undefined,
+            unitPrice: effectiveUnit + extraVariantPrice,
+            basePrice: base + extraVariantPrice,
+            discountPrice: (product?.discountPrice != null && product.discountPrice > 0) ? product.discountPrice + extraVariantPrice : undefined,
             primaryImageUrl: product?.images?.find((img: any) => img.isPrimary)?.url || product?.images?.[0]?.url || product?.image || null,
             selectedParentType: selectedParentType,
             selectedChildType: null
@@ -358,18 +361,21 @@ export function ProductDetailsDrawer({ open, onOpenChange, product, isLoading }:
                                 {product.nameUz}
                             </h1>
                             {(() => {
-                                const finalBasePrice = (product.basePrice || 0) + extraVariantPrice;
-                                const finalDiscountPrice = product.discountPrice !== undefined ? (product.discountPrice + extraVariantPrice) : undefined;
+                                const base = product?.basePrice ?? 0;
+                                const extra = extraVariantPrice || 0;
+                                const finalBasePrice = base + extra;
+                                const hasValidDiscount = product?.discountPrice != null && product.discountPrice > 0 && product.discountPrice < base;
+                                const finalDiscountPrice = hasValidDiscount ? (product.discountPrice! + extra) : undefined;
                                 const hasDiscount = finalDiscountPrice !== undefined && finalDiscountPrice < finalBasePrice;
 
                                 return hasDiscount ? (
                                     <div className="flex flex-col items-start gap-0.5">
                                         <span className="text-[15px] text-slate-400 line-through font-medium leading-none">
-                                            {finalBasePrice.toLocaleString()} so'm
+                                            {(finalBasePrice ?? 0).toLocaleString()} so'm
                                         </span>
                                         <div className="flex items-baseline gap-2 mt-1">
                                             <p className="text-3xl font-black text-[#007AFF] leading-tight">
-                                                {finalDiscountPrice!.toLocaleString()} so'm
+                                                {(finalDiscountPrice ?? 0).toLocaleString()} so'm
                                             </p>
                                             {product.unit && (
                                                 <span className="text-sm font-semibold text-slate-500">/ {product.unit}</span>
@@ -379,7 +385,7 @@ export function ProductDetailsDrawer({ open, onOpenChange, product, isLoading }:
                                 ) : (
                                     <div className="flex items-baseline gap-2">
                                         <p className="text-3xl font-black text-[#007AFF] leading-tight">
-                                            {finalBasePrice.toLocaleString()} so'm
+                                            {(finalBasePrice ?? 0).toLocaleString()} so'm
                                         </p>
                                         {product.unit && (
                                             <span className="text-sm font-semibold text-slate-500">/ {product.unit}</span>
@@ -393,7 +399,7 @@ export function ProductDetailsDrawer({ open, onOpenChange, product, isLoading }:
                             <MultiVariantSelector
                                 productId={String(product.id)}
                                 productName={product.nameUz}
-                                basePrice={product.discountPrice !== undefined && product.discountPrice < product.basePrice ? product.discountPrice : product.basePrice}
+                                basePrice={(product?.discountPrice != null && product.discountPrice > 0 && product.discountPrice < (product?.basePrice ?? 0)) ? product.discountPrice : (product?.basePrice ?? 0)}
                                 variants={variantsData}
                                 onAddToCart={handleAddToCart}
                                 onBuyNow={handleBuyNow}

@@ -101,13 +101,10 @@ export function AddToCartDrawer({
         
         localStorage.setItem('tg_cart_variants', JSON.stringify(savedMap));
         
-        addToCart(product);
-        setTimeout(() => {
-            updateQuantity(product.id, totalQuantity);
-            window.dispatchEvent(new Event('storage'));
-            window.dispatchEvent(new Event('variantSaved'));
-            onOpenChange(false);
-        }, 200);
+        addToCart(product, undefined, undefined, totalQuantity);
+        window.dispatchEvent(new Event('storage'));
+        window.dispatchEvent(new Event('variantSaved'));
+        onOpenChange(false);
     };
 
     const handleBuyNow = (selectedItems: any[]) => {

@@ -30,9 +30,26 @@ export const useCartApi = (userId: string | undefined | null) => {
     const addToCartMutation = useMutation({
         mutationFn: async ({ product, quantity }: { product: Product; quantity: number }) => {
             if (!safeUserId) throw new Error("User not logged in");
+            const validQty = Math.floor(Number(quantity)) || 1;
             try {
-                const data = await cartService.addToCart(safeUserId, product.id, quantity);
-                return data;
+                // Check if item already exists in backend cart
+                const previousData = queryClient.getQueryData<any>(['cart', safeUserId]);
+                const previousCart: any[] = Array.isArray(previousData) ? previousData : (previousData?.items || []);
+                const existing = previousCart.find(item => item?.productId === product.id);
+
+                if (existing && existing.id) {
+                    const data = await cartService.updateQuantity(safeUserId, existing.id, validQty);
+                    return data;
+                } else {
+                    const data = await cartService.addToCart(safeUserId, product.id, validQty);
+                    const itemId = data?.id || data?.cartItemId || data?.item?.id;
+                    if (validQty > 1 && itemId) {
+                        try {
+                            await cartService.updateQuantity(safeUserId, itemId, validQty);
+                        } catch { }
+                    }
+                    return data;
+                }
             } catch (error: any) {
                 console.error("Error adding product to cart:", error);
                 throw error;

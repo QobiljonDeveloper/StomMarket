@@ -223,6 +223,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
                     return item;
                 }
 
+                // If client selected a higher quantity (e.g. 10), do not crush it down to server's 1.
+                // Instead, sync the client's higher quantity to the server.
+                if (clientTotalForProduct > serverQty) {
+                    const apiItem = safeApiCart.find((i: any) => i.productId === item.productId);
+                    if (apiItem?.id) {
+                        updateQuantityMutation.mutate({ cartItemId: apiItem.id, quantity: clientTotalForProduct });
+                    }
+                    return item;
+                }
+
                 // Quantity mismatch: scale this item proportionally.
                 // We keep all variant fields by spreading the existing item.
                 const ratio = clientTotalForProduct > 0 ? item.quantity / clientTotalForProduct : 1;

@@ -8,9 +8,10 @@ export const cartService = {
     },
 
     addToCart: async (userId: string, productId: string, quantity: number = 1) => {
-        const { data } = await api.post(`/api/cart/${userId}/items`, {
+        const validQty = Math.floor(Number(quantity)) || 1;
+        const { data } = await api.post(`/api/cart/${userId}/items?quantity=${validQty}`, {
             productId,
-            quantity
+            quantity: validQty
         });
         return data;
     },

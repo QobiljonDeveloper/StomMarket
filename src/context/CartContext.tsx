@@ -167,80 +167,77 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
 
 
-    // Synchronize clientCart quantities with the server cart.
+    // Synchronize clientCart with the server cart.
     // RULES:
-    //   1. NEVER delete or overwrite existing client items that have variant data.
-    //   2. NEVER run when server cart is empty (empty server != user has no items).
-    //   3. ONLY update quantities on existing items; never strip selectedParentType/selectedChildType.
+    //   1. NEVER reduce clientCart quantities based on server cart (server cart does not track variants and lags behind).
+    //   2. NEVER overwrite existing client items that have variant data.
+    //   3. ONLY scale upwards if server has strictly more items (e.g. from another tab or device).
+    //   4. If clientCart is completely empty on startup, populate it from safeApiCart.
     useEffect(() => {
         if (!user?.id || !isCartSuccess || isCartLoading) return;
 
         const safeApiCart = Array.isArray(apiCart) ? apiCart : (apiCart as any)?.items || [];
-
-        // If server returned empty, do nothing. localStorage is source of truth.
         if (safeApiCart.length === 0) return;
 
         setClientCart(prev => {
-            // If client cart is empty, nothing to reconcile.
-            if (prev.length === 0) return prev;
+            if (prev.length === 0) {
+                // If local cart is empty, populate from server
+                const items: CartItem[] = safeApiCart.map((apiItem: any) => ({
+                    id: String(apiItem.id || apiItem.productId),
+                    productId: String(apiItem.productId),
+                    productNameUz: apiItem.productNameUz || apiItem.name || '',
+                    quantity: Math.max(1, Number(apiItem.quantity) || 1),
+                    unitPrice: Number(apiItem.unitPrice || apiItem.price) || 0,
+                    basePrice: Number(apiItem.basePrice || apiItem.price) || 0,
+                    primaryImageUrl: apiItem.primaryImageUrl || null,
+                }));
+                try {
+                    localStorage.setItem('tg_cart_client_items', JSON.stringify(items));
+                } catch { }
+                return items;
+            }
 
-            // Build a lookup of totalClientQty per productId
+            // Build lookups with String(productId) to prevent string/number key mismatch
             const clientQtyByProduct: Record<string, number> = {};
             prev.forEach(item => {
-                clientQtyByProduct[item.productId] = (clientQtyByProduct[item.productId] || 0) + item.quantity;
+                const pid = String(item.productId);
+                clientQtyByProduct[pid] = (clientQtyByProduct[pid] || 0) + item.quantity;
             });
 
-            // Check if any server quantities differ from client quantities
-            let hasChanges = false;
             const serverQtyByProduct: Record<string, number> = {};
             safeApiCart.forEach((apiItem: any) => {
-                serverQtyByProduct[apiItem.productId] = apiItem.quantity || 0;
+                const pid = String(apiItem.productId);
+                serverQtyByProduct[pid] = Math.max(1, Number(apiItem.quantity) || 1);
             });
 
-            for (const productId of Object.keys(serverQtyByProduct)) {
-                const clientQty = clientQtyByProduct[productId];
-                const serverQty = serverQtyByProduct[productId];
-                if (clientQty !== undefined && clientQty !== serverQty) {
+            // Check if server has strictly MORE than what client has
+            let hasChanges = false;
+            for (const pid of Object.keys(serverQtyByProduct)) {
+                const clientQty = clientQtyByProduct[pid];
+                const serverQty = serverQtyByProduct[pid];
+                if (clientQty !== undefined && serverQty > clientQty) {
                     hasChanges = true;
                     break;
                 }
             }
 
-            // If quantities all match, skip entirely to avoid unnecessary re-renders
             if (!hasChanges) return prev;
 
-            // Reconcile: ONLY adjust quantities on existing items. Never remove, never strip variants.
+            // Only scale UP, NEVER downscale client selections!
             const updated = prev.map(item => {
-                const serverQty = serverQtyByProduct[item.productId];
-                if (serverQty === undefined) {
-                    // Server does not know this product yet — keep client item untouched
-                    return item;
-                }
+                const pid = String(item.productId);
+                const serverQty = serverQtyByProduct[pid];
+                if (serverQty === undefined) return item;
 
-                const clientTotalForProduct = clientQtyByProduct[item.productId] || 0;
-                if (clientTotalForProduct === serverQty) {
-                    // Perfect match for this product — keep item exactly as-is (preserves variants)
-                    return item;
+                const clientTotal = clientQtyByProduct[pid] || 0;
+                if (serverQty > clientTotal && clientTotal > 0) {
+                    const ratio = item.quantity / clientTotal;
+                    const newQty = Math.max(item.quantity, Math.round(serverQty * ratio));
+                    return { ...item, quantity: newQty };
                 }
-
-                // If client selected a higher quantity (e.g. 10), do not crush it down to server's 1.
-                // Instead, sync the client's higher quantity to the server.
-                if (clientTotalForProduct > serverQty) {
-                    const apiItem = safeApiCart.find((i: any) => i.productId === item.productId);
-                    if (apiItem?.id) {
-                        updateQuantityMutation.mutate({ cartItemId: apiItem.id, quantity: clientTotalForProduct });
-                    }
-                    return item;
-                }
-
-                // Quantity mismatch: scale this item proportionally.
-                // We keep all variant fields by spreading the existing item.
-                const ratio = clientTotalForProduct > 0 ? item.quantity / clientTotalForProduct : 1;
-                const newQty = Math.max(1, Math.round(serverQty * ratio));
-                return { ...item, quantity: newQty };
+                return item;
             });
 
-            // Persist the reconciled cart (quantities updated, variants fully preserved)
             try {
                 localStorage.setItem('tg_cart_client_items', JSON.stringify(updated));
             } catch (err) {
@@ -706,123 +703,65 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
 
         // Check if there is a multi-variant selection saved in localStorage for this product
-
         let multiSelections: any[] = [];
-
         try {
-
             const savedVariants = localStorage.getItem('tg_cart_variants');
-
             const variantsMap = savedVariants ? JSON.parse(savedVariants) : {};
-
-            const saved = variantsMap[product.id];
-
+            const saved = variantsMap[product.id] || variantsMap[String(product.id)];
             if (saved && saved.productTypeId === "multi" && Array.isArray(saved.selections)) {
-
                 multiSelections = saved.selections;
-
             }
-
         } catch (err) {
-
             console.error("Failed to load multi variants in addToCart:", err);
-
         }
 
-
-
         if (multiSelections.length > 0) {
-
             setClientCart(prev => {
-
                 // Remove existing client items for this product
-
-                const nextCart = prev.filter(item => item.productId !== product.id);
-
-                
+                const nextCart = prev.filter(item => String(item.productId) !== String(product.id));
 
                 multiSelections.forEach(sel => {
-
                     const hasSub = sel.name.includes(" ➔ ");
-
                     let parentType: SelectedTypeDetail | null = null;
-
                     let childType: SelectedTypeDetail | null = null;
-
                     let parentId = '';
-
                     let childId = '';
 
-
-
                     if (hasSub) {
-
                         const parts = sel.name.split(" ➔ ");
-
                         parentId = 'parent';
-
                         childId = String(sel.productTypeId);
-
                         parentType = { id: parentId, name: parts[0], price: 0 };
-
                         childType = { id: childId, name: parts[1], price: sel.priceExtra || 0 };
-
                     } else {
-
                         parentId = String(sel.productTypeId);
-
                         parentType = { id: parentId, name: sel.name, price: sel.priceExtra || 0 };
-
                     }
 
-
-
-                    const compositeKey = `${product.id}-${parentId}-${childId}`;
-
+                    const compositeKey = `${String(product.id)}-${parentId}-${childId}`;
                     const unitPrice = basePrice + (sel.priceExtra || 0);
-
-
+                    const itemQty = Math.max(1, Number(sel.quantity) || 1);
 
                     nextCart.push({
-
                         id: compositeKey,
-
-                        productId: product.id,
-
+                        productId: String(product.id),
                         productNameUz: product.nameUz || product.name || '',
-
-                        quantity: sel.quantity || 1,
-
+                        quantity: itemQty,
                         unitPrice: unitPrice,
-
                         basePrice: product.basePrice,
-
                         discountPrice: product.discountPrice,
-
                         primaryImageUrl: product.primaryImageUrl || product.images?.find(i => i.isPrimary)?.url || product.images?.[0]?.url || product.image || null,
-
                         selectedParentType: parentType,
-
                         selectedChildType: childType
-
                     });
-
                 });
 
-
-
                 try {
-
                     localStorage.setItem('tg_cart_client_items', JSON.stringify(nextCart));
-
                 } catch (err) {
-
                     console.error("Failed to save cart to localStorage:", err);
-
                 }
-
                 return nextCart;
-
             });
 
         } else {
@@ -840,139 +779,73 @@ export function CartProvider({ children }: { children: ReactNode }) {
                 try {
 
                     const savedVariants = localStorage.getItem('tg_cart_variants');
-
                     const variantsMap = savedVariants ? JSON.parse(savedVariants) : {};
-
-                    const saved = variantsMap[product.id];
-
+                    const saved = variantsMap[product.id] || variantsMap[String(product.id)];
                     if (saved && saved.productTypeId !== "multi") {
-
                         if (saved.selectedParentType) {
-
                             finalParent = saved.selectedParentType;
-
                         } else if (saved.parentName) {
-
                             finalParent = {
-
                                 id: saved.productTypeId || '',
-
                                 name: saved.parentName,
-
                                 price: saved.parentPrice || 0
-
                             };
-
                         }
-
                         if (saved.selectedChildType) {
-
                             finalChild = saved.selectedChildType;
-
                         } else if (saved.childName) {
-
                             finalChild = {
-
                                 id: saved.productTypeId || '',
-
                                 name: saved.childName,
-
                                 price: saved.childPrice || 0
-
                             };
-
                         }
-
                     }
-
                 } catch (err) {
-
                     console.error("Failed to load options from local storage in addToCart:", err);
-
                 }
-
             }
 
-
-
             const parentId = finalParent?.id ? String(finalParent.id) : '';
-
             const childId = finalChild?.id ? String(finalChild.id) : '';
-
-            const compositeKey = `${product.id}-${parentId}-${childId}`;
-
-
+            const compositeKey = `${String(product.id)}-${parentId}-${childId}`;
 
             const parentPrice = finalParent?.price || 0;
-
             const childPrice = finalChild?.price || 0;
-
             const unitPrice = basePrice + parentPrice + childPrice;
 
-
-
             setClientCart(prev => {
-
                 const nextCart = [...prev];
-
                 const existingIdx = nextCart.findIndex(item => item.id === compositeKey);
-
-
+                const validQty = Math.max(1, Number(quantity) || 1);
 
                 if (existingIdx > -1) {
-
                     nextCart[existingIdx] = {
-
                         ...nextCart[existingIdx],
-
-                        quantity: nextCart[existingIdx].quantity + quantity
-
+                        quantity: nextCart[existingIdx].quantity + validQty
                     };
-
                 } else {
-
                     const newItem: CartItem = {
-
                         id: compositeKey,
-
-                        productId: product.id,
-
+                        productId: String(product.id),
                         productNameUz: product.nameUz || product.name || '',
-
-                        quantity: quantity,
-
+                        quantity: validQty,
                         unitPrice: unitPrice,
-
                         basePrice: product.basePrice,
-
                         discountPrice: product.discountPrice,
-
                         primaryImageUrl: product.primaryImageUrl || product.images?.find(i => i.isPrimary)?.url || product.images?.[0]?.url || product.image || null,
-
                         selectedParentType: finalParent || null,
-
                         selectedChildType: finalChild || null
-
                     };
-
                     nextCart.push(newItem);
-
                 }
-
-
 
                 try {
-
                     localStorage.setItem('tg_cart_client_items', JSON.stringify(nextCart));
-
                 } catch (err) {
-
                     console.error("Failed to save cart to localStorage:", err);
-
                 }
-
                 return nextCart;
-
             });
 
         }
@@ -1050,16 +923,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
             // Sync with backend
 
             const remainingQty = nextCart
-
-                .filter(i => i.productId === productId)
-
+                .filter(i => String(i.productId) === String(productId))
                 .reduce((sum, i) => sum + i.quantity, 0);
 
-
-
             const safeApiCart = Array.isArray(apiCart) ? apiCart : (apiCart as any)?.items || [];
-
-            const apiItem = safeApiCart.find((i: any) => i.productId === productId);
+            const apiItem = safeApiCart.find((i: any) => String(i.productId) === String(productId));
 
 
 
@@ -1099,7 +967,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
             let targetProductId = "";
 
             if (exactItem) {
-                targetProductId = exactItem.productId;
+                targetProductId = String(exactItem.productId);
                 if (newQty === 0) {
                     // Immutably remove item
                     nextCart = prev.filter(item => item.id !== keyOrId);
@@ -1111,9 +979,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
                 }
             } else {
                 // Fallback: match by productId (used heavily by product detail components that pass productId instead of composite ID)
-                const items = prev.filter(i => i.productId === keyOrId);
+                const items = prev.filter(i => String(i.productId) === String(keyOrId));
                 if (items.length > 0) {
-                    targetProductId = keyOrId;
+                    targetProductId = String(keyOrId);
                     const currentSum = items.reduce((sum, i) => sum + i.quantity, 0);
                     if (currentSum === newQty) return prev;
 
@@ -1141,11 +1009,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
             // Sync with backend API
             const remainingQty = nextCart
-                .filter(i => i.productId === targetProductId)
+                .filter(i => String(i.productId) === String(targetProductId))
                 .reduce((sum, i) => sum + i.quantity, 0);
 
             const safeApiCart = Array.isArray(apiCart) ? apiCart : (apiCart as any)?.items || [];
-            const apiItem = safeApiCart.find((i: any) => i.productId === targetProductId);
+            const apiItem = safeApiCart.find((i: any) => String(i.productId) === String(targetProductId));
 
             if (apiItem) {
                 if (remainingQty === 0) {

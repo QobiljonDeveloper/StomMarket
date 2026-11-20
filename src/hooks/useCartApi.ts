@@ -35,7 +35,7 @@ export const useCartApi = (userId: string | undefined | null) => {
                 // Check if item already exists in backend cart
                 const previousData = queryClient.getQueryData<any>(['cart', safeUserId]);
                 const previousCart: any[] = Array.isArray(previousData) ? previousData : (previousData?.items || []);
-                const existing = previousCart.find(item => item?.productId === product.id);
+                const existing = previousCart.find(item => String(item?.productId) === String(product.id));
 
                 if (existing && existing.id) {
                     const data = await cartService.updateQuantity(safeUserId, existing.id, validQty);

@@ -2,7 +2,7 @@ import { createContext, useContext, ReactNode, useCallback, useState, useEffect,
 
 import type { Product, CartItem, SelectedTypeDetail } from "../types";
 import { calcCartItemTotal, calcCartItemUnitPrice, getEffectivePrice } from "../utils/calculateTotal";
-
+// test
 import { useAuthContext } from "./AuthContext";
 
 import { useCartApi } from "../hooks/useCartApi";

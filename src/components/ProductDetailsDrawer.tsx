@@ -35,6 +35,7 @@ export function ProductDetailsDrawer({ open, onOpenChange, product, isLoading }:
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
     const [_selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
     const [extraVariantPrice, setExtraVariantPrice] = useState(0);
+    const [flatQty, setFlatQty] = useState(1);
 
     const { data: variantsData = [], isLoading: isVariantsLoading } = useProductVariants(product.id);
     const hasVariants = (variantsData && variantsData.length > 0) || isVariantsLoading;
@@ -189,7 +190,7 @@ export function ProductDetailsDrawer({ open, onOpenChange, product, isLoading }:
         }
 
         // 2. Safely construct the payload
-        const qty = Math.max(1, getItemQuantity(product.id));
+        const qty = Math.max(1, getItemQuantity(product.id) || flatQty);
         let selectedParentType = null;
         
         if (hasTypes && Object.keys(_selectedOptions).length > 0) {
@@ -244,6 +245,7 @@ export function ProductDetailsDrawer({ open, onOpenChange, product, isLoading }:
         if (open) {
             setSelectedOptions({});
             setExtraVariantPrice(0);
+            setFlatQty(1);
         }
     }, [open, product.images]);
 
@@ -476,13 +478,34 @@ export function ProductDetailsDrawer({ open, onOpenChange, product, isLoading }:
                                         <ShoppingBag className="w-5 h-5" strokeWidth={2.5} />
                                         1 klikda xarid qilish
                                     </button>
-                                    <button
-                                        onClick={() => addToCart(product)}
-                                        className="w-full h-13 bg-[#007AFF] text-white rounded-full font-black text-[15px] flex items-center justify-center gap-2 hover:bg-[#0062cc] active:scale-[0.98] transition-all shadow-[0_8px_20px_rgba(0,122,255,0.15)]"
-                                    >
-                                        <ShoppingCart className="w-5 h-5" strokeWidth={2.5} />
-                                        Savatga qo'shish
-                                    </button>
+                                    <div className="flex items-center gap-2">
+                                        <div className="h-13 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-between p-1.5 shadow-inner px-2 shrink-0">
+                                            <button
+                                                type="button"
+                                                onClick={() => setFlatQty(prev => Math.max(1, prev - 1))}
+                                                className="w-10 h-10 flex items-center justify-center bg-white hover:bg-slate-50 text-slate-700 rounded-full shadow-sm transition-colors active:scale-95 border border-slate-200"
+                                            >
+                                                <Minus className="h-4 w-4" strokeWidth={2} />
+                                            </button>
+                                            <span className="w-8 text-center text-base font-black text-slate-900 tracking-wider">
+                                                {flatQty}
+                                            </span>
+                                            <button
+                                                type="button"
+                                                onClick={() => setFlatQty(prev => prev + 1)}
+                                                className="w-10 h-10 flex items-center justify-center bg-[#007AFF]/10 hover:bg-[#007AFF]/20 text-[#007AFF] rounded-full shadow-sm transition-colors active:scale-95 border border-[#007AFF]/20"
+                                            >
+                                                <Plus className="h-4 w-4" strokeWidth={2} />
+                                            </button>
+                                        </div>
+                                        <button
+                                            onClick={() => addToCart(product, undefined, undefined, flatQty)}
+                                            className="flex-1 h-13 bg-[#007AFF] text-white rounded-full font-black text-[15px] flex items-center justify-center gap-2 hover:bg-[#0062cc] active:scale-[0.98] transition-all shadow-[0_8px_20px_rgba(0,122,255,0.15)]"
+                                        >
+                                            <ShoppingCart className="w-5 h-5" strokeWidth={2.5} />
+                                            Savatga qo'shish {flatQty > 1 ? `(${flatQty})` : ''}
+                                        </button>
+                                    </div>
                                 </div>
                             ) : (
                                 <div className="flex flex-col gap-2.5">

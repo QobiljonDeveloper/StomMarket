@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingCart, X } from "lucide-react";
+import { ShoppingCart, X, Minus, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCart } from "../context/CartContext";
 import { ProductVariants } from "./ProductVariants";
@@ -42,6 +42,7 @@ export function AddToCartDrawer({
     const { addToCart, updateQuantity } = useCart();
     const { data: variantsData = [], isLoading: isVariantsLoading } = useProductVariants(product.id);
     const [selected, setSelected] = useState<Record<string, string>>({});
+    const [nonVariantQty, setNonVariantQty] = useState(1);
     const [showErrors, setShowErrors] = useState(false);
 
     const hasVariants = (variantsData && variantsData.length > 0) || isVariantsLoading;
@@ -189,6 +190,7 @@ export function AddToCartDrawer({
         if (open) {
             setSelected({});
             setShowErrors(false);
+            setNonVariantQty(1);
         }
     }, [open]);
 
@@ -238,9 +240,9 @@ export function AddToCartDrawer({
             price: childObj.price || 0
         } : null;
 
-        addToCart(product, selectedParentDetail, selectedChildDetail);
+        addToCart(product, selectedParentDetail, selectedChildDetail, nonVariantQty);
         onOpenChange(false);
-    }, [variantsData, selected, addToCart, product, onOpenChange]);
+    }, [variantsData, selected, addToCart, product, onOpenChange, nonVariantQty]);
 
     const close = useCallback(() => onOpenChange(false), [onOpenChange]);
 
@@ -341,7 +343,31 @@ export function AddToCartDrawer({
 
                         {/* ── Sticky Confirm Button - Hide when has variants ── */}
                         {!hasVariants && (
-                            <div className="p-5 pt-3 shrink-0 border-t border-slate-100 bg-white">
+                            <div className="p-5 pt-3 shrink-0 border-t border-slate-100 bg-white flex flex-col gap-3">
+                                {/* Quantity selector for non-variant product */}
+                                <div className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-2xl p-2 px-4">
+                                    <span className="text-sm font-bold text-slate-700">Miqdori:</span>
+                                    <div className="flex items-center gap-3">
+                                        <button
+                                            type="button"
+                                            onClick={() => setNonVariantQty(prev => Math.max(1, prev - 1))}
+                                            className="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-100 active:scale-95 transition-all shadow-sm"
+                                        >
+                                            <Minus className="w-4 h-4" strokeWidth={2.5} />
+                                        </button>
+                                        <span className="w-8 text-center text-base font-black text-slate-900 tracking-wider">
+                                            {nonVariantQty}
+                                        </span>
+                                        <button
+                                            type="button"
+                                            onClick={() => setNonVariantQty(prev => prev + 1)}
+                                            className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600 hover:bg-blue-100 active:scale-95 transition-all shadow-sm"
+                                        >
+                                            <Plus className="w-4 h-4" strokeWidth={2.5} />
+                                        </button>
+                                    </div>
+                                </div>
+
                                 {(String(product.stock) === '0' || (product as any).inStock === false || product.stock === 'Qolmagan') ? (
                                     <div className="w-full h-[52px] bg-slate-100 text-slate-400 rounded-2xl font-bold text-[15px] flex items-center justify-center shadow-sm">
                                         Sotuvda qolmagan
@@ -357,7 +383,7 @@ export function AddToCartDrawer({
                                         )}
                                     >
                                         <ShoppingCart className="w-5 h-5" strokeWidth={2.5} />
-                                        Tasdiqlash
+                                        Tasdiqlash {nonVariantQty > 1 ? `(${nonVariantQty} dona)` : ''}
                                     </button>
                                 )}
                             </div>

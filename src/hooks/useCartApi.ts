@@ -32,21 +32,44 @@ export const useCartApi = (userId: string | undefined | null) => {
             if (!safeUserId) throw new Error("User not logged in");
             const validQty = Math.floor(Number(quantity)) || 1;
             try {
-                // Check if item already exists in backend cart
+                // Check if item already exists in backend cart (ignore optimistic temp- IDs)
                 const previousData = queryClient.getQueryData<any>(['cart', safeUserId]);
                 const previousCart: any[] = Array.isArray(previousData) ? previousData : (previousData?.items || []);
-                const existing = previousCart.find(item => String(item?.productId) === String(product.id));
+                const existing = previousCart.find(item =>
+                    String(item?.productId) === String(product.id) &&
+                    item?.id &&
+                    !String(item.id).startsWith('temp-')
+                );
 
                 if (existing && existing.id) {
                     const data = await cartService.updateQuantity(safeUserId, existing.id, validQty);
                     return data;
                 } else {
                     const data = await cartService.addToCart(safeUserId, product.id, validQty);
-                    const itemId = data?.id || data?.cartItemId || data?.item?.id;
-                    if (validQty > 1 && itemId) {
+                    
+                    // Determine server cart item ID
+                    let itemId = data?.items?.find((i: any) => String(i.productId) === String(product.id))?.id
+                        || data?.cartItemId
+                        || data?.item?.id
+                        || (data?.productId ? data?.id : null);
+
+                    // Ensure server reflects validQty if backend created item with default quantity 1
+                    if (validQty > 1) {
                         try {
-                            await cartService.updateQuantity(safeUserId, itemId, validQty);
-                        } catch { }
+                            if (!itemId || String(itemId).startsWith('temp-')) {
+                                const freshCart = await cartService.getCart(safeUserId);
+                                const freshItems: CartItem[] = Array.isArray(freshCart) ? freshCart : (freshCart as any)?.items || [];
+                                const freshItem = freshItems.find((i: CartItem) => String(i.productId) === String(product.id));
+                                if (freshItem && freshItem.id && !String(freshItem.id).startsWith('temp-')) {
+                                    itemId = freshItem.id;
+                                }
+                            }
+                            if (itemId && !String(itemId).startsWith('temp-')) {
+                                await cartService.updateQuantity(safeUserId, itemId, validQty);
+                            }
+                        } catch (updateErr) {
+                            console.warn("Failed to set full quantity after adding item:", updateErr);
+                        }
                     }
                     return data;
                 }
@@ -60,12 +83,13 @@ export const useCartApi = (userId: string | undefined | null) => {
             const previousData = queryClient.getQueryData<any>(['cart', safeUserId]);
             const previousCart: CartItem[] = Array.isArray(previousData) ? previousData : (previousData?.items || []);
 
-            const existing = previousCart.find(item => item?.productId === product.id);
+            const validQty = Math.max(1, Math.floor(Number(quantity)) || 1);
+            const existing = previousCart.find(item => String(item?.productId) === String(product.id));
             if (existing) {
                 queryClient.setQueryData<CartItem[]>(['cart', safeUserId],
                     previousCart.map(item =>
-                        item?.productId === product.id
-                            ? { ...item, quantity: (item.quantity || 0) + quantity }
+                        String(item?.productId) === String(product.id)
+                            ? { ...item, quantity: validQty }
                             : item
                     )
                 );
@@ -80,7 +104,7 @@ export const useCartApi = (userId: string | undefined | null) => {
                     basePrice: product.basePrice || 0,
                     discountPrice: product.discountPrice,
                     primaryImageUrl: product.primaryImageUrl || product.images?.find(i => i.isPrimary)?.url || product.images?.[0]?.url || product.image || null,
-                    quantity: quantity
+                    quantity: validQty
                 };
                 queryClient.setQueryData<CartItem[]>(['cart', safeUserId], [...previousCart, newItem]);
             }

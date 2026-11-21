@@ -181,7 +181,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
         setClientCart(prev => {
             if (prev.length === 0) {
-                // If local cart is empty, populate from server
+                // If local cart state is empty, check if localStorage has saved items first!
+                try {
+                    const localSaved = localStorage.getItem('tg_cart_client_items');
+                    if (localSaved) {
+                        const parsed = JSON.parse(localSaved);
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            return parsed;
+                        }
+                    }
+                } catch { }
+
+                // Otherwise populate from server
                 const items: CartItem[] = safeApiCart.map((apiItem: any) => ({
                     id: String(apiItem.id || apiItem.productId),
                     productId: String(apiItem.productId),
@@ -208,6 +219,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
             safeApiCart.forEach((apiItem: any) => {
                 const pid = String(apiItem.productId);
                 serverQtyByProduct[pid] = Math.max(1, Number(apiItem.quantity) || 1);
+            });
+
+            // If client has strictly MORE than server, sync client's higher quantity up to the server!
+            safeApiCart.forEach((apiItem: any) => {
+                const pid = String(apiItem.productId);
+                const clientQty = clientQtyByProduct[pid];
+                const serverQty = serverQtyByProduct[pid];
+                if (clientQty !== undefined && clientQty > serverQty && apiItem.id && !String(apiItem.id).startsWith('temp-')) {
+                    updateQuantityMutation.mutate({ cartItemId: apiItem.id, quantity: clientQty });
+                }
             });
 
             // Check if server has strictly MORE than what client has
@@ -591,7 +612,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
     const getItemPrice = useCallback((productId: string) => {
 
-        const items = clientCart.filter(item => item.productId === productId);
+        const items = clientCart.filter(item => String(item.productId) === String(productId));
 
         if (items.length === 0) return 0;
 
@@ -625,7 +646,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
         return clientCart
 
-            .filter(item => item.productId === productId)
+            .filter(item => String(item.productId) === String(productId))
 
             .reduce((sum, item) => sum + item.quantity, 0);
 
@@ -852,20 +873,27 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
 
 
-        // Trigger backend API call
-
+        // Trigger backend API call with total quantity for this product
         try {
-
             if (addToCartMutation && typeof addToCartMutation.mutate === 'function') {
+                let targetTotalQty = Math.max(1, Number(quantity) || 1);
+                try {
+                    const saved = localStorage.getItem('tg_cart_client_items');
+                    if (saved) {
+                        const parsed: CartItem[] = JSON.parse(saved);
+                        const productTotal = parsed
+                            .filter(i => String(i.productId) === String(product.id))
+                            .reduce((sum, i) => sum + i.quantity, 0);
+                        if (productTotal > 0) {
+                            targetTotalQty = productTotal;
+                        }
+                    }
+                } catch { }
 
-                addToCartMutation.mutate({ product, quantity });
-
+                addToCartMutation.mutate({ product, quantity: targetTotalQty });
             }
-
         } catch (err) {
-
             console.error("Error executing addToCart mutation:", err);
-
         }
 
     }, [addToCartMutation, user?.id]);
@@ -1021,11 +1049,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
                 } else {
                     updateQuantityMutation.mutate({ cartItemId: apiItem.id, quantity: remainingQty });
                 }
+            } else if (remainingQty > 0) {
+                // If item not yet matched in server cart, sync with addToCartMutation
+                addToCartMutation.mutate({
+                    product: { id: targetProductId } as any,
+                    quantity: remainingQty
+                });
             }
 
             return nextCart;
         });
-    }, [apiCart, user?.id, removeCartItemMutation, updateQuantityMutation]);
+    }, [apiCart, user?.id, removeCartItemMutation, updateQuantityMutation, addToCartMutation]);
 
 
 
